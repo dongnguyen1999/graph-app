@@ -1,3 +1,34 @@
+#Requirements
+* Install Node
+* Install expo
+#Development
+* npm install
+* Fix file /node_modules/graphdracula/lib/index.js
+    ``` 
+  'use strict';
+        
+        // Core
+        var dracula = require('./dracula').default;
+        
+        // Layouts
+        var spring = require('./layout/spring').default;
+        var orderedTree = require('./layout/ordered_tree').default;
+        var tournamentTree = require('./layout/tournament_tree').default;
+        
+        // Renderers
+        var renderer = require('./renderer/renderer').default;
+        
+        module.exports.DraculaGraph = dracula;
+        
+        module.exports.Layout = {
+            OrderedTree: orderedTree,
+            Spring: spring,
+            TournamentTree: tournamentTree
+        };
+        
+        module.exports.Renderer = renderer;
+  ```
+
 #### src/tool/graph_drawing
 ```drawGraph (node) {
     node.connections = []; // Init connections is array
