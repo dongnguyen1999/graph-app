@@ -1,7 +1,8 @@
-#Requirements
+##Requirements
 * Install Node
 * Install expo
-#Development
+
+##Development
 * npm install
 * Fix file /node_modules/graphdracula/lib/index.js
     ``` 
