@@ -7,6 +7,9 @@ import { Vertex, Edge } from "../../components";
 export default class GraphRenderer extends Renderer {
     constructor(graph, width, height, radius) {
         super(undefined, graph, width, height);
+
+        this.widthPhone = Math.round(Dimensions.get('window').width);
+        this.heightPhone = Math.round(Dimensions.get('window').height);
         this.graph = graph;
         this.width = width || 400;
         this.height = height || 300;
@@ -14,8 +17,6 @@ export default class GraphRenderer extends Renderer {
         this.nodes = new Map();
         this.edges = new Map();
         this.idCounter = 0;
-        this.widthPhone = Math.round(Dimensions.get('window').width);
-        this.heightPhone = Math.round(Dimensions.get('window').height);
     }
     getNodesMap(){
         return this.nodes;

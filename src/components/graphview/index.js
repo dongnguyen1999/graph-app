@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {Edge, Vertex} from "../index"
-import { View } from "react-native"
+import {Dimensions, View} from "react-native"
 import {styles} from "./style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
 import Svg, { Path } from 'react-native-svg';
@@ -21,11 +21,14 @@ export default class GraphView extends Component {
             edges: edges,
             views: this.renderGraph(nodes, edges)
         }
+
+        this.widthPhone = Math.round(Dimensions.get('window').width);
+        this.heightPhone = Math.round(Dimensions.get('window').height);
+        this.refresh = this.refresh.bind(this);
+        this.renderGraph = this.renderGraph.bind(this);
     }
     updateEdges(node,connection){ //connection is id of an edge
         let points = connection.split("-");//conection: "sourceNodeId-targetNodeId"
-        // var source = points[0].trim();
-        // var target = points[1].trim();
         let [source, target] = points;
         let edge = this.state.edges.get(connection);
         if (node.id === source) edge.source = node;
@@ -37,13 +40,12 @@ export default class GraphView extends Component {
     }
 
     validatePoint(point){
-        var {width, height, nodeRadius } = this.props;
-        // var x = point[0], y = point[1];
+        let {width, height, nodeRadius } = this.props;
         let [x,y] = point;
         if (x < nodeRadius) x = nodeRadius;
         if (y < nodeRadius) y = nodeRadius;
-        if (x > width-nodeRadius) x = width-nodeRadius;
-        if (y > height-nodeRadius) y = height-nodeRadius;
+        if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
+        if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
         return [x,y];
     }
 
@@ -54,7 +56,7 @@ export default class GraphView extends Component {
             nodes: this.state.nodes.set(node.id,node),
             views: this.rerenderNode(node.id,node)
         });
-        for (var connection of node.connections){
+        for (let connection of node.connections){
             this.updateEdges(node,connection);
         }
     }
@@ -65,7 +67,7 @@ export default class GraphView extends Component {
                 key={id}
                 node={node}
                 r={this.props.nodeRadius}
-                updatingCallback={this.refresh.bind(this)}
+                updatingCallback={this.refresh}
             >{id}</Vertex>
         );
     }
@@ -85,6 +87,7 @@ export default class GraphView extends Component {
         let views = new Map(); //Init views
 
         for (let [id, node] of nodes){ //Destructuring
+            //Set node into views
             views.set(id,
                 <Vertex
                     key={id}
@@ -95,8 +98,8 @@ export default class GraphView extends Component {
                 </Vertex>
             );
         }
-
         for (let [id,edge] of edges){
+            //Set node into views
             views.set(id,
                 <Edge
                     key={id}

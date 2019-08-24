@@ -1,9 +1,9 @@
-#Requirements
+##Requirements
 
 * Install Node
 * Install expo
 
-#Development
+##Development
 
 * npm install
 * Fix file /node_modules/graphdracula/lib/index.js
@@ -31,8 +31,8 @@
         
         module.exports.Renderer = renderer;
   ```
-
-#### src/tool/graph_drawing
+* npm start
+### src/tool/graph_drawing
 ```drawGraph (node) {
     node.connections = []; // Init connections is array
     //Add padding for graph
@@ -122,7 +122,7 @@ drawEdge(edge) {
    }
 }
 ```
-### Grapview (/src/components/graphview/index.js)
+## Grapview (/src/components/graphview/index.js)
 ```
     constructor(props){
         let layout = new Layout.Spring(graph);
@@ -138,13 +138,44 @@ drawEdge(edge) {
         let [source, target] = points; //Destructruring
         [Destructruring](https://viblo.asia/p/destructuring-assignment-in-es6-xlbRBNQgRDM)
         var edge = this.state.edges.get(connection);
-        if (node.id == source) edge.source = node;
+        if (node.id === source) edge.source = node;
         else if (node.id == target) edge.target = node;
         this.setState({
             edges: this.state.edges.set(connection, edge),
             views: this.rerenderEdge(connection,edge)
         });
     }
+    validatePoint(point){ // Check drag is overflowing
+            var {width, height, nodeRadius } = this.props;
+            let [x,y] = point;
+            if (x < nodeRadius) x = nodeRadius;
+            if (y < nodeRadius) y = nodeRadius;
+            if (x > width-nodeRadius) x = width-nodeRadius;
+            if (y > height-nodeRadius) y = height-nodeRadius;
+            return [x,y];
+        }
+
+    rerenderNode(id, node){// Only render node with key is id
+            return this.state.views.set(id,
+                <Vertex
+                    key={id}
+                    node={node}
+                    r={this.props.nodeRadius}
+                    updatingCallback={this.refresh}
+                >{id}</Vertex>
+            );
+        }
+    rerenderEdge(id, edge){// Only render node edge key is id
+            return this.state.views.set(id,
+                <Edge
+                    key={id}
+                    source={edge.source}
+                    target={edge.target}
+                    r={this.props.nodeRadius}
+                />
+            );
+      }
+
      renderGraph(nodes, edges){
         let views = new Map(); //Init views
 
