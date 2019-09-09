@@ -66,7 +66,8 @@ export default class DrawGraph extends Component {
             graph.addNode(char);
             for (let otherChar of string.slice(i)) {
                 if (char !== otherChar && char < otherChar) {
-                    graph.addEdge(char, otherChar);
+                    //add an edge with label
+                    graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
                     addedSomeEdges = true;
                 }
             }
@@ -79,7 +80,8 @@ export default class DrawGraph extends Component {
                 graph.addNode(char);
                 for (var otherChar of string.slice(i)) {
                     if (char !== otherChar && char > otherChar) {
-                        graph.addEdge(char, otherChar);
+                        //add an edge with label
+                        graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
                     }
                 }
             }

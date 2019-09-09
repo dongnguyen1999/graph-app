@@ -10,17 +10,23 @@ import { DraculaGraph } from 'graphdracula';
 export default class GraphView extends Component {
     constructor(props){
         super(props);
-        const {graph, width, height, nodeRadius} = this.props;
+        const {graph, width, height, nodeRadius} = this.props;//prop 'graph' is a DraculaGraph
         let layout = new Layout.Spring(graph);
+        //first layout nodes in graph
         layout.layout();
         const renderer = new GraphRenderer(graph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
+        //first render graph
         renderer.draw();
-        let nodes = renderer.getNodesMap();
-        let edges = renderer.getEdgesMap();
+
+        //get nodes, edges with their first position
+        this.nodes = renderer.getNodesMap();
+        this.edges = renderer.getEdgesMap();
+
         this.state = {
-            nodes: nodes,
-            edges: edges,
-            views: this.renderGraph(nodes, edges)
+            //nodes, edges should be properties
+            // nodes: nodes,
+            // edges: edges,
+            views: this.renderGraph(this.nodes, this.edges) //render the first graph status
         }
 
         //should use width, height from props
@@ -31,19 +37,39 @@ export default class GraphView extends Component {
         this.refresh = this.refresh.bind(this);
         this.renderGraph = this.renderGraph.bind(this);
     }
-    updateEdges(node,connection){ //connection is id of an edge
-        let points = connection.split("-");//conection: "sourceNodeId-targetNodeId"
+
+    /**
+     * rerender edge linked to or linked from a node when its position is changed
+     * @param {Node} node: a node object in DraculaGraph
+     * Node {
+            "connections": Array<String>,
+            "edges": Array<Edge>,
+            "id": "h",
+            "layoutForceX": 0,
+            "layoutForceY": 0,
+            "layoutPosX": -1.1365227254852424,
+            "layoutPosY": -0.6805833973160654,
+            "point": Array [20,20],
+            "shape": true,
+        }
+     * @param {String} connection: id of an edge ("sourceNodeId-targetNodeId")
+     */
+    updateEdges(node,connection){
+        let points = connection.split("-");
         let [source, target] = points;
-        let edge = this.state.edges.get(connection);
+        let edge = this.edges.get(connection);
         if (node.id === source) edge.source = node;
         else if (node.id === target) edge.target = node;
+        this.edges.set(connection, edge);//record new edge
         this.setState({
-            edges: this.state.edges.set(connection, edge),
             views: this.rerenderEdge(connection,edge)
         });
     }
 
-
+    /**
+     * check and compute new position if the point is out of GraphView area
+     * @param {Array<Number>} point: an array presents position of a node: [x,y]
+     */
     validatePoint(point){
         let {width, height, nodeRadius } = this.props;
         let [x,y] = point;
@@ -56,11 +82,26 @@ export default class GraphView extends Component {
         return [x,y];
     }
 
+    /**
+     * set new state for GraphView if a node is changed
+     * @param {Node} node: a node object in DraculaGraph
+     * Node {
+            "connections": Array<String>,
+            "edges": Array<Edge>,
+            "id": "h",
+            "layoutForceX": 0,
+            "layoutForceY": 0,
+            "layoutPosX": -1.1365227254852424,
+            "layoutPosY": -0.6805833973160654,
+            "point": Array [20,20],
+            "shape": true,
+        }
+     */
     refresh(node){
         node.point = this.validatePoint(node.point);
         // console.log(node.point);
+        this.nodes.set(node.id,node);//record new node
         this.setState({
-            nodes: this.state.nodes.set(node.id,node),
             views: this.rerenderNode(node.id,node)
         });
         for (let connection of node.connections){
@@ -68,6 +109,23 @@ export default class GraphView extends Component {
         }
     }
 
+
+    /**
+     * rerender an edge when nodes' position is changed
+     * @param {String} id: node.id
+     * @param {Node} node: a node object in DraculaGraph
+     * Node {
+            "connections": Array<String>,
+            "edges": Array<Edge>,
+            "id": "h",
+            "layoutForceX": 0,
+            "layoutForceY": 0,
+            "layoutPosX": -1.1365227254852424,
+            "layoutPosY": -0.6805833973160654,
+            "point": Array [20,20],
+            "shape": true,
+        }
+     */
     rerenderNode(id, node){
         return this.state.views.set(id,
             <Vertex
@@ -79,20 +137,58 @@ export default class GraphView extends Component {
         );
     }
 
+    /**
+     * rerender an edge when its position is changed
+     * @param {String} id: sourceNodeId + "-" + targetNodeId
+     * @param {Edge} edge: an edge object in DraculaGraph
+     * Edge {
+        "attraction": 1,
+        "shape": true,
+        "source": Node
+        "target": Node
+        "style": { label,...}
+        "shape": true,
+        }
+     */
     rerenderEdge(id, edge){
+        let label = edge.style.label || undefined; //get label of edge
         return this.state.views.set(id,
             <Edge
                 key={id}
                 source={edge.source}
                 target={edge.target}
+                label={label}
                 r={this.props.nodeRadius}
             />
         );
     }
 
+    /**
+     * render nodes, edges for the first time store in views (a Map)
+     * @param {Node[]} nodes: array of node objects in DraculaGraph
+     * Node {
+            "connections": Array<String>,
+            "edges": Array<Edge>,
+            "id": "h",
+            "layoutForceX": 0,
+            "layoutForceY": 0,
+            "layoutPosX": -1.1365227254852424,
+            "layoutPosY": -0.6805833973160654,
+            "point": Array [20,20],
+            "shape": true,
+        }
+     * @param {Edge[]} edges: array of edge objects in DraculaGraph
+     * Edge {
+        "attraction": 1,
+        "shape": true,
+        "source": Node
+        "target": Node
+        "style": { label,...}
+        "shape": true,
+        }
+     */
     renderGraph(nodes, edges){
         let views = new Map(); //Init views
-
         for (let [id, node] of nodes){ //Destructuring
             //Set node into views
             views.set(id,
@@ -106,30 +202,37 @@ export default class GraphView extends Component {
             );
         }
         for (let [id,edge] of edges){
-            //Set node into views
+            //Set edge into views
+            let label = edge.style.label || undefined; //get label of edge
             views.set(id,
                 <Edge
                     key={id}
                     source={edge.source}
                     target={edge.target}
+                    label={label}
                     r={this.props.nodeRadius}
                 />
             );
         }
         return views;
     }
+
+    /**
+     * order views to draw the graph on screen
+     * draw edges first, then nodes
+     */
     applyViews(){
         let edges = [];
         let nodes = [];
         for (let [key, view] of this.state.views){
-            if (key.includes("-"))
+            if (key.toString().includes("-"))
                 edges.push(view);
             else nodes.push(view);
         }
         return edges.concat(nodes);
     }
-    render() {
 
+    render() {
         const {width, height} = this.props;
         return (
             <View>
