@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import {Edge, Vertex} from "../index"
+import Vertex from "../vertex"
+import Edge from "../edge"
 import {Dimensions, View} from "react-native"
 import {styles} from "./style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"

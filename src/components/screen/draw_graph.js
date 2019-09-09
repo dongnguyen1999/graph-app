@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, Text, StyleSheet } from "react-native"
 import { DraculaGraph, Layout } from "graphdracula"
 import { GraphRenderer } from "../../tool/graph_drawing"
-import { Vertex, GraphView, Edge } from "../../components"
+import GraphView from "../graphview"
 import { ScrollView } from 'react-native-gesture-handler';
 
 
@@ -83,7 +83,7 @@ export default class DrawGraph extends Component {
                 }
             }
         }
-        console.log("makeGraphFromText...");
+        // console.log("makeGraphFromText...");
         return graph;
     }
 

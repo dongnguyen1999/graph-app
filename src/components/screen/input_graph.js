@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { ListItem } from "../../components"
+import ListItem from "../list_item"
 import { View, Text, TextInput, TouchableOpacity,
      StyleSheet, AppRegistry,ScrollView } from 'react-native';
  

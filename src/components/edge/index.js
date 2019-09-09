@@ -3,7 +3,6 @@ import { View,PixelRatio } from "react-native"
 import {styles} from "./style"
 import {colors} from "./color"
 import { Path, Text,G} from 'react-native-svg';
-import { Vertex } from '..';
 
 export default class Edge extends Component {
 
