@@ -117,7 +117,7 @@ export default class DrawGraph extends Component {
         //   11 12`
         // );
         // let graph = this.makeGraphFromText(state.params.input);
-        let graph = new AdjacencyMatrixGraph(4,3, true);
+        let graph = new AdjacencyMatrixGraph(4,3, false);
         graph.addEdge({u: 2, v: 1, w: 5});
         graph.addEdge({u: 1, v: 3});
         graph.addEdge({u: 2, v: 4});

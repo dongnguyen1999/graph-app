@@ -4,6 +4,28 @@ import {styles} from "./style"
 import {colors} from "./color"
 import { Path, Text,G} from 'react-native-svg';
 
+
+/**
+ * An instance of this class presents a svg shape of graph's egde
+ * Edge can display label if having 'label' prop
+ * @prop {Number} key: id of this edge in list of edges
+ * @prop {Node} source: the source node of the edge
+ * @prop {Node} target: the source node of the edge
+ *     Node {
+                "connections": Array<String>,
+                "edges": Array<Edge>,
+                "id": "h",
+                "layoutForceX": 0,
+                "layoutForceY": 0,
+                "layoutPosX": -1.1365227254852424,
+                "layoutPosY": -0.6805833973160654,
+                "point": Array [20,20],
+                "shape": true,
+            }
+ * @prop {String|Number} label: label that show along the edge
+ * @prop {Number} r: node radius
+ * @prop {Boolean} isDirected: set the edge having arrow or not
+ */
 export default class Edge extends Component {
 
   // getVertexBBox(x,y,r){
@@ -139,7 +161,7 @@ export default class Edge extends Component {
   computeLine(x1,y1,x2,y2,r){
     var dist = this.distance(x1,y1,x2,y2);
     var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'L' + x2.toFixed(3), y2.toFixed(3)].join(',');
-    var isDirected = true;
+    var isDirected = this.props.isDirected || false;// get directed setting
     if (isDirected && dist > r){
       //compute arrow
       // size&alpha is editable;

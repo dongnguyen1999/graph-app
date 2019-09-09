@@ -56,6 +56,7 @@ export default class GraphView extends Component {
         super(props);
         const {graph, width, height, nodeRadius} = this.props;
 
+        this.graph = graph;//keep graph
         let uiGraph = this.convertToUIGraph(graph);
         let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
@@ -229,6 +230,7 @@ export default class GraphView extends Component {
                 target={edge.target}
                 label={label}
                 r={this.props.nodeRadius}
+                isDirected={this.graph.isDirected}
             />
         );
     }
@@ -280,6 +282,7 @@ export default class GraphView extends Component {
                     target={edge.target}
                     label={label}
                     r={this.props.nodeRadius}
+                    isDirected={this.graph.isDirected}
                 />
             );
         }
