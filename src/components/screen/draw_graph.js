@@ -5,25 +5,27 @@ import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
 import { ScrollView } from 'react-native-gesture-handler'
 import { Header } from "react-navigation"
+import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
 
 
 export default class DrawGraph extends Component {
     static navigationOptions = {
         title: 'Graph Drawing'
     };
-    makeGraphFromString(str) {
-        var inputs = str.split("\n");
-        const firstLine = inputs[0].split(" ");
-        var vertex = firstLine[0];
-        var edge = firstLine[1];
-        // const [vertex, edge] = firstLine;
-        var edgeList = [];
-        for (var i = 1; i < inputs.length; i++) {
-            var chars = inputs[i].trim().split(" ");
-            edgeList.push(chars[0] + "," + chars[1]);
-        }
-        return this.makeGraph(vertex, edge, edgeList);
-    }
+
+    // makeGraphFromString(str) {
+    //     var inputs = str.split("\n");
+    //     const firstLine = inputs[0].split(" ");
+    //     var vertex = firstLine[0];
+    //     var edge = firstLine[1];
+    //     // const [vertex, edge] = firstLine;
+    //     var edgeList = [];
+    //     for (var i = 1; i < inputs.length; i++) {
+    //         var chars = inputs[i].trim().split(" ");
+    //         edgeList.push(chars[0] + "," + chars[1]);
+    //     }
+    //     return this.makeGraph(vertex, edge, edgeList);
+    // }
 
     // convertEdge(strInput, seperator = ",") {
     //     let inputs = strInput.split(seperator, 2);
@@ -57,42 +59,42 @@ export default class DrawGraph extends Component {
     //     return graph;
     // }
 
-    makeGraphFromText(string, increase) {
-        let graph = new DraculaGraph();
-        let addedSomeEdges = false;
-        for (let i = 0; i < string.length; i++) {
-            let char = string[i];
-            if (char === " ") continue;
-            graph.addNode(char);
-            for (let otherChar of string.slice(i)) {
-                if (char !== otherChar && char < otherChar) {
-                    //add an edge with label
-                    graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
-                    addedSomeEdges = true;
-                }
-            }
-        }
+    // makeGraphFromText(string) {
+    //     let graph = new DraculaGraph();
+    //     let addedSomeEdges = false;
+    //     for (let i = 0; i < string.length; i++) {
+    //         let char = string[i];
+    //         if (char === " ") continue;
+    //         graph.addNode(char);
+    //         for (let otherChar of string.slice(i)) {
+    //             if (char !== otherChar && char < otherChar) {
+    //                 //add an edge with label
+    //                 graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
+    //                 addedSomeEdges = true;
+    //             }
+    //         }
+    //     }
 
-        if (!addedSomeEdges) {
-            for (let i = 0; i < string.length; i++) {
-                let char = string.charAt(i);
-                if (char === " ") continue;
-                graph.addNode(char);
-                for (var otherChar of string.slice(i)) {
-                    if (char !== otherChar && char > otherChar) {
-                        //add an edge with label
-                        graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
-                    }
-                }
-            }
-        }
-        // console.log("makeGraphFromText...");
-        return graph;
-    }
+    //     if (!addedSomeEdges) {
+    //         for (let i = 0; i < string.length; i++) {
+    //             let char = string.charAt(i);
+    //             if (char === " ") continue;
+    //             graph.addNode(char);
+    //             for (var otherChar of string.slice(i)) {
+    //                 if (char !== otherChar && char > otherChar) {
+    //                     //add an edge with label
+    //                     graph.addEdge(char, otherChar, {label: char+"-"+otherChar});
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // console.log("makeGraphFromText...");
+    //     return graph;
+    // }
 
     render() {
         const { state } = this.props.navigation;
-        const { input } = state.params;
+        // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
         // var graph = this.makeGraph(state.params.vertex, state.params.edge, state.params.edgeList);
         // var graph = this.makeGraphFromString(
@@ -114,10 +116,14 @@ export default class DrawGraph extends Component {
         //   10 12
         //   11 12`
         // );
-        let view = '';
-        let graph = this.makeGraphFromText(state.params.input);
+        // let graph = this.makeGraphFromText(state.params.input);
+        let graph = new AdjacencyMatrixGraph(4,3, true);
+        graph.addEdge({u: 2, v: 1, w: 5});
+        graph.addEdge({u: 1, v: 3});
+        graph.addEdge({u: 2, v: 4});
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
+        let view = '';
         if (graph !== false)
             view = <GraphView graph = { graph }
                 //set width with widthPhone

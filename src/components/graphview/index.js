@@ -46,7 +46,7 @@ function calcCenter(x1, y1, x2, y2) {
  * Edges can display label
  * @prop {Number} width: the width of GraphView area
  * @prop {Number} height: the hight of GraphView area
- * @prop {DraculaGraph} graph: the graph need to show on GraphView
+ * @prop {Graph} graph: the basic graph (src/tool/graph_theory/graphs/Graph) need to show on GraphView
  * @prop {Number} nodeRadius: the radius of a vertex
  * @prop {Boolean} zoomable: setting GraphView to be zoomable or not
  *      
@@ -54,11 +54,13 @@ function calcCenter(x1, y1, x2, y2) {
 export default class GraphView extends Component {
     constructor(props){
         super(props);
-        const {graph, width, height, nodeRadius} = this.props;//prop 'graph' is a DraculaGraph
-        let layout = new Layout.Spring(graph);
+        const {graph, width, height, nodeRadius} = this.props;
+
+        let uiGraph = this.convertToUIGraph(graph);
+        let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
         layout.layout();
-        const renderer = new GraphRenderer(graph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
+        const renderer = new GraphRenderer(uiGraph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
         //first render graph
         renderer.draw();
 
@@ -84,6 +86,26 @@ export default class GraphView extends Component {
 
         this.refresh = this.refresh.bind(this);
         this.renderGraph = this.renderGraph.bind(this);
+    }
+
+    /**
+     * convert a basic graph to DraculaGraph
+     * @param {Graph} graph: a basic graph (src/tool/graph_theory/graphs/Graph)
+     */
+    convertToUIGraph(graph){
+        let uiGraph = new DraculaGraph();//init uiGraph
+        for (let nodeId = 1; nodeId <= graph.nbVertex; nodeId++){
+            //add nodes with id is number
+            uiGraph.addNode(nodeId);
+        }
+        for (let edge of graph.getEdges()){
+            let {u,v,w} = edge;
+            if (w !== undefined){
+                //add edge with label
+                uiGraph.addEdge(u,v,{label: w});
+            } else uiGraph.addEdge(u,v);//add edge without label
+        }
+        return uiGraph;
     }
 
     /**
