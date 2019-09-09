@@ -23,8 +23,11 @@ export default class GraphView extends Component {
             views: this.renderGraph(nodes, edges)
         }
 
-        this.widthPhone = Math.round(Dimensions.get('window').width);
-        this.heightPhone = Math.round(Dimensions.get('window').height);
+        //should use width, height from props
+        //pass widthPhone, heightPhone when use GraphView as props
+        // this.widthPhone = Math.round(Dimensions.get('window').width);
+        // this.heightPhone = Math.round(Dimensions.get('window').height);
+
         this.refresh = this.refresh.bind(this);
         this.renderGraph = this.renderGraph.bind(this);
     }
@@ -40,13 +43,16 @@ export default class GraphView extends Component {
         });
     }
 
+
     validatePoint(point){
         let {width, height, nodeRadius } = this.props;
         let [x,y] = point;
         if (x < nodeRadius) x = nodeRadius;
         if (y < nodeRadius) y = nodeRadius;
-        if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
-        if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
+        // if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
+        // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
+        if (x > width-nodeRadius) x = width-nodeRadius;
+        if (y > height-nodeRadius) y = height-nodeRadius;
         return [x,y];
     }
 

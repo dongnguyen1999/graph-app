@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { View, Text, StyleSheet } from "react-native"
+import { View, Text, StyleSheet, Dimensions } from "react-native"
 import { DraculaGraph, Layout } from "graphdracula"
 import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native-gesture-handler'
+import { Header } from "react-navigation"
 
 
 export default class DrawGraph extends Component {
@@ -113,10 +114,14 @@ export default class DrawGraph extends Component {
         // );
         let view = '';
         let graph = this.makeGraphFromText(state.params.input);
+        let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
+        let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         if (graph !== false)
             view = <GraphView graph = { graph }
-                width = {'100%'}
-                height = { 500 }
+                //set width with widthPhone
+                width = {widthPhone}
+                //set height with heightPhone-heightTitlebar
+                height = {heightPhone-Header.HEIGHT}
                 nodeRadius = { 20 }/>;
         else view = <Text> Something went wrong from Input! </Text>;
         return (
