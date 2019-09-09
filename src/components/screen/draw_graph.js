@@ -27,37 +27,49 @@ export default class DrawGraph extends Component {
     //     return this.makeGraph(vertex, edge, edgeList);
     // }
 
-    // convertEdge(strInput, seperator = ",") {
-    //     let inputs = strInput.split(seperator, 2);
-    //     if (inputs.length == 2) {
-    //         let outputs = [];
-    //         inputs.map((substr) => {
-    //             outputs.push(parseInt(substr.replace("(", "").replace(")", "").trim()));
-    //             return substr;
-    //         });
-    //
-    //         for (let out of outputs) {
-    //             if (isNaN(out)) return false;
-    //         }
-    //         console.log(outputs);
-    //         return outputs;
-    //     }
-    //     return false;
-    // }
+    /**
+     * return array of numbers from text-input: [u,v,w]
+     * @param {String} strInput: text-input of an edge, Ex: "1,2" or "1,2,5"
+     * @param {String} seperator: seperator of the text-input, 
+     *                  Ex: for "1,2" seperator is ","
+     *                  Default: ","
+     */
+    convertEdge(strInput, seperator = ",") {
+        let inputs = strInput.split(seperator);
+        if (inputs.length == 2 || inputs.length == 3) {
+            let outputs = [];
+            let [u,v,w] = inputs;
+            outputs.push(parseInt(u));
+            outputs.push(parseInt(v));
+            for (let out of outputs) {
+                if (isNaN(out)) return false;
+            }
+            if (inputs.length == 3) outputs.push(w);
+            console.log(outputs);
+            return outputs;
+        }
+        return false;
+    }
 
-    // makeGraph(vertex, edge, edgeList) {
-    //     var graph = new DraculaGraph();
-    //     for (var i = 1; i <= vertex; i++) {
-    //         graph.addNode(i);
-    //     }
-    //     for (var value of edgeList) {
-    //         var edge;
-    //         if ((edge = this.convertEdge(value)) == false) return false;
-    //         if (edge[0] > vertex || edge[1] > vertex) return false;
-    //         graph.addEdge(edge[0], edge[1]);
-    //     }
-    //     return graph;
-    // }
+
+    /**
+     * Make an instance of AdjacencyMatrixGraph class
+     * @param {Number} vertex: number of vertices
+     * @param {Number} edge: number of edges
+     * @param {Array<String>} edgeList: array of text-input for edges: ["1,2", "2,3",...]
+     * @param {Boolean} isDirected: directed style of graph
+     */
+    makeGraph(vertex, edge, edgeList,isDirected) {
+        var graph = new AdjacencyMatrixGraph(vertex, edge, isDirected);
+        for (var value of edgeList) {
+            var edge;
+            if ((edge = this.convertEdge(value)) == false) return false;
+            if (edge[0] > vertex || edge[1] > vertex) return false;
+            if (edge.length == 3) graph.addEdge({ u: edge[0], v: edge[1], w: edge[2]});
+            else graph.addEdge({ u: edge[0], v: edge[1]});
+        }
+        return graph;
+    }
 
     // makeGraphFromText(string) {
     //     let graph = new DraculaGraph();
@@ -96,7 +108,8 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
-        // var graph = this.makeGraph(state.params.vertex, state.params.edge, state.params.edgeList);
+        let { vertex, edge, edgeList, isDirected } = state.params;
+        let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
         // var graph = this.makeGraphFromString(
         //   `13 16
         //   1 4
@@ -117,10 +130,10 @@ export default class DrawGraph extends Component {
         //   11 12`
         // );
         // let graph = this.makeGraphFromText(state.params.input);
-        let graph = new AdjacencyMatrixGraph(4,3, false);
-        graph.addEdge({u: 2, v: 1, w: 5});
-        graph.addEdge({u: 1, v: 3});
-        graph.addEdge({u: 2, v: 4});
+        // let graph = new AdjacencyMatrixGraph(4,3, false);
+        // graph.addEdge({u: 2, v: 1, w: 5});
+        // graph.addEdge({u: 1, v: 3});
+        // graph.addEdge({u: 2, v: 4});
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         let view = '';
