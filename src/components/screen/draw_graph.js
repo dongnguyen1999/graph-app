@@ -124,7 +124,9 @@ export default class DrawGraph extends Component {
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
                 height = {heightPhone-Header.HEIGHT}
-                nodeRadius = { 20 }/>;
+                nodeRadius = { 20 }
+                zoomable={true}
+                />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (
             <View style={styles.container}>

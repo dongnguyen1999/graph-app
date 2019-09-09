@@ -4,9 +4,53 @@ import Edge from "../edge"
 import {Dimensions, View} from "react-native"
 import {styles} from "./style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
 
+
+/**
+ * Calculate distance between 2 points
+ * @param {Number} x1: x coordinate of the first point
+ * @param {Number} y1: y corrdinate of the first point
+ * @param {Number} x2: x coordinate of the second point
+ * @param {Number} y2: y coordinate of the second point
+ */
+function calcDistance(x1, y1, x2, y2) {
+    const dx = x1 - x2;
+    const dy = y1 - y2;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function middle(p1, p2) {
+    return (p1 + p2) / 2;
+}
+
+/**
+ * Calculate the middle point between 2 points
+ * @param {Number} x1: x coordinate of the first point
+ * @param {Number} y1: y corrdinate of the first point
+ * @param {Number} x2: x coordinate of the second point
+ * @param {Number} y2: y coordinate of the second point
+ */
+function calcCenter(x1, y1, x2, y2) {
+    return {
+        x: middle(x1, x2),
+        y: middle(y1, y2),
+    };
+}
+
+
+/**
+ * An instance of this class presents a GraphView area with vertices and edges inside
+ * Vertices can be dragged and change their position
+ * Edges can display label
+ * @prop {Number} width: the width of GraphView area
+ * @prop {Number} height: the hight of GraphView area
+ * @prop {DraculaGraph} graph: the graph need to show on GraphView
+ * @prop {Number} nodeRadius: the radius of a vertex
+ * @prop {Boolean} zoomable: setting GraphView to be zoomable or not
+ *      
+ */
 export default class GraphView extends Component {
     constructor(props){
         super(props);
@@ -26,7 +70,11 @@ export default class GraphView extends Component {
             //nodes, edges should be properties
             // nodes: nodes,
             // edges: edges,
-            views: this.renderGraph(this.nodes, this.edges) //render the first graph status
+            views: this.renderGraph(this.nodes, this.edges), //render the first graph status
+            //the 3 states for svg transform
+            zoom: 1,    
+            left: 0,
+            top: 0,
         }
 
         //should use width, height from props
@@ -68,6 +116,7 @@ export default class GraphView extends Component {
 
     /**
      * check and compute new position if the point is out of GraphView area
+     * if GraphView is zoomable, compute scaled position depend on zooming value
      * @param {Array<Number>} point: an array presents position of a node: [x,y]
      */
     validatePoint(point){
@@ -79,7 +128,7 @@ export default class GraphView extends Component {
         // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
         if (x > width-nodeRadius) x = width-nodeRadius;
         if (y > height-nodeRadius) y = height-nodeRadius;
-        return [x,y];
+        return [(x-this.state.left)/this.state.zoom,(y-this.state.top)/this.state.zoom];
     }
 
     /**
@@ -147,7 +196,6 @@ export default class GraphView extends Component {
         "source": Node
         "target": Node
         "style": { label,...}
-        "shape": true,
         }
      */
     rerenderEdge(id, edge){
@@ -184,7 +232,6 @@ export default class GraphView extends Component {
         "source": Node
         "target": Node
         "style": { label,...}
-        "shape": true,
         }
      */
     renderGraph(nodes, edges){
@@ -232,12 +279,142 @@ export default class GraphView extends Component {
         return edges.concat(nodes);
     }
 
+    /**
+     * Handle dragging and pinching GraphView event
+     * @param {ReactEvent} event 
+     */
+    processMoveAndZoomEvent(event){
+        let isZoomable = this.props.zoomable || false; //get zoomable setting 
+        if (isZoomable){
+            const touches = event.nativeEvent.touches;
+            const length = touches.length;
+            if (length === 1) {//touch screen with 1 finger
+                const [{ locationX, locationY }] = touches;
+                this.processTouch(locationX,locationY);
+            } else if (length === 2) {//touch screen with 2 fingers
+                const [touch1, touch2] = touches;
+                this.processPinch(
+                    touch1.locationX,
+                    touch1.locationY,
+                    touch2.locationX,
+                    touch2.locationY
+                );
+            }
+        } else console.log('onMove');//if !isZoomable this wont do anything
+    }
+
+    /**
+     * Handle touching, pinching event ended
+     * set GraphView to normal state if it is in moving or zooming state
+     */
+    stopMoveAndZoom(){
+        let isZoomable = this.props.zoomable || false; //get zoomable setting
+        if (isZoomable){
+            this.setState({
+                isZooming: false,
+                isMoving: false,
+              });
+        } else console.log('onMoveRelease');//if !isZoomable this wont do anything
+    }
+
+    /**
+     * process pinch event
+     * Base on https://snack.expo.io/@msand/svg-pinch-to-pan-and-zoom
+     * @param {Number} x1: x coordinate of the first touched point
+     * @param {Number} y1: y coordinate of the first touched point
+     * @param {Number} x2: x coordinate of the second touched point
+     * @param {Number} y2: y coordinate of the second touched point
+     */
+    processPinch(x1, y1, x2, y2) {
+        const distance = calcDistance(x1, y1, x2, y2);
+        const { x, y } = calcCenter(x1, y1, x2, y2);   
+        if (!this.state.isZooming) {//if is not in zooming state
+          //set GraphView into zooming state with initial values
+          const { top, left, zoom } = this.state;
+          this.setState({
+            isZooming: true,
+            initialX: x,
+            initialY: y,
+            initialTop: top,
+            initialLeft: left,
+            initialZoom: zoom,
+            initialDistance: distance,
+          });
+        } else {//is in zooming state
+          const {
+            initialX,
+            initialY,
+            initialTop,
+            initialLeft,
+            initialZoom,
+            initialDistance,
+          } = this.state;
+    
+          const touchZoom = distance / initialDistance;
+          const dx = x - initialX;
+          const dy = y - initialY;
+    
+          //calculate new left, top, zoom values
+          const left = (initialLeft + dx - x) * touchZoom + x;
+          const top = (initialTop + dy - y) * touchZoom + y;
+          const zoom = initialZoom * touchZoom;
+    
+          this.setState({
+            zoom,
+            left,
+            top,
+          });
+        }
+      }
+
+      /**
+       * process drag event
+       * @param {Number} x: x coordinate of the touched point
+       * @param {Number} y: y coordinate of the touched point
+       */
+      processTouch(x, y) {
+        if (!this.state.isMoving || this.state.isZooming) {//if not in moving state or in zooming state
+          //set GraphView into moving state with initial values
+          const { top, left } = this.state;
+          this.setState({
+            isMoving: true,
+            isZooming: false,
+            initialLeft: left,
+            initialTop: top,
+            initialX: x,
+            initialY: y,
+          });
+        } else {//is in moving state
+          //calculate new left, top values
+          const { initialX, initialY, initialLeft, initialTop } = this.state;
+          const dx = x - initialX;
+          const dy = y - initialY;
+          this.setState({
+            left: initialLeft + dx,
+            top: initialTop + dy,
+          });
+        }
+      }
+
     render() {
         const {width, height} = this.props;
+        const { left, top, zoom } = this.state;
         return (
             <View>
-                <Svg width={width} height={height}>
-                    {this.applyViews()}
+                <Svg width={width} height={height}
+                    onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
+                    onResponderGrant={() => {console.log('onGrant')}}
+                    onResponderMove={(event) => this.processMoveAndZoomEvent(event)}
+                    onPress={() => {console.log('onPress')}}
+                    onResponderRelease={() => this.stopMoveAndZoom()}>
+                    <G
+                        transform={{
+                            translateX: left,
+                            translateY: top,
+                            scale: zoom,
+                          }} >
+                        {this.applyViews()}
+                    </G>
                 </Svg>
             </View>
         )
