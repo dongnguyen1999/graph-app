@@ -31,6 +31,7 @@
         
         module.exports.Renderer = renderer;
   ```
+* Delete file /node_modules/graphdracula/lib/renderer/raphael.js
 * npm start
 ### src/tool/graph_drawing
 ```drawGraph (node) {
