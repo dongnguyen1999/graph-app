@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
-import { ListItem } from "../../components"
+import ListItem from "../list_item"
 import { View, Text, TextInput, TouchableOpacity,
-     StyleSheet, AppRegistry,ScrollView } from 'react-native';
+     StyleSheet, AppRegistry,ScrollView} from 'react-native';
+import { CheckBox } from "react-native-elements"
  
 
 export default class InputGraph extends Component {
@@ -14,6 +15,7 @@ export default class InputGraph extends Component {
       this.state = {
           vertex: 0, //this is an integer
           edge: 0, //this is an integer
+          directed: false, //set default directed boolean
           listOfEdge: new Map()
       };
   }
@@ -39,7 +41,8 @@ export default class InputGraph extends Component {
       navigate('Drawing',{
         vertex: this.state.vertex,
         edge: this.state.edge,
-        edgeList: edgeList
+        isDirected: this.state.directed,
+        edgeList: edgeList// array of text-input for edges: ["1,2", "2,3",...]
       });
   }
 
@@ -70,7 +73,7 @@ export default class InputGraph extends Component {
   makeListOfEdgesInput(){
       var viewList = [];
       for (i = 0; i < this.state.edge; i++){
-          var strholder = "Edge " + (i+1) + ": ";
+          var strholder = "Edge " + (i+1) + ": u,v,[w]";
           viewList.push(
               <ListItem
                   key = {i}
@@ -102,6 +105,13 @@ export default class InputGraph extends Component {
                 style = { styles.input }
                 onChangeText = {this.updateEdge}
             />
+
+            <CheckBox
+                title='Is directed graph?'
+                checked={this.state.directed}
+                onPress={() => this.setState({directed: !this.state.directed})}
+            />
+
             {this.makeListOfEdgesInput()}
             <TouchableOpacity style = { styles.button } onPress = {() => {this.startDrawingGraph(navigate)}}>
                 <Text> Submit </Text>

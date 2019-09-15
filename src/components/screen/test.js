@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
 import {View} from "react-native"
-import {AdjacencyMatrixGraph} from "../../tool/graph_theory"
+import {AdjacencyMatrixGraph} from "../../tool/graph_theory/graphs"
 
 export default class Test extends Component {
+  static navigationOptions = {
+    title: 'Test'
+  };
+
   render() {
-    graph = new AdjacencyMatrixGraph(5, true);
-    graph.initGraphFromString(
-      `4 3
-      2 1
-      1 3
-      2 4`
-    );
+    graph = new AdjacencyMatrixGraph(4,3, true);
+    graph.addEdge({u: 2, v: 1});
+    graph.addEdge({u: 1, v: 3});
+    graph.addEdge({u: 2, v: 4});
     graph.display();
     return (
       <View>

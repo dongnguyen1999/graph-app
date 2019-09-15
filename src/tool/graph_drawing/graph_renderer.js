@@ -2,7 +2,6 @@ import React from "react"
 import { Graph, Layout, Renderer } from "graphdracula"
 import {Dimensions} from 'react-native';
 import { Svg, Path, } from "react-native-svg"
-import { Vertex, Edge } from "../../components";
 
 export default class GraphRenderer extends Renderer {
     constructor(graph, width, height, radius) {
@@ -39,7 +38,7 @@ export default class GraphRenderer extends Renderer {
             node.shape = true;
             node.connections = [];
             this.nodes.set(node.id, node);
-            console.log('drawing a node');
+            // console.log('drawing a node');
         }
     }
 
@@ -50,8 +49,8 @@ export default class GraphRenderer extends Renderer {
         this.edges.set(key, edge);
         edge.source.connections.push(key);
         edge.target.connections.push(key);
-        console.log('drawing an edge');
+        // console.log('drawing an edge');
       }
-      console.log(edge);
+    //   console.log(edge);
     }
 }
