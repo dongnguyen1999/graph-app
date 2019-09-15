@@ -10,8 +10,13 @@ export default class RecursiveTraverse extends Algorithms{
         this.setState({
             mark: this.initArray(0),//require for coloring marked node on GraphView
             focusOn: 0,//require for coloring focusing node on GraphView
+<<<<<<< HEAD
             step: 0,//require for counter steps of travelling, info need to show
             listOfTraverse: this.initArray(0)//require for keeping the order of travelling, info need to show
+=======
+            k: 0,//require for counter steps of travelling, info need to show
+            n: this.initArray(0)//require for keeping the order of travelling, info need to show
+>>>>>>> graphview-edits
         });
     }
 
@@ -21,7 +26,11 @@ export default class RecursiveTraverse extends Algorithms{
      */
     initArray(initValue){
         array = [];
+<<<<<<< HEAD
         for (let i = 1; i <= this.graph.nbVertex; i++){
+=======
+        for (var i = 0; i <= this.graph.nbVertex; i++){
+>>>>>>> graphview-edits
             array.push(initValue);
         }
         return array;
@@ -37,10 +46,16 @@ export default class RecursiveTraverse extends Algorithms{
         if (this.state.mark[u]) return;//do nothing if node is marked 
         //visit and mark u
         this.state.mark[u] = 1;
+<<<<<<< HEAD
         this.state.listOfTraverse[u] = ++this.state.step;
         this.saveState();//save the state when marking the new node
         let getAdjList = this.graph.getChildrenVertices(u);
         for (let v of getAdjList){//loop through children of u
+=======
+        this.state.n[u] = ++this.state.k;
+        this.saveState();//save the state when marking the new node
+        for (var v of this.graph.getChildrenVertices(u)){//loop through children of u
+>>>>>>> graphview-edits
             this.recursive(v);
         }
         this.state.focusOn = u;//set jump back parent node
