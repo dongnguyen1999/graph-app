@@ -3,6 +3,7 @@ import Vertex from "../vertex"
 import Edge from "../edge"
 import {Dimensions, View} from "react-native"
 import {styles} from "./style"
+import { styles as nodeStyles } from "../vertex/style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
@@ -54,9 +55,14 @@ function calcCenter(x1, y1, x2, y2) {
 export default class GraphView extends Component {
     constructor(props){
         super(props);
-        const {graph, width, height, nodeRadius} = this.props;
+        const {graph, width, height, nodeRadius, algorithm} = this.props;
+        this.algorithm = undefined;
+        if (algorithm != undefined){ //if graphview is initialized with algorithm
+            this.algorithm = algorithm;// keep algorithm object used as controller
+            this.graph = algorithm.graph;//keep graph from algorithm
+            this.algorithm.run();//run algorithm for the first time
+        } else this.graph = graph;//keep graph from prop
 
-        this.graph = graph;//keep graph
         let uiGraph = this.convertToUIGraph(graph);
         let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
@@ -266,6 +272,7 @@ export default class GraphView extends Component {
                 <Vertex
                     key={id}
                     node={node}
+                    style = 
                     r={this.props.nodeRadius}
                     updatingCallback={this.refresh.bind(this)}>
                     {id}
@@ -287,6 +294,19 @@ export default class GraphView extends Component {
             );
         }
         return views;
+    }
+
+    /**
+     * Style a node depend on information from this.algorithm
+     * return a nodeStyle - src/components/vertex/style
+     * @param {Number} nodeId: id of a Node object (node.id)
+     */
+    styleNode(nodeId){
+        let style = nodeStyles.normal;
+        let state = this.algorithm.getState();
+        if (state){
+            
+        }
     }
 
     /**

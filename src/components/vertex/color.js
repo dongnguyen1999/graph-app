@@ -1,4 +1,5 @@
 export const colors = {
-    vertexBackgroundColor: '#2E9AFE',
-    vertexBorderColor: '#B40404'
+    normalBackground: '#2E9AFE',
+    normalBorder: '#B40404'
+    
 };
