@@ -32,14 +32,13 @@ export default class DepthFirstSearch extends Algorithms{
      * @param {Number} u: id of the node that will be visit soon
      */
     dfs(s){
-        this.state.focusOn = s;
-        this.saveState();
         let stack = [0];
         let top = 0;
         stack[top++] = s; // push s into Stack
-        this.saveState();
         while(top != 0){
             let u = stack[--top];
+            this.state.focusOn = u;
+            this.saveState();
             if(this.state.mark[u] == 1)
                 continue;
             this.state.mark[u] = 1;

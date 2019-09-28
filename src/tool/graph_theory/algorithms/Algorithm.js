@@ -28,11 +28,7 @@ export default class Algorithm {
      * set state using a fully state object or just update some props of state
      * Ex1: setState({ focusOn: 1, mark: new Array(), p: new Array()});
      * Ex2: setState({ focusOn: 3 }); //just update
-<<<<<<< HEAD
      * in coding you can assign value directly,
-=======
-     * in codeing you can assign value directly,
->>>>>>> graphview-edits
      *      like that: this.state.focusOn = 3;
      *                 this.state.mark[3] = true;
      * @param {State} state: a fully state object or an object with some props need to be updated
@@ -46,22 +42,15 @@ export default class Algorithm {
      * @prop {Array<Number>} rank: array of numbers shows rank of a node,use in ranking
      * @prop {Array<Number>} t: array of numbers presents times, use in project planning
      * @prop {Array<Number>} T: array of numbers presents times, use in project planning
-<<<<<<< HEAD
      * @prop {Array<Number>} listOfTraverse: luu thu thu duyet cua dinh
      * @prop {Number} step: buoc duyet hien tai
-=======
->>>>>>> graphview-edits
      * ...
      * use these props in state when you want to display these informations on GraphView
      */
     setState(state){
         //state can contain props such as pi[], p[], mark[],... 
         //Ex: { focusOn: 1, mark: new Array() }
-<<<<<<< HEAD
         for (let prop in state) {
-=======
-        for (var prop in state) {
->>>>>>> graphview-edits
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
                 this.state[prop] = state[prop];
             }
@@ -150,8 +139,4 @@ export default class Algorithm {
         return this.getState();
     }
 
-<<<<<<< HEAD
 } 
-=======
-}
->>>>>>> graphview-edits

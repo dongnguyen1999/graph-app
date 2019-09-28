@@ -7,6 +7,7 @@ import { styles as nodeStyles } from "../vertex/style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
+import { Button } from 'react-native-elements'
 
 
 /**
@@ -63,7 +64,7 @@ export default class GraphView extends Component {
             this.algorithm.run();//run algorithm for the first time
         } else this.graph = graph;//keep graph from prop
 
-        let uiGraph = this.convertToUIGraph(graph);
+        let uiGraph = this.convertToUIGraph(this.graph);
         let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
         layout.layout();
@@ -188,6 +189,7 @@ export default class GraphView extends Component {
     }
 
 
+
     /**
      * rerender an edge when nodes' position is changed
      * @param {String} id: node.id
@@ -209,6 +211,7 @@ export default class GraphView extends Component {
             <Vertex
                 key={id}
                 node={node}
+                style = {this.getNodeStyle(id)}
                 r={this.props.nodeRadius}
                 updatingCallback={this.refresh}
             >{id}</Vertex>
@@ -272,7 +275,7 @@ export default class GraphView extends Component {
                 <Vertex
                     key={id}
                     node={node}
-                    style = 
+                    style = {this.getNodeStyle(id)}
                     r={this.props.nodeRadius}
                     updatingCallback={this.refresh.bind(this)}>
                     {id}
@@ -297,16 +300,38 @@ export default class GraphView extends Component {
     }
 
     /**
+     * This method render a button
+     * when click in it the method this.algorithm.next will be called
+     */
+    renderNextStepButton(){
+        if (this.algorithm) 
+            return (
+                <View style={styles.nextButton}>
+                    <Button 
+                        title="Next step"
+                        onPress={() => {
+                            if (this.algorithm.next() == undefined) this.algorithm.start();
+                            return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+                        }}
+                    />
+                </View>
+            );
+    }
+
+    /**
      * Style a node depend on information from this.algorithm
      * return a nodeStyle - src/components/vertex/style
      * @param {Number} nodeId: id of a Node object (node.id)
      */
-    styleNode(nodeId){
-        let style = nodeStyles.normal;
+    getNodeStyle(nodeId){
+        if (!this.algorithm) return nodeStyles.normal;
         let state = this.algorithm.getState();
         if (state){
-            
+            if (state.focusOn == nodeId && state.mark[nodeId]) return nodeStyles.focusOnMarked;
+            if (state.focusOn == nodeId && !state.mark[nodeId]) return nodeStyles.focusOn;
+            if (state.mark[nodeId]) return nodeStyles.marked;
         }
+        return nodeStyles.normal;
     }
 
     /**
@@ -446,6 +471,7 @@ export default class GraphView extends Component {
         const { left, top, zoom } = this.state;
         return (
             <View>
+                {this.renderNextStepButton()}
                 <Svg width={width} height={height}
                     onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
                     onResponderGrant={() => {console.log('onGrant')}}
