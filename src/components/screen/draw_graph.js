@@ -6,6 +6,7 @@ import GraphView from "../graphview"
 import { ScrollView } from 'react-native-gesture-handler'
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
+import { DepthFirstSearch } from "../../tool/graph_theory/algorithms"
 
 
 export default class DrawGraph extends Component {
@@ -108,8 +109,9 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
-        let { vertex, edge, edgeList, isDirected } = state.params;
-        let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
+        // let { vertex, edge, edgeList, isDirected } = state.params;
+        // let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
+
         // var graph = this.makeGraphFromString(
         //   `13 16
         //   1 4
@@ -130,15 +132,28 @@ export default class DrawGraph extends Component {
         //   11 12`
         // );
         // let graph = this.makeGraphFromText(state.params.input);
+
         // let graph = new AdjacencyMatrixGraph(4,3, false);
         // graph.addEdge({u: 2, v: 1, w: 5});
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 2, v: 4});
+
+        let graph = new AdjacencyMatrixGraph(5,7,false);
+        graph.addEdge({u: 1, v: 2});
+        graph.addEdge({u: 1, v: 3});
+        graph.addEdge({u: 1, v: 4});
+        graph.addEdge({u: 1, v: 5});
+        graph.addEdge({u: 2, v: 3});
+        graph.addEdge({u: 2, v: 4});
+        graph.addEdge({u: 4, v: 5});
+        graph.display();
+        let algorithm = new DepthFirstSearch(graph, 1);
+
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         let view = '';
         if (graph !== false)
-            view = <GraphView graph = { graph }
+            view = <GraphView algorithm = { algorithm }
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
