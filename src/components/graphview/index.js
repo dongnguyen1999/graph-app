@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Vertex from "../vertex"
 import Edge from "../edge"
-import {Dimensions, View} from "react-native"
+import {Dimensions, View, TouchableOpacity, Text} from "react-native"
 import {styles} from "./style"
 import { styles as nodeStyles } from "../vertex/style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
@@ -306,15 +306,14 @@ export default class GraphView extends Component {
     renderNextStepButton(){
         if (this.algorithm) 
             return (
-                <View style={styles.nextButton}>
-                    <Button 
-                        title="Next step"
-                        onPress={() => {
-                            if (this.algorithm.next() == undefined) this.algorithm.start();
-                            return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-                        }}
-                    />
-                </View>
+                <TouchableOpacity 
+                    style = { styles.nextButton } 
+                    onPress={() => {
+                        if (this.algorithm.next() == undefined) this.algorithm.start();
+                        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+                    }}>
+                    <Text> Next step </Text>
+                </TouchableOpacity>
             );
     }
 
@@ -473,6 +472,7 @@ export default class GraphView extends Component {
             <View>
                 {this.renderNextStepButton()}
                 <Svg width={width} height={height}
+                    marginTop={10}
                     onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
                     onResponderGrant={() => {console.log('onGrant')}}
                     onResponderMove={(event) => this.processMoveAndZoomEvent(event)}

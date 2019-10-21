@@ -55,7 +55,7 @@ export default class DepthFirstSearch extends Algorithms{
      * override
      */
     run(){
-        this.saveState();//save first state;
+        // this.saveState();//save first state;
         this.dfs(this.s);//start recursive method from node 's'
     }
 }
