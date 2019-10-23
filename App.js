@@ -4,7 +4,7 @@ const MainNavigator = createStackNavigator({
   First: {screen: Test},
   // Input: {screen: InputGraph},
   // Input: {screen: StringInputGraph},
-  // Drawing: {screen: DrawGraph},
+  //Drawing: {screen: DrawGraph},
   
 });
 

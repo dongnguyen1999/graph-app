@@ -1,4 +1,5 @@
 import Graph from './Graph';
+import { ThemeConsumer } from 'react-native-elements';
 
 // Representation Graph by using Adjacency Matrix
 export default class AdjacencyMatrixGraph extends Graph{
@@ -19,7 +20,7 @@ export default class AdjacencyMatrixGraph extends Graph{
     display(){
         let i, j;
         for(i = 1; i <= this.nbVertex; i++){
-            line = '';
+            let line = '';
             for(j = 1; j <= this.nbVertex; j++)
                 line += this.adjacencyMatrix[i][j] + ' ';
             console.log(line);
@@ -37,6 +38,10 @@ export default class AdjacencyMatrixGraph extends Graph{
         } 
         else
             this.adjacencyMatrix[u][v] = w;
+    }
+    
+    getAdjacencyMatrix(){
+        return this.adjacencyMatrix;
     }
     // override parent method
     adjacent(vertex1, vertex2){

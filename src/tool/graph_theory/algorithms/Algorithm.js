@@ -3,53 +3,55 @@ import cloneDeep from "lodash/cloneDeep"
 /**
  * Instance of classes extended this class can be able to save states of algorithms data in its runtime
  * A state of an algorithm is an object that stores data to control graph drawing on GraphView
- * State can have below props:
- * @prop {Number} focusOn: id of a node that this algorithm is working on
- * @prop {Array<Boolean>} mark: array of boolean bit. mark[i]=true that means node 'i' is marked by the algorithm
- * @prop {Array<Number>} p: array of nodeIds tells that parent of node 'i' is p[i]
- * @prop {Array<Number>} pi: array of numbers shows value at a node, may useful for algorithm
+ * State can have some props as following:
+ * @prop {Number} focusOn: keeping the id of a node that this algorithm is working on
+ * @prop {Array<Boolean>} mark: array of boolean bit, mark[i]=true that means node 'i' is marked by the algorithm
+ * @prop {Array<Number>} predecessor: array store  predecessor of current node. It useful for finding shortest path algorithms
+ * @prop {Array<Number>} distance: array store distance to begin point. It useful for finding shortest path algorithms
  * @prop {Array<Number>} rank: array of numbers shows rank of a node,use in ranking
  * @prop {Array<Number>} t: array of numbers presents times, use in project planning
  * @prop {Array<Number>} T: array of numbers presents times, use in project planning
  * ...
- * use these props in state when you want to display these informations on GraphView
+ * using these props in state when you want to display these informations on GraphView
  */
 export default class Algorithm {
-    constructor(graph){// an instance of basic graph (src/tool/graph_theory/graphs/Graph) or its subclass
-        this.graph = graph; // record graph as property
-        this.state = {};// init state as an empty object
-        //state can contain props such as pi[], p[], mark[],... 
-        //Ex: { focusOn: 1, mark: new Array() }
-        this.states = []; //an array save states(State objects) every step in runtime
-        this.statesCursor = undefined;//set cursor to nothing
+    constructor(graph){ // an instance of basic graph (src/tool/graph_theory/graphs/Graph) or its subclass
+        this.graph = graph; // recording a graph as property
+        this.state = {}; // initializing a state as an empty object
+        // the state can contain props such as distance[], predecessor[], mark[],... 
+        // Ex: { focusOn: 1, mark: new Array() }
+        this.states = []; // an array save states(State objects) every step in runtime
+        this.statesCursor = undefined; // set cursor to nothing
     }
 
     /**
      * set state using a fully state object or just update some props of state
-     * Ex1: setState({ focusOn: 1, mark: new Array(), p: new Array()});
+     * Ex1: setState({ focusOn: 1, mark: new Array(), predecessor: new Array()});
      * Ex2: setState({ focusOn: 3 }); //just update
-     * in coding you can assign value directly,
+     * while coding you can assign value directly,
      *      like that: this.state.focusOn = 3;
      *                 this.state.mark[3] = true;
      * @param {State} state: a fully state object or an object with some props need to be updated
      * 
      * A state of an algorithm is an object that stores data to control graph drawing on GraphView
-     * State can have below props:
-     * @prop {Number} focusOn: id of a node that this algorithm is working on
-     * @prop {Array<Boolean>} mark: array of boolean bit. mark[i]=true that means node 'i' is marked by the algorithm
-     * @prop {Array<Number>} p: array of nodeIds tells that parent of node 'i' is p[i]
-     * @prop {Array<Number>} pi: array of numbers shows value at a node, may useful for algorithm
+     * State can have some props as following:
+     * @prop {Number} focusOn: keeping the id of a node that this algorithm is working on
+     * @prop {Array<Boolean>} mark: array of boolean bit, mark[i]=true that means node 'i' is marked by the algorithm
+     * @prop {Array<Number>} predecessor: array store  predecessor of current node. It useful for finding shortest path algorithms
+     * @prop {Array<Number>} distance: array store distance to begin point. It useful for finding shortest path algorithms
      * @prop {Array<Number>} rank: array of numbers shows rank of a node,use in ranking
      * @prop {Array<Number>} t: array of numbers presents times, use in project planning
      * @prop {Array<Number>} T: array of numbers presents times, use in project planning
-     * @prop {Array<Number>} listOfTraverse: luu thu thu duyet cua dinh
-     * @prop {Number} step: buoc duyet hien tai
+     * @prop {Array<Number>} traversingList: array store the order of traversing of a vertex
+     * @prop {Number} step: recording the current step while traversing
+     * @prop {Graph} minimumSpanningTree: a graph store a minimum spanning tree
+     * @prop {Array<Number>} listTopoSort: array store list of topological sorting
      * ...
-     * use these props in state when you want to display these informations on GraphView
+     * using these props in state when you want to display these informations on GraphView
      */
     setState(state){
-        //state can contain props such as pi[], p[], mark[],... 
-        //Ex: { focusOn: 1, mark: new Array() }
+        // state can contain some props such as distance[], predecessor[], mark[],... 
+        // Ex: { focusOn: 1, mark: new Array() }
         for (let prop in state) {
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
                 this.state[prop] = state[prop];
@@ -58,8 +60,8 @@ export default class Algorithm {
     }
 
     /**
-     * get state pointed to by statesCursor
-     * return state object || undefined if cursor is pointing to nothing
+     * Function to get state pointed to by statesCursor
+     * It return a state object or undefined if the cursor is pointing to nothing
      */
     getState(){
         if (this.statesCursor == undefined
@@ -71,14 +73,14 @@ export default class Algorithm {
     }
 
     /**
-     * get list of state objects
+     * Function to get list of state objects
      */
     getStates(){ 
         return this.states;//array of objects
     }
 
     /**
-     * save runtime State in array of states as a deep clone
+     * Function to save runtime State in array of states as a deep clone
      */
     saveState(){
         if (this.state != undefined){
@@ -87,12 +89,12 @@ export default class Algorithm {
     }
 
     /**
-     * run an entire algorithms and save states
-     * must implement in subclass: run the algorithm and update this.state
-     * call saveState() everytime you want to save data as one step that presents in GraphView
+     * Function to run an entire algorithms and save states
+     * It must implement in subclass: run the algorithm and update this.state
+     * Calling saveState() everytime you want to save data as one step that presents in GraphView
      */
     run(){
-        //implement in sub class
+        // This function will implement in sub class
     }
 
     /**
@@ -132,11 +134,10 @@ export default class Algorithm {
     /**
      * set states cursor and return this state
      * @param {Number} index: index of state in state array
-     *          if index is out of bounds, statesCursor is set to point to nothing
+     * if index is out of bounds, statesCursor is set to point to nothing
      */
     setCursor(index){
         this.statesCursor = index;
         return this.getState();
     }
-
 } 
