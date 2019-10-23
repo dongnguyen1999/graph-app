@@ -1,5 +1,19 @@
 import Algorithm from "./Algorithm"
-import RecursiveTraverse from "./RecursiveTraverse"
+import DepthFirstSearchRecursive from "./DepthFirstSearchRecursive"
 import BreadthFirstSearch from './BreadthFirstSearch'
-import DepthFirstSearch from './DepthFirstSearch';
-export {Algorithm, RecursiveTraverse, BreadthFirstSearch,DepthFirstSearch}
+import DepthFirstSearch from './DepthFirstSearch'
+import BellmanFord from './BellmanFord'
+import Kruskal from './Kruskal'
+import Prim from './Prim'
+import TopologicalSort from './TopologicalSort'
+
+export {
+    Algorithm, 
+    DepthFirstSearchRecursive, 
+    BreadthFirstSearch,
+    DepthFirstSearch,
+    BellmanFord,
+    Kruskal,
+    Prim,
+    TopologicalSort
+}

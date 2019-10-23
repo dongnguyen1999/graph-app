@@ -5,13 +5,14 @@ import Algorithms from "./Algorithm";
  */
 export default class BreadthFirstSearch extends Algorithms{
     constructor(graph, startingNode){
-        super(graph);// call super.constructor to record graph for this algorithm
-        this.s = startingNode;//this variable need for algorithm but not need to show on GraphView
+        super(graph); // Calling super.constructor to record parent graph for this algorithm
+        this.source = startingNode; // Initializing the source vertex is a startingNode which is passed from outside
+        // Initializing first state
         this.setState({
-            mark: this.initArray(0),//require for coloring marked node on GraphView
-            focusOn: 0,//require for coloring focusing node on GraphView
-            step: 0,//require for counter steps of travelling, info need to show
-            listOfTraverse: this.initArray(0)//require for keeping the order of travelling, info need to show
+            mark: this.initArray(0), // Mark all the vertices as not visited 
+            focusOn: 0, // The first state have no node in order to focus on it so initialize focusOn of first state is zero
+            step: 0, // Initializing the first step is zero
+            traversingList: this.initArray(0) // Initializing the order of traversing of all vertex is zero
         });
     }
 
@@ -21,33 +22,34 @@ export default class BreadthFirstSearch extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (var i = 1; i <= this.graph.nbVertex; i++){
+        for (let i = 1; i <= this.graph.nbVertex+1; i++){
             array.push(initValue);
         }
         return array;
     }
 
     /**
-     * recursive visit a node, use in run() method to record states
-     * @param {Number} u: id of the node that will be visit soon
+     * Breadth-First-Search (BFS) algorithm for traversing a graph.
+     * It is used in run() method to record states
+     * @param {Number} source: a source vertex in the graph
      */
-    bfs(s){
-        this.state.focusOn = s;
+    bfs(source){
+        this.state.focusOn = source;
         this.saveState();
         let queue = [];
         let front = 0, rear = 0;
-        queue[rear++] = s; // push s into Queue
-        this.state.mark[s] = 1; // visited u
-        this.state.listOfTraverse[s] = ++this.state.step;
+        queue[rear++] = source; // inserting the source vertex into queue
+        this.state.mark[source] = 1; // visited source
+        this.state.traversingList[source] = ++this.state.step;
         this.saveState();
         while(front < rear){
-            let u = queue[front++];
+            let u = queue[front++]; // get a vertex from queue and call it is u vertex
             let getAdjList = this.graph.getChildrenVertices(u);
-            for(let v of getAdjList){
-                if(this.state.mark[v] != 1){
-                    this.state.mark[v] = 1;
-                    queue[rear++] = v;
-                    this.state.listOfTraverse[v] = ++this.state.step;
+            for(let v of getAdjList){ // travesing all v neighbors of u vertex
+                if(this.state.mark[v] != 1){ // cheking v neighbor is visited or not
+                    this.state.mark[v] = 1; // if not then mark v is visited
+                    queue[rear++] = v; // inserting the v neighbor into queue
+                    this.state.traversingList[v] = ++this.state.step;
                     this.saveState();
                 }
             }
@@ -58,7 +60,7 @@ export default class BreadthFirstSearch extends Algorithms{
      * override
      */
     run(){
-        this.saveState();//save first state;
-        this.bfs(this.s);//start recursive method from node 's'
+        this.saveState(); // save first state;
+        this.bfs(this.source); // start bfs() method from source vertex
     }
 }
