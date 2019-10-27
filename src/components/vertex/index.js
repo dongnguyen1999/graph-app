@@ -40,7 +40,9 @@ export default class Vertex extends Component {
   }
 
   onPressNodeListener(node, callback){
-    if (!this.state.isMoving) callback(node);
+    if (!this.state.isMoving) {
+      callback(node);
+    }
     this.setState({isMoving: false});
   }
 

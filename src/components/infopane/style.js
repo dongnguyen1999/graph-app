@@ -5,5 +5,15 @@ export const styles = {
         fill: colors.background,
         strokeWidth: 3,
         stroke: colors.border,
+        padding: 10
     },
+    text:{
+        fill: colors.text,
+        fontFamily: "Times New Roman",
+        fontSize: 12,
+        fontWeight: "bold",
+        vGap: 10,
+    },
+    
+
 };

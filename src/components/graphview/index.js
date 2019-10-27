@@ -63,6 +63,7 @@ export default class GraphView extends Component {
             this.algorithm = algorithm;// keep algorithm object used as controller
             this.graph = algorithm.graph;//keep graph from algorithm
             this.algorithm.run();//run algorithm for the first time
+            this.algorithm.start();
         } else this.graph = graph;//keep graph from prop
 
         let uiGraph = this.convertToUIGraph(this.graph);
@@ -219,7 +220,6 @@ export default class GraphView extends Component {
                 r={this.props.nodeRadius}
                 pressingCallback={this.pressVerticesListener.bind(this)}
                 draggingCallback={this.refresh.bind(this)}
-                removeInfoPaneCallback={this.removeInfoPane.bind(this)}
             >{id}</Vertex>
         );
     }
@@ -284,8 +284,7 @@ export default class GraphView extends Component {
                     style = {this.getNodeStyle(id)}
                     r={this.props.nodeRadius}
                     pressingCallback={this.pressVerticesListener.bind(this)}
-                    draggingCallback={this.refresh.bind(this)}
-                    removeInfoPaneCallback={this.removeInfoPane.bind(this)}>
+                    draggingCallback={this.refresh.bind(this)}>
                     {id}
                 </Vertex>
             );
