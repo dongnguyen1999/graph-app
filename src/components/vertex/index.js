@@ -20,28 +20,43 @@ import { Circle, Text, Svg, G } from "react-native-svg"
             "shape": true,
         }
  * @prop {Number} r: the radius of a node
- * @prop {function} updatingCallback: a function binded GraphView, tell what to do when a node is dragged
+ * @prop {function} draggingCallback: a function binded GraphView, tell what to do when a node is dragged
+ * @prop {function} pressingCallback: a function binded GraphView, tell what to do when a node is pressed
  * @prop {vertex/style} style: style sheet of a node
  *      
  */
 export default class Vertex extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+      isMoving: false //keep whether a vertex are being dragged
+    }
+  }
+
   onDragNodeListener(event, node, callback){
+    this.setState({isMoving: true});
     node.point = [event.nativeEvent.locationX, event.nativeEvent.locationY];
     callback(node);
   }
 
+  onPressNodeListener(node, callback){
+    if (!this.state.isMoving) callback(node);
+    this.setState({isMoving: false});
+  }
+
   render() {
     // console.log('vertex is rendering');
-    const { node, r, updatingCallback } = this.props;
+    const { node, r,pressingCallback, draggingCallback } = this.props;
     let { style } = this.props;
     const [x, y ] = node.point;
     if (style == undefined) style = styles.normal;
     return (
       <G 
-        onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
-        onResponderGrant={() => {console.log('onGrant')}}
-        onResponderMove={(event) => this.onDragNodeListener(event,node,updatingCallback)}
+        onMoveShouldSetResponder={() => {console.log("onMoveShouldSetResponder")}}
+        onResponderGrant={() => {console.log("onGrant")}}
+        onResponderMove={(event) => this.onDragNodeListener(event,node,draggingCallback)}
         onPress={() => {console.log('press')}}
+        onResponderRelease = {() => this.onPressNodeListener(node,pressingCallback)}
         >
         <Circle 
           cx = {x} 

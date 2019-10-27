@@ -46,6 +46,8 @@ export default class BreadthFirstSearch extends Algorithms{
             let u = queue[front++]; // get a vertex from queue and call it is u vertex
             let getAdjList = this.graph.getChildrenVertices(u);
             for(let v of getAdjList){ // travesing all v neighbors of u vertex
+                this.state.focusOn = v;// focus on new vertex
+                this.saveState();
                 if(this.state.mark[v] != 1){ // cheking v neighbor is visited or not
                     this.state.mark[v] = 1; // if not then mark v is visited
                     queue[rear++] = v; // inserting the v neighbor into queue
