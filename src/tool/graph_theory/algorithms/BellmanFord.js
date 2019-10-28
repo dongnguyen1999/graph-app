@@ -10,9 +10,10 @@ export default class BellmanFord extends Algorithms{
         // Initializing first state
         this.setState({
             distance : this.initArray(INFINITY), // Initializing the distance to all vertices to infinity
-            predecessor : this.initArray(0) // And having a zero predecessor
+            predecessor : this.initArray(0), // And having a zero predecessor
+            path: [] // An empty array which store the shortest path
         });
-        this.isNegative = false; 
+        this.isNegative = false; // This variable use to check a graph which exists negative cycle or not
     }
 
     /**
@@ -21,7 +22,7 @@ export default class BellmanFord extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (var i = 1; i <= this.graph.nbVertex+1; i++){
+        for (var i = 0; i <= this.graph.nbVertex; i++){
             array.push(initValue);
         }
         return array;
@@ -32,7 +33,7 @@ export default class BellmanFord extends Algorithms{
      * It is used in run() method to record states.
      * @param {Number} source: a source vertex in the graph
      */
-    bellmanSolve(source){
+    bellmanFord(source){
         this.state.distance[source] = 0; // The distance from the source to itself is, of course, zero
         this.state.predecessor[source] = -1; // No predecessor of s
         this.saveState();
@@ -52,8 +53,7 @@ export default class BellmanFord extends Algorithms{
                 }
             }
         }
-
-        // checking for negative-weight cycles
+        // checking for negative cycle
         for(let edge of edgeList){
             let u = edge.u;
             let v = edge.v;
@@ -66,10 +66,35 @@ export default class BellmanFord extends Algorithms{
     }
 
     /**
+     * Function to return true if the graph exists negative cycle, otherwise return false
+     */
+    checkNegativeCycle(){
+        return this.isNegative;
+    }
+
+    /**
+     * Function to return an array which store the shortest path from source vertex to nbVertex
+     */
+    getShortestPath(){
+        let current = this.graph.nbVertex;
+        while(current != -1){
+            this.state.path.unshift(current);
+            current = this.state.predecessor[current];
+        }
+        this.saveState();
+        return this.state.path;
+    }
+
+    /**
      * override
      */
     run(){
         this.saveState(); // saving first state;
-        this.bellmanSolve(this.source); // starting bellmanFord() method from source vertex
+        this.bellmanFord(this.source); // starting bellmanFord() method from source vertex
+        // let path = this.getShortestPath();
+        // for(let i of path){
+        //     console.log(i);
+        // }
+        console.log(this.state.distance);
     }
 }

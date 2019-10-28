@@ -37,8 +37,10 @@ export default class Algorithm {
      * State can have some props as following:
      * @prop {Number} focusOn: keeping the id of a node that this algorithm is working on
      * @prop {Array<Boolean>} mark: array of boolean bit, mark[i]=true that means node 'i' is marked by the algorithm
+     * @prop {Array<Array<Number>>} next: 2D-array store the next vertex of a vertex on a path. It useful for finding shortest path of Floyd-Warshall algorithm
      * @prop {Array<Number>} predecessor: array store  predecessor of current node. It useful for finding shortest path algorithms
      * @prop {Array<Number>} distance: array store distance to begin point. It useful for finding shortest path algorithms
+     * @prop {Array<Number>} path: array store the shortest path of a graph. It useful for finding shortest path algorithms
      * @prop {Array<Number>} rank: array of numbers shows rank of a node,use in ranking
      * @prop {Array<Number>} t: array of numbers presents times, use in project planning
      * @prop {Array<Number>} T: array of numbers presents times, use in project planning
@@ -46,6 +48,18 @@ export default class Algorithm {
      * @prop {Number} step: recording the current step while traversing
      * @prop {Graph} minimumSpanningTree: a graph store a minimum spanning tree
      * @prop {Array<Number>} listTopoSort: array store list of topological sorting
+     * @prop {Array<Array<Number>>} flow: a 2D-array store flow in flow network
+     * @prop {Array<Array<Number>>} capacity: an array store capacity which is available on all edges in the path
+     * @prop {Array<Number>} dir: an array store the direction of an edge (=1: edge, =-1: reverse edge)
+     * @prop {Array<Number>} sigma: an array store the amount of maximal flow which can increase
+     * @prop {Array<Array<Number>>} hamiltonCycle: 2D-array store all hamilton cycles on a graph (Ex: if a graph exists a cycle 1 2 3 4 5 1, then this cycle will store in this 2D-array)
+     * @prop {Array<Number>} color: array store color of a vertex. It useful for detecting a cycle or checking a graph which is a bigraph or not.
+     * @prop {Array<Number>} stack: array store all vertices which are not found strong connection
+     * @prop {Array<Number>} num: array save index of v vertex
+     * @prop {Array<Number>} minNum: array save index smallest
+     * @prop {Array<Number>} onStack: array use for checking x in stack
+     * @prop {Number} counter: counter number of strong connection
+     * @prop {Number} k: index use to assign for num[] of all vertices
      * ...
      * using these props in state when you want to display these informations on GraphView
      */
