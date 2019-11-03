@@ -25,7 +25,7 @@ export default class Prim extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (var i = 1; i <= this.graph.nbVertex+1; i++){
+        for (var i = 0; i <= this.graph.nbVertex+1; i++){
             array.push(initValue);
         }
         return array;
@@ -38,7 +38,6 @@ export default class Prim extends Algorithms{
      */
     prim(source){
         const _matrix = this.graph.adjacencyMatrix;
-        this.state.focusOn = source;
         this.state.distance[source] = 0;
         this.state.predecessor[source] = -1;
 
@@ -53,11 +52,11 @@ export default class Prim extends Algorithms{
         let u;
         for(let it = 1; it < this.graph.nbVertex; it++){
             let minDist = INFINITY;
-            // finding u vertex which have the lowest distance[u]
             for(let i = 1; i <= this.graph.nbVertex; i++){
+                // finding u vertex which have the lowest distance[u]
                 if(!this.state.mark[i] && this.state.distance[i] < minDist){
-                    minDist = this.state.distance[i];
-                    u = i;
+                    minDist = this.state.distance[i]; // reset minDist
+                    u = i; // saving this vertex
                 }
             }
             this.state.mark[u] = 1; // visited u 

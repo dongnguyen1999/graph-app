@@ -22,7 +22,7 @@ export default class DepthFirstSearchRecursive extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (let i = 1; i <= this.graph.nbVertex+1; i++){
+        for (let i = 0; i <= this.graph.nbVertex+1; i++){
             array.push(initValue);
         }
         return array;

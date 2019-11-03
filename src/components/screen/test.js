@@ -6,11 +6,17 @@ import {
   DepthFirstSearchRecursive, 
   DepthFirstSearch, 
   BreadthFirstSearch,
+  Tarjan,
+  Cycle,
+  Bigraph,
+  Dijkstra,
   BellmanFord,
   FloydWarshall,
   Kruskal,
   Prim,
   TopologicalSort,
+  FordFullkerson,
+  HamiltonCycle
 } from "../../tool/graph_theory/algorithms"
 
 export default class Test extends Component {
@@ -19,6 +25,16 @@ export default class Test extends Component {
   };
 
   render() {
+    let graph = new AdjacencyMatrixGraph(5,6,false);
+        graph.addEdge({u: 1, v: 2});
+        graph.addEdge({u: 1, v: 3});
+        graph.addEdge({u: 2, v: 4});
+        graph.addEdge({u: 3, v: 5});
+        graph.addEdge({u: 4, v: 1});
+        graph.addEdge({u: 5, v: 2});
+    let algorithms = new HamiltonCycle(graph,1); // start traverse at node 1
+    algorithms.run();
+
     // let graph = new AdjacencyMatrixGraph(5,7,false);
     // graph.addEdge({u: 1, v: 2});
     // graph.addEdge({u: 1, v: 3});
@@ -48,6 +64,7 @@ export default class Test extends Component {
     // algorithms.run();
     //console.log(algorithms.end());
     // console.log(algorithms.getStates());
+    
     return (
       <InfoPane/>
     );

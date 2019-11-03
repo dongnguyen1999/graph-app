@@ -22,7 +22,7 @@ export default class DepthFirstSearch extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (var i = 1; i <= this.graph.nbVertex+1; i++){
+        for (var i = 0; i <= this.graph.nbVertex+1; i++){
             array.push(initValue);
         }
         return array;
