@@ -6,7 +6,7 @@ import GraphView from "../graphview"
 import { ScrollView } from 'react-native-gesture-handler'
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
-import { DepthFirstSearch } from "../../tool/graph_theory/algorithms"
+import { DepthFirstSearch, BreadthFirstSearch } from "../../tool/graph_theory/algorithms"
 
 
 export default class DrawGraph extends Component {
@@ -146,8 +146,8 @@ export default class DrawGraph extends Component {
         graph.addEdge({u: 2, v: 3});
         graph.addEdge({u: 2, v: 4});
         graph.addEdge({u: 4, v: 5});
-        graph.display();
-        let algorithm = new DepthFirstSearch(graph, 1);
+        // graph.display();
+        let algorithm = new BreadthFirstSearch(graph, 1);
 
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen

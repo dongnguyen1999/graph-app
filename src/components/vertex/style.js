@@ -15,6 +15,7 @@ export const styles = {
             position: 'relative'
         },
         label: {
+            fill: colors.normalLabel,
             fontWeight: 'bold',
             fontSize: 20,
         },
@@ -28,6 +29,7 @@ export const styles = {
             position: 'relative'
         },
         label: {
+            fill: colors.focusOnLabel,
             fontWeight: 'bold',
             fontSize: 20,
         },
@@ -41,6 +43,7 @@ export const styles = {
             position: 'relative'
         },
         label: {
+            fill: colors.focusOnMarkedLabel,
             fontWeight: 'bold',
             fontSize: 20,
         },
@@ -54,6 +57,7 @@ export const styles = {
             position: 'relative'
         },
         label: {
+            fill: colors.markedLabel,
             fontWeight: 'bold',
             fontSize: 20,
         },

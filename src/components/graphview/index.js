@@ -1,13 +1,14 @@
 import React, { Component } from 'react'
 import Vertex from "../vertex"
 import Edge from "../edge"
-import {Dimensions, View} from "react-native"
+import {Dimensions, View, TouchableOpacity, Text} from "react-native"
 import {styles} from "./style"
 import { styles as nodeStyles } from "../vertex/style"
 import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
 import { Button } from 'react-native-elements'
+import InfoPane from '../infopane'
 
 
 /**
@@ -62,6 +63,7 @@ export default class GraphView extends Component {
             this.algorithm = algorithm;// keep algorithm object used as controller
             this.graph = algorithm.graph;//keep graph from algorithm
             this.algorithm.run();//run algorithm for the first time
+            this.algorithm.start();
         } else this.graph = graph;//keep graph from prop
 
         let uiGraph = this.convertToUIGraph(this.graph);
@@ -85,6 +87,7 @@ export default class GraphView extends Component {
             zoom: 1,    
             left: 0,
             top: 0,
+            isShowingInfoPane: false //keep wether the only InfoPane showing on GraphView
         }
 
         //should use width, height from props
@@ -162,7 +165,8 @@ export default class GraphView extends Component {
     }
 
     /**
-     * set new state for GraphView if a node is changed
+     * set new state for GraphView if a node is dragged
+     * if there is a infopane is showing, remove it
      * @param {Node} node: a node object in DraculaGraph
      * Node {
             "connections": Array<String>,
@@ -177,6 +181,7 @@ export default class GraphView extends Component {
         }
      */
     refresh(node){
+        if (this.state.isShowingInfoPane) this.removeInfoPane();
         node.point = this.validatePoint(node.point);
         // console.log(node.point);
         this.nodes.set(node.id,node);//record new node
@@ -213,7 +218,8 @@ export default class GraphView extends Component {
                 node={node}
                 style = {this.getNodeStyle(id)}
                 r={this.props.nodeRadius}
-                updatingCallback={this.refresh}
+                pressingCallback={this.pressVerticesListener.bind(this)}
+                draggingCallback={this.refresh.bind(this)}
             >{id}</Vertex>
         );
     }
@@ -277,7 +283,8 @@ export default class GraphView extends Component {
                     node={node}
                     style = {this.getNodeStyle(id)}
                     r={this.props.nodeRadius}
-                    updatingCallback={this.refresh.bind(this)}>
+                    pressingCallback={this.pressVerticesListener.bind(this)}
+                    draggingCallback={this.refresh.bind(this)}>
                     {id}
                 </Vertex>
             );
@@ -306,17 +313,76 @@ export default class GraphView extends Component {
     renderNextStepButton(){
         if (this.algorithm) 
             return (
-                <View style={styles.nextButton}>
-                    <Button 
-                        title="Next step"
-                        onPress={() => {
-                            if (this.algorithm.next() == undefined) this.algorithm.start();
-                            return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-                        }}
-                    />
-                </View>
+                <TouchableOpacity 
+                    style = { styles.nextButton } 
+                    onPress={() => {
+                        if (this.algorithm.next() == undefined) this.algorithm.start();
+                        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+                    }}>
+                    <Text> Next step </Text>
+                </TouchableOpacity>
             );
     }
+
+    /**
+     * Render an InfoPane for GraphView if a node is pressed
+     * There is only one InfoPane showed at the same time with id = "#InfoPane:NodeId"
+     * If there is an infoPane is showing, remove current InfoPane
+     * Then, show a new InfoPane if this function called with another node
+     * @param {Node} node: a node object in DraculaGraph
+     */
+    renderInfoPane(node){
+        if (this.algorithm){
+            // console.log("render infopane for node ", node.id);
+            this.setState({
+                views: this.state.views.set("#InfoPane:"+node.id,//add infoPane view with id "#InfoPane"
+                    <InfoPane
+                        node={node}
+                        key={"#InfoPane"}
+                        state={this.algorithm.getState()}
+                    >
+                    </InfoPane>
+                ),
+                isShowingInfoPane: true //tell that an InfoPane is showing
+            })
+        }
+    }
+
+    /**
+     * Remove the only InfoPane from views
+     * return a String is id of the InfoPane or undefined
+     */
+    removeInfoPane(){
+        let removedPaneId = undefined;
+        if (this.algorithm && this.state.isShowingInfoPane){
+            //fine the only key in views map that startWith
+            for (let key of this.state.views.keys()){
+                if (key.toString().startsWith("#InfoPane:")) {
+                    removedPaneId = key;
+                    break;
+                }
+            }
+            if (removedPaneId){
+                this.state.views.delete(removedPaneId);
+                this.setState({
+                    isShowingInfoPane: false,
+                })
+            }
+        }
+        return removedPaneId;
+    }
+
+    pressVerticesListener(node){
+        if (!this.state.isShowingInfoPane) this.renderInfoPane(node);
+        else {
+            let removedPaneId = this.removeInfoPane();
+            if (removedPaneId){
+                let removedNodeId = removedPaneId.substring(removedPaneId.lastIndexOf(":")+1);
+                if (removedNodeId != node.id) this.renderInfoPane(node);
+            }
+        }
+    }
+
 
     /**
      * Style a node depend on information from this.algorithm
@@ -340,13 +406,16 @@ export default class GraphView extends Component {
      */
     applyViews(){
         let edges = [];
+        let infoPane;
         let nodes = [];
         for (let [key, view] of this.state.views){
             if (key.toString().includes("-"))
                 edges.push(view);
+            else if (key.toString().startsWith("#InfoPane:"))
+                infoPane = view;
             else nodes.push(view);
         }
-        return edges.concat(nodes);
+        return edges.concat(nodes).concat(infoPane);
     }
 
     /**
@@ -473,8 +542,9 @@ export default class GraphView extends Component {
             <View>
                 {this.renderNextStepButton()}
                 <Svg width={width} height={height}
+                    marginTop={10}
                     onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
-                    onResponderGrant={() => {console.log('onGrant')}}
+                    onResponderGrant={() => this.removeInfoPane()}
                     onResponderMove={(event) => this.processMoveAndZoomEvent(event)}
                     onPress={() => {console.log('onPress')}}
                     onResponderRelease={() => this.stopMoveAndZoom()}>
