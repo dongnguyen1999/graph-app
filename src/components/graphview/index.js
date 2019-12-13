@@ -9,6 +9,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
 import { Button } from 'react-native-elements'
 import InfoPane from '../infopane'
+import AlgorithmPlayer from './algoritm_player'
 
 
 /**
@@ -308,22 +309,23 @@ export default class GraphView extends Component {
         return views;
     }
 
-    /** TEMP
-     * This method render a button
-     * when click in it the method this.algorithm.next will be called
+    /**
+     * define what to do whenever the next button was pressed
+     * call this.algorithm.next(), rerender the graph
      */
-    renderNextStepButton(){
+    clickNextButtonListener(){
+        if (this.algorithm.next() == undefined) this.algorithm.start();
+        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    }
+
+    /** TEMP
+     * This method render a menu player for algorithms
+     */
+    renderAlgorithmPlayer(){
         if (this.algorithm) 
-            return (
-                <TouchableOpacity 
-                    style = { styles.nextButton } 
-                    onPress={() => {
-                        if (this.algorithm.next() == undefined) this.algorithm.start();
-                        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-                    }}>
-                    <Text> Next step </Text>
-                </TouchableOpacity>
-            );
+            return <AlgorithmPlayer 
+                clickNextButtonListener={this.clickNextButtonListener.bind(this)}
+            />
     }
 
     /**
@@ -546,7 +548,7 @@ export default class GraphView extends Component {
         const { left, top, zoom } = this.state;
         return (
             <View>
-                {this.renderNextStepButton()}
+                {this.renderAlgorithmPlayer()}
                 <Svg width={width} height={height}
                     marginTop={10}
                     onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { G, Rect, Text, TSpan} from 'react-native-svg'
 import { styles } from './style'
-import { object } from 'prop-types';
+import { object, array } from 'prop-types';
 
 /**
  * A instance of this class is a view box in GraphView that show information from a vertex

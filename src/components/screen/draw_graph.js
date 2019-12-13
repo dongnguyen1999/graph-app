@@ -157,7 +157,7 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-Header.HEIGHT}
+                height = {heightPhone-Header.HEIGHT-100}
                 nodeRadius = { 20 }
                 zoomable={true}
                 />;
