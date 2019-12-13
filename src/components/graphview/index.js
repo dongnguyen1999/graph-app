@@ -193,10 +193,43 @@ export default class GraphView extends Component {
         }
     }
 
+    /** For fixing duplicate code
+     * create a node with standard setting
+     * @param {String} id: node.id
+     * @param {Node} node: a node object in DraculaGraph
+     * return a Vertex component
+     */
+    createNode(id, node){
+        return <Vertex
+                key={id}
+                node={node}
+                style = {this.getNodeStyle(id)}
+                r={this.props.nodeRadius}
+                pressingCallback={this.pressVerticesListener.bind(this)}
+                draggingCallback={this.refresh.bind(this)}
+                >{id}</Vertex>
+    }
 
+    /** For fixing duplicate code
+     * create an edge with standard setting
+     * @param {String} id: sourceNodeId + "-" + targetNodeId
+     * @param {Edge} edge: an edge object in DraculaGraph
+     * return an Edge component
+     */
+    createEdge(id, edge){
+        let label = edge.style.label || undefined; //get label of edge
+        return <Edge
+                    key={id}
+                    source={edge.source}
+                    target={edge.target}
+                    label={label}
+                    r={this.props.nodeRadius}
+                    isDirected={this.graph.isDirected}
+                />
+    }
 
     /**
-     * rerender an edge when nodes' position is changed
+     * rerender a node when nodes' position is changed
      * @param {String} id: node.id
      * @param {Node} node: a node object in DraculaGraph
      * Node {
@@ -213,14 +246,7 @@ export default class GraphView extends Component {
      */
     rerenderNode(id, node){
         return this.state.views.set(id,
-            <Vertex
-                key={id}
-                node={node}
-                style = {this.getNodeStyle(id)}
-                r={this.props.nodeRadius}
-                pressingCallback={this.pressVerticesListener.bind(this)}
-                draggingCallback={this.refresh.bind(this)}
-            >{id}</Vertex>
+            this.createNode(id,node)
         );
     }
 
@@ -237,16 +263,8 @@ export default class GraphView extends Component {
         }
      */
     rerenderEdge(id, edge){
-        let label = edge.style.label || undefined; //get label of edge
         return this.state.views.set(id,
-            <Edge
-                key={id}
-                source={edge.source}
-                target={edge.target}
-                label={label}
-                r={this.props.nodeRadius}
-                isDirected={this.graph.isDirected}
-            />
+            this.createEdge(id, edge)
         );
     }
 
@@ -278,35 +296,19 @@ export default class GraphView extends Component {
         for (let [id, node] of nodes){ //Destructuring
             //Set node into views
             views.set(id,
-                <Vertex
-                    key={id}
-                    node={node}
-                    style = {this.getNodeStyle(id)}
-                    r={this.props.nodeRadius}
-                    pressingCallback={this.pressVerticesListener.bind(this)}
-                    draggingCallback={this.refresh.bind(this)}>
-                    {id}
-                </Vertex>
+                this.createNode(id,node)
             );
         }
         for (let [id,edge] of edges){
             //Set edge into views
-            let label = edge.style.label || undefined; //get label of edge
             views.set(id,
-                <Edge
-                    key={id}
-                    source={edge.source}
-                    target={edge.target}
-                    label={label}
-                    r={this.props.nodeRadius}
-                    isDirected={this.graph.isDirected}
-                />
+                this.createEdge(id, edge)
             );
         }
         return views;
     }
 
-    /**
+    /** TEMP
      * This method render a button
      * when click in it the method this.algorithm.next will be called
      */
@@ -372,6 +374,10 @@ export default class GraphView extends Component {
         return removedPaneId;
     }
 
+    /**
+     * define what to do whenever a specific node was pressed
+     * @param {Node} node: a Node object (from GraphDracula)
+     */
     pressVerticesListener(node){
         if (!this.state.isShowingInfoPane) this.renderInfoPane(node);
         else {
