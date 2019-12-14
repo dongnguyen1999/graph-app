@@ -34,16 +34,18 @@ export default class AlgorithmPlayer extends Component{
             return <Icon 
                     name='pause'
                     color='black'
-                    size={100}
+                    size={60}
                     onPress={() => this.clickPlayButtonListener()}
                 />
         } else return <Icon 
                     name='play-arrow'
                     color='black'
-                    size={100}
+                    size={60}
                     onPress={() => this.clickPlayButtonListener()}
                 />
     }
+
+
 
     /**
      * run algorithm automatically by the way call clickNextButtonListener every delay time
@@ -51,11 +53,11 @@ export default class AlgorithmPlayer extends Component{
     runAlgorithm(){
         console.disableYellowBox = true;//just demiss all warning =))
             //if everything work fine
-        const { clickNextButtonListener } = this.props;
+        const { clickNextButton } = this.props;
         // clickNextButtonListener is a function bind GraphView -> read more in GraphView class
         if (this.state.isPlaying){
             if (!this.state.isSleeping){// if it is playing and not sleeping
-                clickNextButtonListener();//click next button
+                if (clickNextButton() == false) this.state.isPlaying = false;//click next button
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping
                 setTimeout(() => {//delay amount delayTime millisecond and wake the system up
@@ -66,6 +68,7 @@ export default class AlgorithmPlayer extends Component{
     }
 
     render(){
+        const { clickNextButton, clickPreviousButton, clickStartButton, clickEndButton } = this.props;
         this.runAlgorithm();//press next button automatically
         return (
             <View
@@ -73,24 +76,28 @@ export default class AlgorithmPlayer extends Component{
                 >
                 <Icon 
                     name='skip-previous'
-                    color='black'c
-                    size={100}
+                    color='black'
+                    size={60}
+                    onPress={() => clickStartButton()}
                 />
                 <Icon 
                     name='fast-rewind'
                     color='black'
-                    size={100}
+                    size={60}
+                    onPress={() => clickPreviousButton()}
                 />
                 {this.renderPlayButton()}
                 <Icon 
                     name='fast-forward'
                     color='black'
-                    size={100}
+                    size={60}
+                    onPress={() => clickNextButton()}
                 />
                 <Icon 
                     name='skip-next'
                     color='black'
-                    size={100}
+                    size={60}
+                    onPress={() => clickEndButton()}
                 />
             </View>
         );

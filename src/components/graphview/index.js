@@ -312,9 +312,42 @@ export default class GraphView extends Component {
     /**
      * define what to do whenever the next button was pressed
      * call this.algorithm.next(), rerender the graph
+     * through false everytime the next() method return undefined
+     * require to stop the player automatically
      */
     clickNextButtonListener(){
-        if (this.algorithm.next() == undefined) this.algorithm.start();
+        if (this.algorithm.next() == undefined) {
+            this.algorithm.start();
+            this.setState({views: this.renderGraph(this.nodes, this.edges)});
+            return false;
+        }
+        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    }
+
+    /**
+     * define what to do whenever the previous button was pressed
+     * call this.algorithm.previous(), rerender the graph
+     */
+    clickPreviousButtonListener(){
+        if (this.algorithm.previous() == undefined) this.algorithm.start();
+        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    }
+
+    /**
+     * define what to do whenever the jump-to-starting button was pressed
+     * call this.algorithm.start(), rerender the graph
+     */
+    clickStartButtonListener(){
+        this.algorithm.start();
+        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    }
+
+    /**
+     * define what to do whenever the jump-to-ending button was pressed
+     * call this.algorithm.end(), rerender the graph
+     */
+    clickEndButtonListener(){
+        this.algorithm.end();
         return this.setState({views: this.renderGraph(this.nodes, this.edges)});
     }
 
@@ -324,7 +357,10 @@ export default class GraphView extends Component {
     renderAlgorithmPlayer(){
         if (this.algorithm) 
             return <AlgorithmPlayer 
-                clickNextButtonListener={this.clickNextButtonListener.bind(this)}
+                clickNextButton={this.clickNextButtonListener.bind(this)}
+                clickPreviousButton={this.clickPreviousButtonListener.bind(this)}
+                clickStartButton={this.clickStartButtonListener.bind(this)}
+                clickEndButton={this.clickEndButtonListener.bind(this)}
             />
     }
 
