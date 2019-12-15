@@ -6,7 +6,7 @@ import { styles } from "./style"
 export default class AlgorithmPlayer extends Component{
     constructor(props){
         super(props)
-        this.delayTime = 2000;//delay time in millisecond
+        this.delayTime = 1000;//delay time in millisecond
         this.state = {
             isPlaying: false,// to keep the state whether the algorithm is running automatically or not
             isSleeping: true,// to keep the state system is sleeping during delayTime
