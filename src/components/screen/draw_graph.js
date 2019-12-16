@@ -3,15 +3,20 @@ import { View, Text, StyleSheet, Dimensions } from "react-native"
 import { DraculaGraph, Layout } from "graphdracula"
 import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
-import { ScrollView } from 'react-native-gesture-handler'
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
 import { DepthFirstSearch, BreadthFirstSearch } from "../../tool/graph_theory/algorithms"
+import { Icon } from "react-native-elements"
 
 
 export default class DrawGraph extends Component {
     static navigationOptions = {
-        title: 'Graph Drawing'
+        title: 'Drawing', //will be showed as tab label in bottom navigator
+        tabBarIcon: <Icon 
+                        name='timeline'
+                        color='black'
+                        onPress={() => clickStartButton()}
+                    />
     };
 
     // makeGraphFromString(str) {
@@ -157,7 +162,7 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-Header.HEIGHT}
+                height = {heightPhone-200}
                 nodeRadius = { 20 }
                 zoomable={true}
                 />;

@@ -3,6 +3,7 @@ import GraphView from "./graphview"
 import Edge from "./edge"
 import ListItem from "./list_item"
 import InfoPane from './infopane'
+
 import {
     Test, 
     DrawGraph, 
@@ -11,7 +12,8 @@ import {
     HomeScreen,
     SettingScreen,
     TutorialScreen,
-    ForumScreen
+    ForumScreen,
+    Tutorial
 } from "./screen"
     
 export { 
@@ -25,5 +27,6 @@ export {
     HomeScreen,
     SettingScreen,
     TutorialScreen,
-    ForumScreen
+    ForumScreen,
+    Tutorial
 }

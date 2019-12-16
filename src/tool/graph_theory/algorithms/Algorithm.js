@@ -129,19 +129,23 @@ export default class Algorithm {
 
     /**
      * set states cursor to the next state and return this state, limit at end
+     * return next state or undefined (if this state is at the end)
      */
     next(){
         if (this.statesCursor == undefined) return undefined;
         if (this.statesCursor < this.states.length-1) this.statesCursor++;
+        else this.statesCursor = undefined
         return this.getState();
     }
 
     /**
      * set states cursor to the previous state and return this state, limit at start
+     * return previous state or undefined (if this state is at the first)
      */
     previous(){
         if (this.statesCursor == undefined) return undefined;
         if (this.statesCursor > 0) this.statesCursor--;
+        else this.statesCursor = undefined
         return this.getState();
     }
 

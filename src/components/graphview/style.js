@@ -12,5 +12,12 @@ export const styles = StyleSheet.create({
         alignItems:'center',
         marginTop:10,
         marginLeft:10
-      },
+    },
+    playerBody: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        backgroundColor: 'gray',
+        height: 80,
+        alignItems: 'center'
+    }
 });
