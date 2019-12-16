@@ -26,9 +26,14 @@ const MainNavigator = createStackNavigator({
     //First: {screen: Test}
     ExecuteAlgorithm: { // this element will show a MaterialBottomTabNavigator
     screen: executeAlgorithmScreen,// the prepared sceen
-    navigationOptions: ( {navigation} ) => {//function to set the header title automatically
+    navigationOptions: ( {
+                             navigation}) =>
+    {//function to set the header title automatically
       let tabTitle = ['Graph Drawing', 'Tutorial']
-      return { title: tabTitle[navigation.state.index]}
+      return {
+          title: tabTitle[navigation.state.index],
+          headerLayoutPreset: 'center'
+      }
       }
     }
 });

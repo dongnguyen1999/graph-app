@@ -39,7 +39,7 @@ export default class HomeScreen extends Component{
         return(
             <ScrollView>
                 { listAlgorithmsName.map((value, index) =>
-                    <TouchableOpacity style = { styles.frame } key = { index } onPress = {() => navigate('Input')}>
+                    <TouchableOpacity style = { styles.frame } key = { index } onPress = {() => navigate('Input', {algorithm: value})}>
                         <Text style = { styles.text }> { value } </Text>
                     </TouchableOpacity>
                 )}
