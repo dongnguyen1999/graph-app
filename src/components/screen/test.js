@@ -19,21 +19,23 @@ import {
   HamiltonCycle
 } from "../../tool/graph_theory/algorithms"
 
+import HomeScreen from './home_screen';
+
 export default class Test extends Component {
   static navigationOptions = {
     title: 'Test'
   };
 
   render() {
-  //   let graph = new AdjacencyMatrixGraph(5,6,false);
-  //       graph.addEdge({u: 1, v: 2});
-  //       graph.addEdge({u: 1, v: 3});
-  //       graph.addEdge({u: 2, v: 4});
-  //       graph.addEdge({u: 3, v: 5});
-  //       graph.addEdge({u: 4, v: 1});
-  //       graph.addEdge({u: 5, v: 2});
-  //   let algorithms = new HamiltonCycle(graph,1); // start traverse at node 1
-  //   algorithms.run();
+    //   let graph = new AdjacencyMatrixGraph(5,6,false);
+    //       graph.addEdge({u: 1, v: 2});
+    //       graph.addEdge({u: 1, v: 3});
+    //       graph.addEdge({u: 2, v: 4});
+    //       graph.addEdge({u: 3, v: 5});
+    //       graph.addEdge({u: 4, v: 1});
+    //       graph.addEdge({u: 5, v: 2});
+    //   let algorithms = new HamiltonCycle(graph,1); // start traverse at node 1
+    //   algorithms.run();
 
     // let graph = new AdjacencyMatrixGraph(5,7,false);
     // graph.addEdge({u: 1, v: 2});
