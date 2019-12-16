@@ -33,10 +33,9 @@ export default class GraphRenderer extends Renderer {
                 node.point[1] -= this.radius*2;
             if(node.point[1] < this.radius)
                 node.point[1] += this.radius*2;
-
-
             node.shape = true;
             node.connections = [];
+            node.radius = this.radius;
             this.nodes.set(node.id, node);
             // console.log('drawing a node');
         }

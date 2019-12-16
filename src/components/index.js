@@ -2,5 +2,32 @@ import Vertex from "./vertex"
 import GraphView from "./graphview"
 import Edge from "./edge"
 import ListItem from "./list_item"
-import {Test, DrawGraph, InputGraph, StringInputGraph} from "./screen"
-export { Vertex,GraphView, Edge, ListItem, Test, DrawGraph, InputGraph, StringInputGraph}
+import InfoPane from './infopane'
+
+
+import {
+    Test, 
+    DrawGraph, 
+    InputGraph, 
+    StringInputGraph, 
+    HomeScreen,
+    SettingScreen,
+    VideoScreen,
+    ForumScreen,
+    Tutorial
+} from "./screen"
+    
+export { 
+    Vertex,
+    GraphView, 
+    Edge, ListItem, 
+    Test, DrawGraph, 
+    InputGraph, 
+    StringInputGraph, 
+    InfoPane, 
+    HomeScreen,
+    SettingScreen,
+    VideoScreen,
+    ForumScreen,
+    Tutorial
+}

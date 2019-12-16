@@ -3,7 +3,7 @@ import Algorithms from "./Algorithm";
 /**
  * A graph view
  */
-export default class DepthFirstSearch extends Algorithms{
+export default class DepthFirstSearchRecursive extends Algorithms{
     constructor(graph, startingNode){
         super(graph); // Calling super.constructor to record parent graph for this algorithm
         this.source = startingNode; // Initializing the source vertex is a startingNode which is passed from outside
@@ -22,35 +22,30 @@ export default class DepthFirstSearch extends Algorithms{
      */
     initArray(initValue){
         array = [];
-        for (var i = 0; i <= this.graph.nbVertex+1; i++){
+        for (let i = 0; i <= this.graph.nbVertex+1; i++){
             array.push(initValue);
         }
         return array;
     }
 
     /**
-     * Depth-First-Search (DFS) algorithm for traversing a graph.
+     * Depth-First-Search-Recursive (DFSR) algorithm for traversing a graph.
      * It is used in run() method to record states.
      * @param {Number} source: a source vertex in the graph
      */
-    dfs(source){
-        let stack = [0];
-        let top = 0;
-        stack[top++] = source; // pushing source vertex into Stack
-        while(top != 0){
-            let u = stack[--top]; // get the first vertex from stack and call it is u vertex
-            this.state.focusOn = u;
-            this.saveState();
-            if(this.state.mark[u] == 1) // cheking u vertex is visited or not
-                continue; // if it visited then ignoring it
-            this.state.mark[u] = 1; // if not, then visited u vertex
-            this.state.traversingList[u] = ++this.state.step;
-            this.saveState();
-            let getAdjList = this.graph.getChildrenVertices(u);
-            for(let v of getAdjList){ // traversing all v neighbors of u vertex
-                stack[top++] = v; // inserting the v neighbor into stack
-            }
+    dfsRecursive(source){
+        this.state.focusOn = source; // set working on node u;
+        this.saveState(); // save the state when first jump to new node
+        if (this.state.mark[source]) return; // do nothing if node is marked 
+        this.state.mark[source] = 1; // visited u
+        this.state.traversingList[source] = ++this.state.step;
+        this.saveState(); // save the state when marking the new node
+        let getAdjList = this.graph.getChildrenVertices(source);
+        for (let v of getAdjList){ // loop through children of u
+            this.dfsRecursive(v);
         }
+        this.state.focusOn = source; // set jump back parent node
+        this.saveState(); // save the state when jumping back parent
     }
 
     /**
@@ -58,6 +53,6 @@ export default class DepthFirstSearch extends Algorithms{
      */
     run(){
         this.saveState(); // save first state;
-        this.dfs(this.source); // start dfs() method from source vertex
+        this.dfsRecursive(this.source); // start dfsRecursive() method from node 's'
     }
 }

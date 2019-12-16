@@ -3,15 +3,20 @@ import { View, Text, StyleSheet, Dimensions } from "react-native"
 import { DraculaGraph, Layout } from "graphdracula"
 import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
-import { ScrollView } from 'react-native-gesture-handler'
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
-import { DepthFirstSearch } from "../../tool/graph_theory/algorithms"
+import { DepthFirstSearch, BreadthFirstSearch } from "../../tool/graph_theory/algorithms"
+import { Icon } from "react-native-elements"
 
 
 export default class DrawGraph extends Component {
     static navigationOptions = {
-        title: 'Graph Drawing'
+        title: 'Drawing', //will be showed as tab label in bottom navigator
+        tabBarIcon: <Icon 
+                        name='timeline'
+                        color='black'
+                        onPress={() => clickStartButton()}
+                    />
     };
 
     // makeGraphFromString(str) {
@@ -109,7 +114,7 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
-        // let { vertex, edge, edgeList, isDirected } = state.params;
+        let { vertex, edge, edgeList, isDirected } = state.params;
         // let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
 
         // var graph = this.makeGraphFromString(
@@ -138,16 +143,17 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 2, v: 4});
 
-        let graph = new AdjacencyMatrixGraph(5,7,false);
-        graph.addEdge({u: 1, v: 2});
-        graph.addEdge({u: 1, v: 3});
-        graph.addEdge({u: 1, v: 4});
-        graph.addEdge({u: 1, v: 5});
-        graph.addEdge({u: 2, v: 3});
-        graph.addEdge({u: 2, v: 4});
-        graph.addEdge({u: 4, v: 5});
-        graph.display();
-        let algorithm = new DepthFirstSearch(graph, 1);
+        // let graph = new AdjacencyMatrixGraph(vertex,edge,isDirected);
+        let graph = this.makeGraph(vertex, edge,edgeList, isDirected);
+        // graph.addEdge({u: 1, v: 2});
+        // graph.addEdge({u: 1, v: 3});
+        // graph.addEdge({u: 1, v: 4});
+        // graph.addEdge({u: 1, v: 5});
+        // graph.addEdge({u: 2, v: 3});
+        // graph.addEdge({u: 2, v: 4});
+        // graph.addEdge({u: 4, v: 5});
+        // graph.display();
+        let algorithm = new BreadthFirstSearch(graph, 1);
 
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
@@ -157,7 +163,7 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-Header.HEIGHT}
+                height = {heightPhone-200}
                 nodeRadius = { 20 }
                 zoomable={true}
                 />;
