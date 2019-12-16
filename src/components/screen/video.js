@@ -4,7 +4,7 @@ import { View, Text } from 'react-native';
 
 export default class VideoScreen extends Component{
     static navigationOptions = {
-        title: 'Tutorial'
+        title: 'Videos'
     };
     render(){     
         return(
