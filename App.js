@@ -1,7 +1,22 @@
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs';
-import { Test, DrawGraph, InputGraph, StringInputGraph, HomeScreen, SettingScreen, TutorialScreen, ForumScreen, Tutorial} from "./src/components"
-//Tutorial Screen should be VideoScreen
+import { Test, DrawGraph, InputGraph, StringInputGraph, HomeScreen, SettingScreen, VideoScreen, ForumScreen, Tutorial} from "./src/components"
+
+/**
+ * Create navigation screen for 2 screens Graph Drawing and Tutorial
+ */
+var executeAlgorithmScreen = createMaterialBottomTabNavigator(
+  {
+    Drawing: { screen: DrawGraph },
+    Tutorial: { screen: Tutorial },
+  },
+  {//style the MaterialBottomTabNavigator
+    initialRouteName: 'Drawing',
+    activeColor: '#004ede',
+    inactiveColor: '#858585',
+    barStyle: { backgroundColor: '#b3b3b3' },
+  }
+)
 
 const MainNavigator = createStackNavigator({
     Home: { screen: HomeScreen },
@@ -22,7 +37,7 @@ const SettingStack = createStackNavigator({
     //Input: { screen: InputGraph }
 });
 const TutorialStack = createStackNavigator({
-    Tutorial: { screen: TutorialScreen },
+    Tutorial: { screen: VideoScreen },
     //Input: { screen: InputGraph }
 });
 const ForumStack = createStackNavigator({
@@ -35,22 +50,6 @@ const TabNavigator = createMaterialBottomTabNavigator({
     Tutorial: { screen: TutorialStack },
     Forum: { screen: ForumStack }
 });
-
-/**
- * Create navigation screen for 2 screens Graph Drawing and Tutorial
- */
-var executeAlgorithmScreen = createMaterialBottomTabNavigator(
-  {
-    Drawing: { screen: DrawGraph },
-    Tutorial: { screen: Tutorial },
-  },
-  {//style the MaterialBottomTabNavigator
-    initialRouteName: 'Drawing',
-    activeColor: '#004ede',
-    inactiveColor: '#858585',
-    barStyle: { backgroundColor: '#b3b3b3' },
-  }
-)
 
 const App = createAppContainer(TabNavigator);
 export default App;

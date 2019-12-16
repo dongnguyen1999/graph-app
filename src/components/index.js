@@ -4,6 +4,7 @@ import Edge from "./edge"
 import ListItem from "./list_item"
 import InfoPane from './infopane'
 
+
 import {
     Test, 
     DrawGraph, 
@@ -11,7 +12,7 @@ import {
     StringInputGraph, 
     HomeScreen,
     SettingScreen,
-    TutorialScreen,
+    VideoScreen,
     ForumScreen,
     Tutorial
 } from "./screen"
@@ -26,7 +27,7 @@ export {
     InfoPane, 
     HomeScreen,
     SettingScreen,
-    TutorialScreen,
+    VideoScreen,
     ForumScreen,
     Tutorial
 }
