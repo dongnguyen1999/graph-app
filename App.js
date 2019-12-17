@@ -62,7 +62,7 @@ const TabNavigator = createMaterialBottomTabNavigator({
       screen: MainNavigator,
       navigationOptions: {
         tabBarIcon: <MaterialIcons style={{
-          fontSize: 20,
+          fontSize: 24,
           color: "rgb(149,151,203)"
         }} name={'home'}/>
       }
@@ -71,7 +71,7 @@ const TabNavigator = createMaterialBottomTabNavigator({
       navigationOptions: {
         tabBarIcon: <MaterialIcons
             style={{
-          fontSize: 20,
+          fontSize: 24,
           color: "rgb(149,151,203)"
         }} name={'receipt'}/>
       }
@@ -80,7 +80,7 @@ const TabNavigator = createMaterialBottomTabNavigator({
 
       navigationOptions: {
         tabBarIcon: <MaterialIcons  style={{
-          fontSize: 20,
+          fontSize: 24,
           color: "rgb(149,151,203)"
         }} name={'school'}/>
       }},
@@ -89,7 +89,7 @@ const TabNavigator = createMaterialBottomTabNavigator({
       navigationOptions: {
         tabBarIcon: <MaterialIcons style={{
 
-          fontSize: 20,
+          fontSize: 24,
 
           color: "rgb(149,151,203)"
         }} name={'settings'}/>
