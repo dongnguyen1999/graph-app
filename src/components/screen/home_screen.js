@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TextInput, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
+import { Dimensions,View, TextInput, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient'
 import {Button,Header, SearchBar} from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
@@ -11,7 +11,8 @@ export default class HomeScreen extends Component{
         super(props);
         this.state = {
             search: '',
-            hasFocus: false
+            hasFocus: false,
+            listAlgorithmsName: []
         };
         this.algorithmsName = {
             DFS: 'Depth First Search',
@@ -30,12 +31,35 @@ export default class HomeScreen extends Component{
             FordFullkerson: 'Ford-Fullkerson'
         };
     }
+    componentDidMount() {
+
+        let listAlgorithmsName = [];
+        for(let name in this.algorithmsName)
+            listAlgorithmsName.push({
+                name: this.algorithmsName[name],
+                key: name
+            });
+        this.setState({
+            listAlgorithmsName: [...listAlgorithmsName]
+        })
+    }
 
     getAlgorithmsName(){
         return this.algorithmsName;
     }
     updateSearch = search => {
-        this.setState({ search });
+        let listAlgorithmsName = [];
+        for(let name in this.algorithmsName){
+            let _name = this.algorithmsName[name].toUpperCase();
+            if( _name.indexOf(search.toUpperCase()) >= 0 || search.trim() === '')
+                listAlgorithmsName.push({
+                    name: this.algorithmsName[name],
+                    key: name
+                });
+        }
+        this.setState({
+            search ,
+            listAlgorithmsName: [...listAlgorithmsName]});
     };
     onFocusSearch(hasFocus){
         this.setState({
@@ -100,9 +124,12 @@ export default class HomeScreen extends Component{
                     // }}
                     value={this.state.search}/>
 
-                <ScrollView style={styles.list}>
+                <ScrollView style={styles.list}
+                    showsVerticalScrollIndicator={false}
+                    showsHorizontalScrollIndicator={false}
+                    >
 
-                    { listAlgorithmsName.map((value, index) =>
+                    { this.state.listAlgorithmsName.map((value, index) =>
                         <TouchableOpacity style = { styles.frame } key = { index } onPress = {() => navigate('Input', {algorithm: {name: value.name, key: value.key}})}>
                             <Text style = { styles.text }> { value.name } </Text>
                         </TouchableOpacity>
@@ -116,7 +143,8 @@ const styles = StyleSheet.create({
     container: {
       padding: 10,
       backgroundColor: 'rgb(25,27,71)',
-      borderColor: 'transparent'
+      borderColor: 'transparent',
+      minHeight: Dimensions.get('window').height
     },
     list: {
         paddingHorizontal: 30,
