@@ -9,7 +9,7 @@ export default class VideoScreen extends Component{
     render(){     
         return(
             <View> 
-                <Text></Text>
+                <Text>Videos</Text>
             </View>
         );
     }

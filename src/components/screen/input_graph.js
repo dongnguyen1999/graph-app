@@ -7,7 +7,11 @@ import { CheckBox, Input } from "react-native-elements"
 
 export default class InputGraph extends Component {
   static navigationOptions = {
-    title: 'Graph input'
+    title: 'Graph input',
+    headerStyle: {
+      backgroundColor: 'rgb(55,57,106)'
+    },
+    headerTintColor: '#fff'
   };
     constructor(props) {
       super(props);
@@ -43,7 +47,8 @@ export default class InputGraph extends Component {
       vertex: this.state.vertex,
       edge: this.state.edge,
       isDirected: this.state.directed,
-      edgeList: edgeList// array of text-input for edges: ["1,2", "2,3",...]
+      edgeList: edgeList,// array of text-input for edges: ["1,2", "2,3",...],
+      algorithmValue: this.props.navigation.getParam('algorithm')
     });
   }
 
@@ -102,9 +107,12 @@ export default class InputGraph extends Component {
   render(){
       const { navigate } = this.props.navigation;
       const algorithm = this.props.navigation.getParam('algorithm');
+      const algorithmName = algorithm.name;
+      const keyAlgorithm = algorithm.key;
+      console.log(keyAlgorithm);
       return(
         <ScrollView style={styles.container}>
-            <TextInput style={styles.title}>{algorithm}</TextInput>
+            <TextInput style={styles.title}>{algorithmName}</TextInput>
           <ScrollView style={styles.content}>
             <View style={styles.groupInput}>
               <TextInput
@@ -120,9 +128,15 @@ export default class InputGraph extends Component {
             </View>
 
               <CheckBox
+                  containerStyle={{
+                    borderWidth:0,
+                    padding: 0,
+                    backgroundColor: 'transparent'
+                  }}
                   textStyle={{
                     backgroundColor: 'transparent',
-                    borderRadius: 10
+                    borderRadius: 10,
+                    color: 'rgb(25,27,71)'
                   }}
                   title='Is directed graph?'
                   checked={this.state.directed}
@@ -153,33 +167,35 @@ export default class InputGraph extends Component {
 const styles = StyleSheet.create({
   container: {
     // paddingHorizontal: 10,
+    backgroundColor: '#fff',
     paddingVertical: 10,
     height: '100%'
   },
   title: {
     fontSize: 20,
-    paddingHorizontal: 5,
-    fontWeight: 'bold'
+    paddingHorizontal: 15,
+    fontWeight: 'bold',
+    color: 'rgb(55,57,106)'
   },
   content: {
-    backgroundColor: '#E3E3F4',
+    backgroundColor: '#fff',
     paddingHorizontal: 5,
     paddingVertical:30,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    marginTop: 30,
-    minHeight: Dimensions.get('screen').height - 250
+    // borderTopLeftRadius: 30,
+    // borderTopRightRadius: 30,
+    marginTop: 10,
+    // minHeight: Dimensions.get('screen').height - 250
   },
   groupInput: {
     flexDirection: 'row'
   },
   button:{
-      backgroundColor:'#3936EB',
+      backgroundColor:'rgb(55,57,106)',
       width:80,
       borderRadius: 8,
       elevation: 8,
       shadowColor: '#fff',
-      shadowOffset: {x: 2, y: 2},
+      shadowOffset: {width: 2, height: 2},
       shadowOpacity: 0.2,
       alignItems:'center',
       padding: 5,
@@ -190,16 +206,22 @@ const styles = StyleSheet.create({
   textSubmit: {
 
     color: '#fff',
+    elevation: 8,
+    shadowColor: 'white',
+    shadowOffset: {width: 2, height: 2}
   },
   input:{
-    width:50,
-    borderRadius: 5,
+    width:70,
+    borderRadius: 8,
     backgroundColor: '#fff',
     height: 40,
     padding: 5,
     marginLeft: 10,
     marginBottom: 10,
     marginVertical: 5,
+    elevation: 4,
+    shadowColor: 'white',
+    shadowOffset: {width: 2, height: 2}
   },
   containerTextarea: {
     paddingHorizontal: 10
@@ -209,6 +231,9 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 5,
     padding: 5,
+    elevation: 4,
+    shadowColor: 'white',
+    shadowOffset: {width: 2, height: 2}
   }
 });
 const theme = {
