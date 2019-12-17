@@ -40,6 +40,10 @@ const MainNavigator = createStackNavigator({
       let tabTitle = ['Graph Drawing', 'Tutorial']
       return {
           title: tabTitle[navigation.state.index],
+          headerStyle: {
+            backgroundColor: 'rgb(55,57,106)'
+          },
+          headerTintColor: '#fff'
       }}}},{
 
       headerLayoutPreset: 'center'
