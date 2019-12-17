@@ -5,9 +5,22 @@ import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
-import { DepthFirstSearch, BreadthFirstSearch } from "../../tool/graph_theory/algorithms"
+import { DepthFirstSearch,
+    BreadthFirstSearch,
+    DepthFirstSearchRecursive,
+    Tarjan,
+    Cycle,
+    Bigraph,
+    HamiltonCycle,
+    Dijkstra,
+    BellmanFord,
+    FloydWarshall,
+    TopologicalSort,
+    Kruskal,
+    Prim,
+    FordFullkerson
+} from "../../tool/graph_theory/algorithms"
 import { Icon } from "react-native-elements"
-
 
 export default class DrawGraph extends Component {
     static navigationOptions = {
@@ -32,14 +45,25 @@ export default class DrawGraph extends Component {
     //     }
     //     return this.makeGraph(vertex, edge, edgeList);
     // }
-
-    /**
-     * return array of numbers from text-input: [u,v,w]
-     * @param {String} strInput: text-input of an edge, Ex: "1,2" or "1,2,5"
-     * @param {String} seperator: seperator of the text-input, 
-     *                  Ex: for "1,2" seperator is ","
-     *                  Default: ","
-     */
+    constructor(props) {
+        super(props);
+        this.algorithmsList = {
+            DFS: DepthFirstSearch,
+            DFSR: DepthFirstSearchRecursive,
+            BFS: BreadthFirstSearch,
+            Tarjan: Tarjan,
+            Cycle: Cycle,
+            Bigraph: Bigraph,
+            HamitonCycle: HamiltonCycle,
+            Dijkstra: Dijkstra,
+            BellmanFord: BellmanFord,
+            Warshall: FloydWarshall,
+            TopoSort: TopologicalSort,
+            Kruskal: Kruskal,
+            Prim: Prim,
+            FordFullkerson: FordFullkerson
+        };
+    }
     convertEdge(strInput, seperator = ",") {
         let inputs = strInput.split(seperator);
         if (inputs.length == 2 || inputs.length == 3) {
@@ -114,7 +138,8 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
-        let { vertex, edge, edgeList, isDirected } = state.params;
+        let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
+        // console.log('algorithmName' +algorithmValue.key);
         // let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
 
         // var graph = this.makeGraphFromString(
@@ -154,7 +179,9 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 5});
         // graph.display();
         let algorithm = new BreadthFirstSearch(graph, 1);
-
+        let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
+        console.log(choiceAlgorithm);
+        // let algorithm = new choiceAlgorithm(graph, 1);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         let view = '';
