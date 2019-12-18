@@ -80,24 +80,24 @@ export default class GraphView extends Component {
         this.edges = renderer.getEdgesMap();
 
         this.state = {
-            //nodes, edges should be properties
-            // nodes: nodes,
-            // edges: edges,
-            views: this.renderGraph(this.nodes, this.edges), //render the first graph status
+            edgeViews: new Map(),     //is a map
+            nodeViews: [], //render the first graph status //is an array
+            infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane
             //the 3 states for svg transform
             zoom: 1,    
             left: 0,
             top: 0,
-            isShowingInfoPane: false //keep wether the only InfoPane showing on GraphView
         }
+
+        this.renderGraph(this.nodes, this.edges);
 
         //should use width, height from props
         //pass widthPhone, heightPhone when use GraphView as props
         // this.widthPhone = Math.round(Dimensions.get('window').width);
         // this.heightPhone = Math.round(Dimensions.get('window').height);
 
-        this.refresh = this.refresh.bind(this);
-        this.renderGraph = this.renderGraph.bind(this);
+        // this.refresh = this.refresh.bind(this);
+        // this.renderGraph = this.renderGraph.bind(this);
     }
 
     /**
@@ -137,15 +137,13 @@ export default class GraphView extends Component {
      * @param {String} connection: id of an edge ("sourceNodeId-targetNodeId")
      */
     updateEdges(node,connection){
+        // console.log(connection);
         let points = connection.split("-");
         let [source, target] = points;
         let edge = this.edges.get(connection);
-        if (node.id === source) edge.source = node;
-        else if (node.id === target) edge.target = node;
-        this.edges.set(connection, edge);//record new edge
-        this.setState({
-            views: this.rerenderEdge(connection,edge)
-        });
+        if (node.id === source) edge.source.point = node.point;
+        else if (node.id === target) edge.target.point = node.point;
+        this.state.edgeViews = this.rerenderEdge(connection,edge);
     }
 
     /**
@@ -154,44 +152,29 @@ export default class GraphView extends Component {
      * @param {Array<Number>} point: an array presents position of a node: [x,y]
      */
     validatePoint(point){
-        let {width, height, nodeRadius } = this.props;
+        let {width, height, nodeRadius, zoomable } = this.props;
         let [x,y] = point;
-        if (x < nodeRadius) x = nodeRadius;
-        if (y < nodeRadius) y = nodeRadius;
-        // if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
-        // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
-        if (x > width-nodeRadius) x = width-nodeRadius;
-        if (y > height-nodeRadius) y = height-nodeRadius;
+        if (!zoomable){
+            if (x < nodeRadius) x = nodeRadius;
+            if (y < nodeRadius) y = nodeRadius;
+            // if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
+            // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
+            if (x > width-nodeRadius) x = width-nodeRadius;
+            if (y > height-nodeRadius) y = height-nodeRadius;
+        }
         return [(x-this.state.left)/this.state.zoom,(y-this.state.top)/this.state.zoom];
     }
 
-    /**
-     * set new state for GraphView if a node is dragged
-     * if there is a infopane is showing, remove it
-     * @param {Node} node: a node object in DraculaGraph
-     * Node {
-            "connections": Array<String>,
-            "edges": Array<Edge>,
-            "id": "h",
-            "layoutForceX": 0,
-            "layoutForceY": 0,
-            "layoutPosX": -1.1365227254852424,
-            "layoutPosY": -0.6805833973160654,
-            "point": Array [20,20],
-            "shape": true,
-        }
-     */
-    refresh(node){
-        if (this.state.isShowingInfoPane) this.removeInfoPane();
-        node.point = this.validatePoint(node.point);
-        // console.log(node.point);
-        this.nodes.set(node.id,node);//record new node
-        this.setState({
-            views: this.rerenderNode(node.id,node)
-        });
+    
+    moveNode(id, newCoord){
+        if (this.isShowingInfoPane()) this.removeInfoPane();
+        point = this.validatePoint(newCoord);
+        let node = this.nodes.get(id);
+        node.point = point;
         for (let connection of node.connections){
-            this.updateEdges(node,connection);
+            this.updateEdges(node, connection);
         }
+        this.setState({});
     }
 
     /** For fixing duplicate code
@@ -207,7 +190,7 @@ export default class GraphView extends Component {
                 style = {this.getNodeStyle(id)}
                 r={this.props.nodeRadius}
                 pressingCallback={this.pressVerticesListener.bind(this)}
-                draggingCallback={this.refresh.bind(this)}
+                draggingCallback={this.moveNode.bind(this)}
                 >{id}</Vertex>
     }
 
@@ -230,28 +213,6 @@ export default class GraphView extends Component {
     }
 
     /**
-     * rerender a node when nodes' position is changed
-     * @param {String} id: node.id
-     * @param {Node} node: a node object in DraculaGraph
-     * Node {
-            "connections": Array<String>,
-            "edges": Array<Edge>,
-            "id": "h",
-            "layoutForceX": 0,
-            "layoutForceY": 0,
-            "layoutPosX": -1.1365227254852424,
-            "layoutPosY": -0.6805833973160654,
-            "point": Array [20,20],
-            "shape": true,
-        }
-     */
-    rerenderNode(id, node){
-        return this.state.views.set(id,
-            this.createNode(id,node)
-        );
-    }
-
-    /**
      * rerender an edge when its position is changed
      * @param {String} id: sourceNodeId + "-" + targetNodeId
      * @param {Edge} edge: an edge object in DraculaGraph
@@ -264,7 +225,7 @@ export default class GraphView extends Component {
         }
      */
     rerenderEdge(id, edge){
-        return this.state.views.set(id,
+        return this.state.edgeViews.set(id,
             this.createEdge(id, edge)
         );
     }
@@ -293,20 +254,15 @@ export default class GraphView extends Component {
         }
      */
     renderGraph(nodes, edges){
-        let views = new Map(); //Init views
-        for (let [id, node] of nodes){ //Destructuring
-            //Set node into views
-            views.set(id,
-                this.createNode(id,node)
-            );
-        }
         for (let [id,edge] of edges){
-            //Set edge into views
-            views.set(id,
-                this.createEdge(id, edge)
-            );
+            //Set edge into edge views map
+            this.state.edgeViews.set(id, this.createEdge(id, edge));
         }
-        return views;
+        this.state.nodeViews = [];
+        for (let [id, node] of nodes){ //Destructuring
+            //Set node into node views array
+            this.state.nodeViews.push(this.createNode(id,node));
+        }
     }
 
     /**
@@ -375,17 +331,16 @@ export default class GraphView extends Component {
         if (this.algorithm){
             // console.log("render infopane for node ", node.id);
             this.setState({
-                views: this.state.views.set("#InfoPane:"+node.id,//add infoPane view with id "#InfoPane"
-                    <InfoPane
-                        node={node}
-                        key={"#InfoPane"}
-                        state={this.algorithm.getState()}
-                    >
-                    </InfoPane>
-                ),
-                isShowingInfoPane: true //tell that an InfoPane is showing
+                infoPane: <InfoPane
+                    node={node}
+                    key={"#InfoPane"+":"+node.id}
+                    state={this.algorithm.getState()}/>
             })
         }
+    }
+
+    isShowingInfoPane(){
+        return this.state.infoPane != undefined;
     }
 
     /**
@@ -394,18 +349,11 @@ export default class GraphView extends Component {
      */
     removeInfoPane(){
         let removedPaneId = undefined;
-        if (this.algorithm && this.state.isShowingInfoPane){
-            //fine the only key in views map that startWith
-            for (let key of this.state.views.keys()){
-                if (key.toString().startsWith("#InfoPane:")) {
-                    removedPaneId = key;
-                    break;
-                }
-            }
+        if (this.algorithm && this.isShowingInfoPane()){
+            removedPaneId = this.state.infoPane.key;
             if (removedPaneId){
-                this.state.views.delete(removedPaneId);
                 this.setState({
-                    isShowingInfoPane: false,
+                    infoPane: undefined
                 })
             }
         }
@@ -417,7 +365,7 @@ export default class GraphView extends Component {
      * @param {Node} node: a Node object (from GraphDracula)
      */
     pressVerticesListener(node){
-        if (!this.state.isShowingInfoPane) this.renderInfoPane(node);
+        if (!this.isShowingInfoPane()) this.renderInfoPane(node);
         else {
             let removedPaneId = this.removeInfoPane();
             if (removedPaneId){
@@ -449,17 +397,11 @@ export default class GraphView extends Component {
      * draw edges first, then nodes
      */
     applyViews(){
-        let edges = [];
-        let infoPane;
-        let nodes = [];
-        for (let [key, view] of this.state.views){
-            if (key.toString().includes("-"))
-                edges.push(view);
-            else if (key.toString().startsWith("#InfoPane:"))
-                infoPane = view;
-            else nodes.push(view);
-        }
-        return edges.concat(nodes).concat(infoPane);
+        let edgeViews = Array.from(this.state.edgeViews.values());
+        let nodeViews = this.state.nodeViews;
+        let infoPane = [];
+        if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
+        return edgeViews.concat(nodeViews).concat(infoPane);
     }
 
     /**
@@ -587,7 +529,6 @@ export default class GraphView extends Component {
                 {this.renderAlgorithmPlayer()}
                 <Svg width={width} height={height}
                     marginTop={10}
-                    onMoveShouldSetResponder={() => {console.log('onMoveShouldSetResponder')}}
                     onResponderGrant={() => this.removeInfoPane()}
                     onResponderMove={(event) => this.processMoveAndZoomEvent(event)}
                     onPress={() => {console.log('onPress')}}

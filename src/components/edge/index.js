@@ -27,7 +27,7 @@ import { Path, Text,G} from 'react-native-svg';
  * @prop {Boolean} isDirected: set the edge having arrow or not
  */
 export default class Edge extends Component {
-
+  
   // getVertexBBox(x,y,r){
   //   return {
   //     x: x-r,
@@ -199,14 +199,15 @@ export default class Edge extends Component {
   }
 
   render() {
+    // console.log("render edge");
     const { source, target, r } = this.props;
-    var sourcePoint = source.point;
-    var targetPoint = target.point;
-    var label = this.computeLabel(sourcePoint[0],sourcePoint[1],targetPoint[0],targetPoint[1]);
+    var [x1, y1] = source.point;
+    var [x2, y2] = target.point;
+    var label = this.computeLabel(x1, y1, x2, y2);
     var labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y}>{label.text}</Text>:[];
     return (
         <G>
-          <Path d = {this.computeLine(sourcePoint[0],sourcePoint[1],targetPoint[0],targetPoint[1],r+3)} style = {styles.lineBody} />
+          <Path d = {this.computeLine(x1, y1, x2, y2, r+3)} style = {styles.lineBody} />
           {labelView}
         </G>
     )
