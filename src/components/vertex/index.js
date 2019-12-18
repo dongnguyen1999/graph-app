@@ -29,8 +29,9 @@ export default class Vertex extends Component {
   constructor(props){
     super(props)
     this.coord = this.props.node.point;
+    this.incomingCoord = [this.coord[0], this.coord[1]];
     this.state = {
-      isMoving: false //keep whether a vertex are being dragged
+      isBeingDragged: false //keep whether a vertex are being dragged
     }
   }
 
@@ -41,10 +42,26 @@ export default class Vertex extends Component {
   }
 
 
-  onDragNodeListener(event, node, draggingCallback){
-    this.setState({isMoving: true});
+  // onDragNodeListener(event, node, draggingCallback){
+  //   this.setState({isBeingDragged: true});
+  //   let [x1, y1] = this.coord;
+  //   let [x2, y2] = [event.nativeEvent.locationX, event.nativeEvent.locationY];
+  //   let dist = this.calcDistance(x1,y1,x2,y2);
+  //   if (dist > this.props.r) {
+  //     this.coord = [x2, y2];
+  //     draggingCallback(node.id, [x2, y2]);
+  //   }
+  // }
+
+  onDragNodeListener(event){
+    this.setState({isBeingDragged: true});
+    this.incomingCoord = [event.nativeEvent.locationX, event.nativeEvent.locationY];
+  }
+
+  jumpToIncomingCoord(draggingCallback){
+    let node = this.props.node;
     let [x1, y1] = this.coord;
-    let [x2, y2] = [event.nativeEvent.locationX, event.nativeEvent.locationY];
+    let [x2, y2] = this.incomingCoord;
     let dist = this.calcDistance(x1,y1,x2,y2);
     if (dist > this.props.r) {
       this.coord = [x2, y2];
@@ -53,10 +70,10 @@ export default class Vertex extends Component {
   }
 
   onPressNodeListener(node, pressingCallback){
-    if (!this.state.isMoving) {
+    if (!this.state.isBeingDragged) {
       pressingCallback(node);
     }
-    this.setState({isMoving: false});
+    this.setState({isBeingDragged: false});
   }
 
   render() {
@@ -69,8 +86,9 @@ export default class Vertex extends Component {
     return (
       <G 
         onMoveShouldSetResponder={() => {console.log("onMoveShouldSetResponder")}}
+        onResponderEnd={() => {this.jumpToIncomingCoord(draggingCallback)}}
         // onResponderGrant={() => {console.log("onGrant")}}
-        onResponderMove={(event) => this.onDragNodeListener(event,node,draggingCallback)}
+        onResponderMove={(event) => this.onDragNodeListener(event)}
         onPress={() => {console.log('press')}}
         onResponderRelease = {() => this.onPressNodeListener(node,pressingCallback)}
         >

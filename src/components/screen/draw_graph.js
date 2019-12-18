@@ -75,7 +75,7 @@ export default class DrawGraph extends Component {
                 if (isNaN(out)) return false;
             }
             if (inputs.length == 3) outputs.push(w);
-            console.log(outputs);
+            // console.log(outputs);
             return outputs;
         }
         return false;

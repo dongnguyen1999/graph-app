@@ -25,11 +25,11 @@ export default class InputGraph extends Component {
       this.handleDataTextarea = this.handleDataTextarea.bind(this);
   }
 
-    display(){
-      console.log('Number of Vertex: ' + this.state.vertex);
-      console.log('Number of Edges: ' + this.state.edge);
-      console.log('List of Edges: key: value\n');
-      this.displayEdgesList();
+  display(){
+    console.log('Number of Vertex: ' + this.state.vertex);
+    console.log('Number of Edges: ' + this.state.edge);
+    console.log('List of Edges: key: value\n');
+    this.displayEdgesList();
   }
   displayEdgesList(){
       for (var [key, value] of this.state.listOfEdge.entries()){
@@ -109,7 +109,7 @@ export default class InputGraph extends Component {
       const algorithm = this.props.navigation.getParam('algorithm');
       const algorithmName = algorithm.name;
       const keyAlgorithm = algorithm.key;
-      console.log(keyAlgorithm);
+      // console.log(keyAlgorithm);
       return(
         <ScrollView style={styles.container}>
             <TextInput style={styles.title}>{algorithmName}</TextInput>
