@@ -168,7 +168,7 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 2, v: 4});
 
-        // let graph = new AdjacencyMatrixGraph(vertex,edge,isDirected);
+        // let graph = new AdjacencyMatrixGraph(5,7,false);
         let graph = this.makeGraph(vertex, edge,edgeList, isDirected);
         // graph.addEdge({u: 1, v: 2});
         // graph.addEdge({u: 1, v: 3});
@@ -178,10 +178,10 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 2, v: 4});
         // graph.addEdge({u: 4, v: 5});
         // graph.display();
-        let algorithm = new BreadthFirstSearch(graph, 1);
+        // let algorithm = new BreadthFirstSearch(graph, 1);
         let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
-        console.log(choiceAlgorithm);
-        // let algorithm = new choiceAlgorithm(graph, 1);
+        // console.log(choiceAlgorithm);
+        let algorithm = new choiceAlgorithm(graph, 1);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         let view = '';
@@ -190,7 +190,7 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-200}
+                height = {heightPhone-250}
                 nodeRadius = { 20 }
                 zoomable={true}
                 />;
