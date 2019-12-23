@@ -28,9 +28,9 @@ let executeAlgorithmScreen = createMaterialBottomTabNavigator(
 )
 
 const MainNavigator = createStackNavigator({
-    Home: { screen: HomeScreen,
-    },
-    Input: { screen: InputGraph },
+    // Home: { screen: HomeScreen,
+    // },
+    // Input: { screen: InputGraph },
     //Drawing: { screen: DrawGraph },
     //Input: { screen: StringInputGraph },
     //First: {screen: Test}

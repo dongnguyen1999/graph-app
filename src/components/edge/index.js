@@ -2,187 +2,73 @@ import React, { Component } from 'react'
 import { View,PixelRatio } from "react-native"
 import {styles} from "./style"
 import {colors} from "./color"
-import { Path, Text,G} from 'react-native-svg';
+import { Path, Text,G,Line} from 'react-native-svg';
 
+function distance(x1,y1,x2,y2){
+  return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+}
 
 /**
  * An instance of this class presents a svg shape of graph's egde
  * Edge can display label if having 'label' prop
  * @prop {Number} key: id of this edge in list of edges
- * @prop {Node} source: the source node of the edge
- * @prop {Node} target: the source node of the edge
- *     Node {
-                "connections": Array<String>,
-                "edges": Array<Edge>,
-                "id": "h",
-                "layoutForceX": 0,
-                "layoutForceY": 0,
-                "layoutPosX": -1.1365227254852424,
-                "layoutPosY": -0.6805833973160654,
-                "point": Array [20,20],
-                "shape": true,
-            }
- * @prop {String|Number} label: label that show along the edge
- * @prop {Number} r: node radius
- * @prop {Boolean} isDirected: set the edge having arrow or not
+ * @prop {Link} link: a link object (data for drawing edge)
+ *    Link{
+ *         source: a node object that is the node x in edge (x, y)
+ *         target: a node object that is the node y in edge (x, y)
+ *         weight: a number show the cost was paid when going from x to y | undefined by default
+ *         label: display string in GraphView - middle of the link (optional) | show weight as label by default
+ *         style: specify style for the link (type, color, stroke,...) (optional) | undefined for default style
+ *                 see about node style at src/components/edge/style.js
+ *         isDirected: tell whether the links is directed or not, show arrow shape for directed link | false by default
+ *    }
+ * @prop {Number} vertexRadius: node radius
  */
-export default class Edge extends Component {
-  
-  // getVertexBBox(x,y,r){
-  //   return {
-  //     x: x-r,
-  //     y: y-r,
-  //     width: 2*r,
-  //     height: 2*r
-  //   }
-  // }
+export default function Edge(props){
 
-  // updateEdge(connection){
-    // if (connection.type == 'source'){
-    //   this.setState({sourcePoint: })
-    // }
-  // }
-
-  // getConnectionPointsInCircle(x,y,r){
-  //   /* get bounding boxes of target and source */
-  //   const bb = this.getVertexBBox(x,y,r);
-  //   let pi = Math.PI
-  //   let points = []
-  //   for (let t = 0; t <= 2*pi; t += pi/20){
-  //     let px = Math.cos(t)*r + x;
-  //     let py = Math.sin(t)*r + y;
-  //     points.push({x: px, y: py});
-  //   }
-  //   console.log(points);
-  //   return points;
-  // }
-
-  // getConnectionPoints(x1,y1,x2,y2,r){
-  //   /* get bounding boxes of target and source */
-  //   const bb1 = this.getVertexBBox(x1,y1,r);
-  //   const bb2 = this.getVertexBBox(x2,y2,r);
-
-  //   const off1 = 0
-  //   const off2 = 0
-  //   return [
-
-  //     /* NORTH 1 */
-  //     { x: bb1.x + bb1.width / 2, y: bb1.y - off1 },
-
-  //     /* SOUTH 1 */
-  //     { x: bb1.x + bb1.width / 2, y: bb1.y + bb1.height + off1 },
-
-  //     /* WEST  1 */
-  //     { x: bb1.x - off1, y: bb1.y + bb1.height / 2 },
-
-  //     /* EAST  1 */
-  //     { x: bb1.x + bb1.width + off1, y: bb1.y + bb1.height / 2 },
-
-  //     /* NORTH 2 */
-  //     { x: bb2.x + bb2.width / 2, y: bb2.y - off2 },
-
-  //     /* SOUTH 2 */
-  //     { x: bb2.x + bb2.width / 2, y: bb2.y + bb2.height + off2 },
-
-  //     /* WEST  2 */
-  //     { x: bb2.x - off2, y: bb2.y + bb2.height / 2 },
-
-  //     /* EAST  2 */
-  //     { x: bb2.x + bb2.width + off2, y: bb2.y + bb2.height / 2 },
-
-  //   ]
-  // }
-
-
-  // computePath(x1,y1,x2,y2,r) {
-  //   var p = this.getConnectionPoints(x1,y1,x2,y2,r);
-  //   /* distances between objects and according coordinates connection */
-  //   var d = {};
-  //   var dis = [];
-  //   var dx = void 0;
-  //   var dy = void 0;
-  //   console.log('calulating path');
-  //   /*
-  //   * find out the best connection coordinates by trying all possible ways
-  //   */
-  //   /* loop the first object's connection coordinates */
-  //   for (var i = 0; i < 4; i++) {
-  //     /* loop the second object's connection coordinates */
-  //     for (var j = 4; j < 8; j++) {
-  //       dx = Math.abs(p[i].x - p[j].x);
-  //       dy = Math.abs(p[i].y - p[j].y);
-  //       if (i === j - 4 || (i !== 3 && j !== 6 || p[i].x < p[j].x) && (i !== 2 && j !== 7 || p[i].x > p[j].x) && (i !== 0 && j !== 5 || p[i].y > p[j].y) && (i !== 1 && j !== 4 || p[i].y < p[j].y)) {
-  //         dis.push(dx + dy);
-  //         d[dis[dis.length - 1].toFixed(3)] = [i, j];
-  //       }
-  //     }
-  //   }
-  //   var res = dis.length === 0 ? [0, 4] : d[Math.min.apply(Math, dis).toFixed(3)];
-
-  //   /* bezier path */
-  //   var x1 = p[res[0]].x;
-  //   var y1 = p[res[0]].y;
-  //   var x4 = p[res[1]].x;
-  //   var y4 = p[res[1]].y;
-  //   dx = Math.max(Math.abs(x1 - x4) / 2, 10);
-  //   dy = Math.max(Math.abs(y1 - y4) / 2, 10);
-  //   var x2 = [x1, x1, x1 - dx, x1 + dx][res[0]].toFixed(3);
-  //   var y2 = [y1 - dy, y1 + dy, y1, y1][res[0]].toFixed(3);
-  //   var x3 = [0, 0, 0, 0, x4, x4, x4 - dx, x4 + dx][res[1]].toFixed(3);
-  //   var y3 = [0, 0, 0, 0, y1 + dy, y1 - dy, y4, y4][res[1]].toFixed(3);
-
-  //   /* assemble path and arrow */
-  //   var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'C' + x2, y2, x3, y3, x4.toFixed(3), y4.toFixed(3)].join(',');
-  //   /* arrow */
-  //   // // magnitude, length of the last path vector
-  //   // var mag = Math.sqrt((y4 - y3) * (y4 - y3) + (x4 - x3) * (x4 - x3));
-  //   // // vector normalisation to specified length
-  //   // var norm = function norm(x, l) {
-  //   //   return -x * (l || 5) / mag;
-  //   // };
-  //   // // calculate array coordinates (two lines orthogonal to the path vector)
-  //   // var arc = [{
-  //   //   x: (norm(x4 - x3) + norm(y4 - y3) + x4).toFixed(3),
-  //   //   y: (norm(y4 - y3) + norm(x4 - x3) + y4).toFixed(3)
-  //   // }, {
-  //   //   x: (norm(x4 - x3) - norm(y4 - y3) + x4).toFixed(3),
-  //   //   y: (norm(y4 - y3) - norm(x4 - x3) + y4).toFixed(3)
-  //   // }];
-  //   // path = path + ',M' + arc[0].x + ',' + arc[0].y + ',L' + x4 + ',' + y4 + ',L' + arc[1].x + ',' + arc[1].y;
-
-  //   return path;
-
-  // }
-
-  distance(x1,y1,x2,y2){
-    return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
-  }
-
-  computeLine(x1,y1,x2,y2,r){
-    var dist = this.distance(x1,y1,x2,y2);
-    var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'L' + x2.toFixed(3), y2.toFixed(3)].join(',');
-    var isDirected = this.props.isDirected || false;// get directed setting
+  /**
+   * render an arrow-shaped view for edge if this edge is directed
+   * @param {Number} x1 : source.x
+   * @param {Number} y1 : source.y
+   * @param {Number} x2 : target.x
+   * @param {Number} y2 : target.y
+   * @param {Number} r : vertexRadius
+   * return svg view or undefined (if this edge is undirected)
+   */
+  function computeArrow(x1,y1,x2,y2,r){
+    let dist = distance(x1,y1,x2,y2);
+    let isDirected = props.link.isDirected || false;// get directed setting | default is false
     if (isDirected && dist > r){
-      //compute arrow
-      // size&alpha is editable;
-      var size = 10;
-      var alpha = Math.PI/3;
-      var t = 1 - (r/dist);
-      var A = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
+      // compute arrow
+      // size & alpha is editable;
+      // see more: src/components/edge/compute_arrow.png
+      let size = 10;
+      let alpha = Math.PI/3;
+      let t = 1 - (r/dist);
+      let A = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
       t -= size/dist;
-      var B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
-      var uBC = {x: -(B.y-A.y), y: B.x-A.x};
+      let B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
+      let uBC = {x: -(B.y-A.y), y: B.x-A.x};
       t = t*Math.tan(alpha/2);
-      var C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
-      var D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
-      var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'L' + A.x.toFixed(3), A.y.toFixed(3)].join(',');
-      path = path + ',M' + D.x + ',' + D.y + ',L' + A.x + ',' + A.y + ',L' + C.x + ',' + C.y;
+      let C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
+      let D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
+      let path = 'M' + D.x + ',' + D.y + ',L' + A.x + ',' + A.y + ',L' + C.x + ',' + C.y;
+      return <Path d={path} style={styles.lineBody}/>
     }
-    return path;
+    return undefined;
   }
 
-  computeLabel(x1,y1,x2,y2){
-    var label = this.props.label || undefined; //get label from props
+  /**
+   * Get data about edge's label and compute the position to draw label along the edge
+   * render text view for label if this edge has a label (link.label != undefined)
+   * @param {Number} x1 : source.x
+   * @param {Number} y1 : source.y
+   * @param {Number} x2 : target.x
+   * @param {Number} y2 : target.y 
+   * return svg view or undefined (if this edge has no label)
+   */
+  function computeLabel(x1,y1,x2,y2){
+    var label = props.link.label || undefined; //get label from props
     if (label != undefined){
       //compute label position
       var dist = this.distance(x1,y1,x2,y2);
@@ -192,24 +78,23 @@ export default class Edge extends Component {
       t = 1/20;
       var C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
       var D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
-      if (x2 < x1) return {text: label, x: C.x, y: C.y};
-      return {text: label, x: D.x, y: D.y};
+      let resource = undefined;
+      if (x2 < x1) resource = {text: label, x: C.x, y: C.y};
+      else resource = {text: label, x: D.x, y: D.y};
+      return <Text textAnchor={"middle"} x={resource.x} y={resource.y}>{resource.text}</Text>
     }
     return undefined;
   }
 
-  render() {
-    // console.log("render edge");
-    const { source, target, r } = this.props;
-    var [x1, y1] = source.point;
-    var [x2, y2] = target.point;
-    var label = this.computeLabel(x1, y1, x2, y2);
-    var labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y}>{label.text}</Text>:[];
-    return (
-        <G>
-          <Path d = {this.computeLine(x1, y1, x2, y2, r+3)} style = {styles.lineBody} />
-          {labelView}
-        </G>
-    )
-  }
+  // console.log("render edge");
+  const { link, vertexRadius } = props;
+  var [x1, y1] = [link.source.x, link.source.y];
+  var [x2, y2] = [link.target.x, link.target.y];
+  return (
+      <G>
+        <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody}/>
+        {computeArrow(x1,y1,x2,y2,vertexRadius)}      
+        {computeLabel(x1,y1,x2,y2)}
+      </G>
+  )
 }

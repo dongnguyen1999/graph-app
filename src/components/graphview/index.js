@@ -10,6 +10,7 @@ import { DraculaGraph } from 'graphdracula';
 import { Button } from 'react-native-elements'
 import InfoPane from '../infopane'
 import AlgorithmPlayer from './algoritm_player'
+import * as d3 from 'd3-force'
 
 
 /**
@@ -51,274 +52,249 @@ function calcCenter(x1, y1, x2, y2) {
  * @prop {Number} width: the width of GraphView area
  * @prop {Number} height: the hight of GraphView area
  * @prop {Graph} graph: the basic graph (src/tool/graph_theory/graphs/Graph) need to show on GraphView
- * @prop {Number} nodeRadius: the radius of a vertex
+ * @prop {Number} vertexRadius: the radius of a vertex
+ * @prop {Number} maxLinkLength: maximum length of a link in GraphView
+ * @prop {Number} minNodeDistance: minimum distance between 2 vertices
  * @prop {Boolean} zoomable: setting GraphView to be zoomable or not
  *      
  */
 export default class GraphView extends Component {
     constructor(props){
         super(props);
-        const {graph, width, height, nodeRadius, algorithm} = this.props;
+        const {graph, algorithm} = this.props;
         this.algorithm = undefined;
-        if (algorithm != undefined){ //if graphview is initialized with algorithm
+        if (algorithm != undefined){ // if graphview is initialized with algorithm
             this.algorithm = algorithm;// keep algorithm object used as controller
-            this.graph = algorithm.graph;//keep graph from algorithm
-            this.algorithm.run();//run algorithm for the first time
-            this.algorithm.start();
-        } else this.graph = graph;//keep graph from prop
+            this.graph = algorithm.graph;// keep graph from algorithm
+            this.algorithm.run();// run algorithm for the first time
+            this.algorithm.start();// first start
+        } else this.graph = graph;// keep graph from prop
 
-        let uiGraph = this.convertToUIGraph(this.graph);
-        let layout = new Layout.Spring(uiGraph);
-        //first layout nodes in graph
-        layout.layout();
-        const renderer = new GraphRenderer(uiGraph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
-        //first render graph
-        renderer.draw();
+        let data = this.produceDataFromGraph(this.graph);// data{nodes, links}
+        // console.log(data);
 
-        //get nodes, edges with their first position
-        this.nodes = renderer.getNodesMap();
-        this.edges = renderer.getEdgesMap();
+        this.counter = 0;
 
+        this.componentIsMounted = false;// to fix calling render() on unmountd components
         this.state = {
-            edgeViews: new Map(),     //is a map
-            nodeViews: [], //render the first graph status //is an array
-            infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane
+            nodes: data.nodes,// an array of node object
+            links: data.links,// an array of link object
+            infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane - undefined
             //the 3 states for svg transform
             zoom: 1,    
             left: 0,
             top: 0,
         }
-
-        this.renderGraph(this.nodes, this.edges);
-
-        //should use width, height from props
-        //pass widthPhone, heightPhone when use GraphView as props
-        // this.widthPhone = Math.round(Dimensions.get('window').width);
-        // this.heightPhone = Math.round(Dimensions.get('window').height);
-
-        // this.refresh = this.refresh.bind(this);
-        // this.renderGraph = this.renderGraph.bind(this);
     }
 
     /**
-     * convert a basic graph to DraculaGraph
+     * produre data from basic graph
      * @param {Graph} graph: a basic graph (src/tool/graph_theory/graphs/Graph)
+     * return an object: data{ nodes, links }
+     * data {
+     *      nodes: an array of node object {id, style ...} 
+     *          {
+     *              id: a string determine an unique node (require)
+     *                      use name of the vertex from basic graph as id (1,2,3...) | one-base index by default
+     *              style: specify style for the node (fill, stroke, text,...) (optinal) | undefined for default style
+     *                      see about node style at src/components/vertex/style.js
+     *          }
+     *      links: an array of link object {source, target, weight, label, style, isDirected ...}
+     *          {
+     *              source: an id(string) of a node object that is the node x in edge (x, y)
+     *              target: an id(string) of a node object that is the node y in edge (x, y)
+     *              weight: a number show the cost was paid when going from x to y | undefined by default
+     *              label: display string in GraphView - middle of the link (optional) | show weight as label by default
+     *              style: specify style for the link (type, color, stroke,...) (optional) | undefined for default style
+     *                      see about node style at src/components/edge/style.js
+     *              isDirected: tell whether the links is directed or not, show arrow shape for directed link | false by default
+     *          }
+     * }
      */
-    convertToUIGraph(graph){
-        let uiGraph = new DraculaGraph();//init uiGraph
-        for (let nodeId = 1; nodeId <= graph.nbVertex; nodeId++){
+    produceDataFromGraph(graph){
+        let nodes = [];
+        let links = [];
+        for (let nodeId = 1; nodeId <= graph.nbVertex; nodeId++){// loop through vertices in basic graph
             //add nodes with id is number
-            uiGraph.addNode(nodeId);
+            nodes.push({
+                id: nodeId.toString()
+            });
         }
-        for (let edge of graph.getEdges()){
+        for (let edge of graph.getEdges()){// loop through edges in basic graph
             let {u,v,w} = edge;
+            let link = {};
+            link.source = u.toString();
+            link.target = v.toString();
             if (w !== undefined){
-                //add edge with label
-                uiGraph.addEdge(u,v,{label: w});
-            } else uiGraph.addEdge(u,v);//add edge without label
+                //add weight to link object
+                link.weight = w;
+                link.label = w.toString();
+            }
+            if (graph.isDirected) link.isDirected = true;
+            links.push(link);
         }
-        return uiGraph;
+        return {nodes: nodes, links: links};//data {nodes, links}
     }
 
     /**
-     * rerender edge linked to or linked from a node when its position is changed
-     * @param {Node} node: a node object in DraculaGraph
-     * Node {
-            "connections": Array<String>,
-            "edges": Array<Edge>,
-            "id": "h",
-            "layoutForceX": 0,
-            "layoutForceY": 0,
-            "layoutPosX": -1.1365227254852424,
-            "layoutPosY": -0.6805833973160654,
-            "point": Array [20,20],
-            "shape": true,
-        }
-     * @param {String} connection: id of an edge ("sourceNodeId-targetNodeId")
+     * Handle event on tick in d3-force simulation
+     * see more: https://github.com/d3/d3-force#simulation_tick
      */
-    updateEdges(node,connection){
-        // console.log(connection);
-        let points = connection.split("-");
-        let [source, target] = points;
-        let edge = this.edges.get(connection);
-        if (node.id === source) edge.source.point = node.point;
-        else if (node.id === target) edge.target.point = node.point;
-        this.state.edgeViews = this.rerenderEdge(connection,edge);
+    ticked(){
+        if (this.componentIsMounted) {// make sure call render() when all components are mounted
+            // console.log("tick rerender" + ++this.counter);
+            // console.log(this.state.nodes);
+            this.forceUpdate();// force rerender screen
+        }
     }
+    
+    componentDidMount(){
+        // init d3-force simularion
+        const { width, height, maxLinkLength, minNodeDistance } = this.props;
+        this.componentIsMounted = true;
+        this.simulation = d3.forceSimulation(this.state.nodes)
+            .force("link", d3.forceLink().id(function(d) { return d.id; }).links(this.state.links).distance(maxLinkLength))
+            .force("charge", d3.forceManyBody().strength(-500).distanceMin(minNodeDistance))// see more https://github.com/d3/d3-force#many-body
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .on("tick", () => {this.ticked()});
+        // console.log(this.simulation.force("charge").strength());
+    }
+
+    componentWillUnmount(){
+        this.componentIsMounted = false;
+    }
+
+    // dragStartedListener(index) {
+    //     this.simulation.alphaTarget(0.3).restart();
+    //     this.state.nodes[index].fx = this.state.nodes[index].x;
+    //     this.state.nodes[index].fy = this.state.nodes[index].y;
+    // }
+      
+    // draggedListener(index, event) {
+    //     this.state.nodes[index].fx = event.nativeEvent.locationX;
+    //     this.state.nodes[index].fy = event.nativeEvent.locationY;
+    // }
+    
+    // dragEndedListener(index) {
+    //     this.simulation.alphaTarget(0);
+    //     this.state.nodes[index].fx = null;
+    //     this.state.nodes[index].fy = null;
+    // }
+
 
     /**
      * check and compute new position if the point is out of GraphView area
      * if GraphView is zoomable, compute scaled position depend on zooming value
      * @param {Array<Number>} point: an array presents position of a node: [x,y]
      */
-    validatePoint(point){
-        let {width, height, nodeRadius, zoomable } = this.props;
-        let [x,y] = point;
-        if (!zoomable){
-            if (x < nodeRadius) x = nodeRadius;
-            if (y < nodeRadius) y = nodeRadius;
-            // if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
-            // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
-            if (x > width-nodeRadius) x = width-nodeRadius;
-            if (y > height-nodeRadius) y = height-nodeRadius;
-        }
-        return [(x-this.state.left)/this.state.zoom,(y-this.state.top)/this.state.zoom];
-    }
+    // validatePoint(point){
+    //     let {width, height, nodeRadius, zoomable } = this.props;
+    //     let [x,y] = point;
+    //     if (!zoomable){
+    //         if (x < nodeRadius) x = nodeRadius;
+    //         if (y < nodeRadius) y = nodeRadius;
+    //         // if (x > this.widthPhone-nodeRadius) x = this.widthPhone-nodeRadius;
+    //         // if (y > this.heightPhone-nodeRadius) y = this.heightPhone-nodeRadius;
+    //         if (x > width-nodeRadius) x = width-nodeRadius;
+    //         if (y > height-nodeRadius) y = height-nodeRadius;
+    //     }
+    //     return [(x-this.state.left)/this.state.zoom,(y-this.state.top)/this.state.zoom];
+    // }
 
-    
-    moveNode(id, newCoord){
-        if (this.isShowingInfoPane()) this.removeInfoPane();
-        point = this.validatePoint(newCoord);
-        let node = this.nodes.get(id);
-        node.point = point;
-        for (let connection of node.connections){
-            this.updateEdges(node, connection);
-        }
-        this.setState({});
-    }
-
-    /** For fixing duplicate code
-     * create a node with standard setting
-     * @param {String} id: node.id
-     * @param {Node} node: a node object in DraculaGraph
-     * return a Vertex component
+    /**
+     * render an array of views that show links in GraphView
+     * return an Array<Edge>
      */
-    createNode(id, node){
-        return <Vertex
-                key={id}
-                node={node}
-                style = {this.getNodeStyle(id)}
-                r={this.props.nodeRadius}
-                pressingCallback={this.pressVerticesListener.bind(this)}
-                draggingCallback={this.moveNode.bind(this)}
-                >{id}</Vertex>
-    }
-
-    /** For fixing duplicate code
-     * create an edge with standard setting
-     * @param {String} id: sourceNodeId + "-" + targetNodeId
-     * @param {Edge} edge: an edge object in DraculaGraph
-     * return an Edge component
-     */
-    createEdge(id, edge){
-        let label = edge.style.label || undefined; //get label of edge
-        return <Edge
-                    key={id}
-                    source={edge.source}
-                    target={edge.target}
-                    label={label}
-                    r={this.props.nodeRadius}
-                    isDirected={this.graph.isDirected}
-                />
+    renderLinks(){
+        const { vertexRadius } = this.props;
+        let linkViews = [];
+        this.state.links.forEach((link) => {
+            if (link.source.id != undefined){
+                linkViews.push(<Edge 
+                key={link.source.id + ":" + link.target.id}
+                link={link}
+                vertexRadius={vertexRadius}/>);
+            }
+        })
+        return linkViews;
     }
 
     /**
-     * rerender an edge when its position is changed
-     * @param {String} id: sourceNodeId + "-" + targetNodeId
-     * @param {Edge} edge: an edge object in DraculaGraph
-     * Edge {
-        "attraction": 1,
-        "shape": true,
-        "source": Node
-        "target": Node
-        "style": { label,...}
-        }
+     * render an array of views that show nodes in GraphView
+     * return an Array<Vertex>
      */
-    rerenderEdge(id, edge){
-        return this.state.edgeViews.set(id,
-            this.createEdge(id, edge)
-        );
+    renderNodes(){
+        const { vertexRadius } = this.props;
+        let nodeViews = [];
+        this.state.nodes.forEach((node) => {
+        nodeViews.push(<Vertex
+            key={node.id}
+            simulation={this.simulation}
+            node={node}
+            vertexRadius={vertexRadius}
+            pressingCallback={() => {
+                // this.simulation.stop();
+            }}
+            >{node.id}</Vertex>)
+        });
+        return nodeViews;
     }
 
-    /**
-     * render nodes, edges for the first time store in views (a Map)
-     * @param {Node[]} nodes: array of node objects in DraculaGraph
-     * Node {
-            "connections": Array<String>,
-            "edges": Array<Edge>,
-            "id": "h",
-            "layoutForceX": 0,
-            "layoutForceY": 0,
-            "layoutPosX": -1.1365227254852424,
-            "layoutPosY": -0.6805833973160654,
-            "point": Array [20,20],
-            "shape": true,
-        }
-     * @param {Edge[]} edges: array of edge objects in DraculaGraph
-     * Edge {
-        "attraction": 1,
-        "shape": true,
-        "source": Node
-        "target": Node
-        "style": { label,...}
-        }
-     */
-    renderGraph(nodes, edges){
-        for (let [id,edge] of edges){
-            //Set edge into edge views map
-            this.state.edgeViews.set(id, this.createEdge(id, edge));
-        }
-        this.state.nodeViews = [];
-        for (let [id, node] of nodes){ //Destructuring
-            //Set node into node views array
-            this.state.nodeViews.push(this.createNode(id,node));
-        }
-    }
 
-    /**
-     * define what to do whenever the next button was pressed
-     * call this.algorithm.next(), rerender the graph
-     * through false everytime the next() method return undefined
-     * require to stop the player automatically
-     */
-    clickNextButtonListener(){
-        if (this.algorithm.next() == undefined) {
-            this.algorithm.start();
-            this.setState({views: this.renderGraph(this.nodes, this.edges)});
-            return false;
-        }
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
+    // /**
+    //  * define what to do whenever the next button was pressed
+    //  * call this.algorithm.next(), rerender the graph
+    //  * through false everytime the next() method return undefined
+    //  * require to stop the player automatically
+    //  */
+    // clickNextButtonListener(){
+    //     if (this.algorithm.next() == undefined) {
+    //         this.algorithm.start();
+    //         this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    //         return false;
+    //     }
+    //     return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    // }
 
-    /**
-     * define what to do whenever the previous button was pressed
-     * call this.algorithm.previous(), rerender the graph
-     */
-    clickPreviousButtonListener(){
-        if (this.algorithm.previous() == undefined) this.algorithm.start();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
+    // /**
+    //  * define what to do whenever the previous button was pressed
+    //  * call this.algorithm.previous(), rerender the graph
+    //  */
+    // clickPreviousButtonListener(){
+    //     if (this.algorithm.previous() == undefined) this.algorithm.start();
+    //     return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    // }
 
-    /**
-     * define what to do whenever the jump-to-starting button was pressed
-     * call this.algorithm.start(), rerender the graph
-     */
-    clickStartButtonListener(){
-        this.algorithm.start();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
+    // /**
+    //  * define what to do whenever the jump-to-starting button was pressed
+    //  * call this.algorithm.start(), rerender the graph
+    //  */
+    // clickStartButtonListener(){
+    //     this.algorithm.start();
+    //     return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    // }
 
-    /**
-     * define what to do whenever the jump-to-ending button was pressed
-     * call this.algorithm.end(), rerender the graph
-     */
-    clickEndButtonListener(){
-        this.algorithm.end();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
+    // /**
+    //  * define what to do whenever the jump-to-ending button was pressed
+    //  * call this.algorithm.end(), rerender the graph
+    //  */
+    // clickEndButtonListener(){
+    //     this.algorithm.end();
+    //     return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    // }
 
-    /** TEMP
-     * This method render a menu player for algorithms
-     */
-    renderAlgorithmPlayer(){
-        if (this.algorithm) 
-            return <AlgorithmPlayer 
-                clickNextButton={this.clickNextButtonListener.bind(this)}
-                clickPreviousButton={this.clickPreviousButtonListener.bind(this)}
-                clickStartButton={this.clickStartButtonListener.bind(this)}
-                clickEndButton={this.clickEndButtonListener.bind(this)}
-            />
-    }
+    // /** TEMP
+    //  * This method render a menu player for algorithms
+    //  */
+    // renderAlgorithmPlayer(){
+    //     if (this.algorithm) 
+    //         return <AlgorithmPlayer 
+    //             clickNextButton={this.clickNextButtonListener.bind(this)}
+    //             clickPreviousButton={this.clickPreviousButtonListener.bind(this)}
+    //             clickStartButton={this.clickStartButtonListener.bind(this)}
+    //             clickEndButton={this.clickEndButtonListener.bind(this)}
+    //         />
+    // }
 
     /**
      * Render an InfoPane for GraphView if a node is pressed
@@ -327,53 +303,53 @@ export default class GraphView extends Component {
      * Then, show a new InfoPane if this function called with another node
      * @param {Node} node: a node object in DraculaGraph
      */
-    renderInfoPane(node){
-        if (this.algorithm){
-            // console.log("render infopane for node ", node.id);
-            this.setState({
-                infoPane: <InfoPane
-                    node={node}
-                    key={"#InfoPane"+":"+node.id}
-                    state={this.algorithm.getState()}/>
-            })
-        }
-    }
+    // renderInfoPane(node){
+    //     if (this.algorithm){
+    //         // console.log("render infopane for node ", node.id);
+    //         this.setState({
+    //             infoPane: <InfoPane
+    //                 node={node}
+    //                 key={"#InfoPane"+":"+node.id}
+    //                 state={this.algorithm.getState()}/>
+    //         })
+    //     }
+    // }
 
-    isShowingInfoPane(){
-        return this.state.infoPane != undefined;
-    }
+    // isShowingInfoPane(){
+    //     return this.state.infoPane != undefined;
+    // }
 
     /**
      * Remove the only InfoPane from views
      * return a String is id of the InfoPane or undefined
      */
-    removeInfoPane(){
-        let removedPaneId = undefined;
-        if (this.algorithm && this.isShowingInfoPane()){
-            removedPaneId = this.state.infoPane.key;
-            if (removedPaneId){
-                this.setState({
-                    infoPane: undefined
-                })
-            }
-        }
-        return removedPaneId;
-    }
+    // removeInfoPane(){
+    //     let removedPaneId = undefined;
+    //     if (this.algorithm && this.isShowingInfoPane()){
+    //         removedPaneId = this.state.infoPane.key;
+    //         if (removedPaneId){
+    //             this.setState({
+    //                 infoPane: undefined
+    //             })
+    //         }
+    //     }
+    //     return removedPaneId;
+    // }
 
     /**
      * define what to do whenever a specific node was pressed
      * @param {Node} node: a Node object (from GraphDracula)
      */
-    pressVerticesListener(node){
-        if (!this.isShowingInfoPane()) this.renderInfoPane(node);
-        else {
-            let removedPaneId = this.removeInfoPane();
-            if (removedPaneId){
-                let removedNodeId = removedPaneId.substring(removedPaneId.lastIndexOf(":")+1);
-                if (removedNodeId != node.id) this.renderInfoPane(node);
-            }
-        }
-    }
+    // pressVerticesListener(node){
+    //     if (!this.isShowingInfoPane()) this.renderInfoPane(node);
+    //     else {
+    //         let removedPaneId = this.removeInfoPane();
+    //         if (removedPaneId){
+    //             let removedNodeId = removedPaneId.substring(removedPaneId.lastIndexOf(":")+1);
+    //             if (removedNodeId != node.id) this.renderInfoPane(node);
+    //         }
+    //     }
+    // }
 
 
     /**
@@ -396,13 +372,13 @@ export default class GraphView extends Component {
      * order views to draw the graph on screen
      * draw edges first, then nodes
      */
-    applyViews(){
-        let edgeViews = Array.from(this.state.edgeViews.values());
-        let nodeViews = this.state.nodeViews;
-        let infoPane = [];
-        if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
-        return edgeViews.concat(nodeViews).concat(infoPane);
-    }
+    // applyViews(){
+    //     let edgeViews = Array.from(this.state.edgeViews.values());
+    //     let nodeViews = this.state.nodeViews;
+    //     let infoPane = [];
+    //     if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
+    //     return edgeViews.concat(nodeViews).concat(infoPane);
+    // }
 
     /**
      * Handle dragging and pinching GraphView event
@@ -425,7 +401,7 @@ export default class GraphView extends Component {
                     touch2.locationY
                 );
             }
-        } else console.log('onMove');//if !isZoomable this wont do anything
+        } //else console.log('onMove');//if !isZoomable this wont do anything
     }
 
     /**
@@ -439,7 +415,7 @@ export default class GraphView extends Component {
                 isZooming: false,
                 isMoving: false,
               });
-        } else console.log('onMoveRelease');//if !isZoomable this wont do anything
+        }// else console.log('onMoveRelease');//if !isZoomable this wont do anything
     }
 
     /**
@@ -524,12 +500,13 @@ export default class GraphView extends Component {
     render() {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
+        // console.log(++this.counter);
         return (
             <View>
-                {this.renderAlgorithmPlayer()}
+                {/* {this.renderAlgorithmPlayer()} */}
                 <Svg width={width} height={height}
                     marginTop={10}
-                    onResponderGrant={() => this.removeInfoPane()}
+                    // onResponderGrant={() => this.removeInfoPane()}
                     onResponderMove={(event) => this.processMoveAndZoomEvent(event)}
                     onPress={() => {console.log('onPress')}}
                     onResponderRelease={() => this.stopMoveAndZoom()}>
@@ -539,7 +516,9 @@ export default class GraphView extends Component {
                             translateY: top,
                             scale: zoom,
                           }} >
-                        {this.applyViews()}
+                        {/* {this.applyViews()} */}
+                        {this.renderLinks()}
+                        {this.renderNodes()}
                     </G>
                 </Svg>
             </View>
