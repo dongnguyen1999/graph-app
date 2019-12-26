@@ -156,7 +156,7 @@ export default class GraphView extends Component {
             .force("link", d3.forceLink().id(function(d) { return d.id; }).links(this.state.links).distance(maxLinkLength))
             .force("charge", d3.forceManyBody().strength(-500).distanceMin(minNodeDistance))// see more https://github.com/d3/d3-force#many-body
             .force("center", d3.forceCenter(width / 2, height / 2))
-            .on("tick", () => {this.ticked()});
+            .on("tick", () => {this.ticked()}).alphaDecay(0.05);
         // console.log(this.simulation.force("charge").strength());
     }
 
@@ -227,15 +227,18 @@ export default class GraphView extends Component {
         const { vertexRadius } = this.props;
         let nodeViews = [];
         this.state.nodes.forEach((node) => {
-        nodeViews.push(<Vertex
-            key={node.id}
-            simulation={this.simulation}
-            node={node}
-            vertexRadius={vertexRadius}
-            pressingCallback={() => {
-                // this.simulation.stop();
-            }}
-            >{node.id}</Vertex>)
+            if (node.x != undefined){
+                nodeViews.push(<Vertex
+                    key={node.id}
+                    simulation={this.simulation}
+                    node={node}
+                    vertexRadius={vertexRadius}
+                    pressingCallback={() => {
+                        this.simulation.stop();
+                        this.simulation.tick(3);
+                    }}
+                    >{node.id}</Vertex>);
+            }
         });
         return nodeViews;
     }

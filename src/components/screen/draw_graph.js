@@ -190,7 +190,7 @@ export default class DrawGraph extends Component {
                 width = {widthPhone} //set width with widthPhone
                 height = {heightPhone-250} //set height with heightPhone-heightTitlebar
                 vertexRadius = { 20 }
-                maxLinkLength = {100}
+                maxLinkLength = {150}
                 minNodeDistance = {40}
                 zoomable={false}
 

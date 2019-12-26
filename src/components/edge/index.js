@@ -8,6 +8,12 @@ function distance(x1,y1,x2,y2){
   return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 }
 
+function degreeOf([ax1, ay1], [ax2, ay2], [bx1, by1], [bx2, by2]){
+  let vtA = [ax2 - ax1, ay2 - ay1];
+  let vtB = [bx2 - bx1, by2 - by1];
+  let cosD = (vtA[0]*vtB[0] + vtA[1]*vtB[1])/distance(ax1, ay1, ax2, ay2)*distance()
+}
+
 /**
  * An instance of this class presents a svg shape of graph's egde
  * Edge can display label if having 'label' prop
@@ -24,7 +30,35 @@ function distance(x1,y1,x2,y2){
  *    }
  * @prop {Number} vertexRadius: node radius
  */
-export default function Edge(props){
+export default class Edge extends Component{
+  constructor(props){
+    super(props);
+    this.currentSourcePosition = [this.props.link.source.x, this.props.link.source.y];
+    this.currentTargetPosition = [this.props.link.target.x, this.props.link.target.y];
+    // this.counter = 0;
+  }
+
+  shouldComponentUpdate(props, state){
+    const minDistToChange = 2*this.props.vertexRadius;
+    const minDegreeToChange = Math.PI/100;
+    let [ax1, ay1] = this.currentSourcePosition;
+    let [ax2, ay2] = this.currentTargetPosition;
+    let [bx1, by1] = [props.link.source.x, props.link.source.y];
+    let [bx2, by2] = [props.link.target.x, props.link.target.y];
+    let currentDist = distance(ax1, ay1, ax2, ay2);
+    let newDist = distance(bx1, by1, bx2, by2);
+    let vtA = [ax2 - ax1, ay2 - ay1];
+    let vtB = [bx2 - bx1, by2 - by1];
+    let cosD = (vtA[0]*vtB[0] + vtA[1]*vtB[1])/(currentDist*newDist);
+    let degree = Math.acos(cosD);
+    if (degree > minDegreeToChange || (Math.abs(newDist-currentDist) > minDistToChange)){
+      this.currentSourcePosition = [bx1, by2];
+      this.currentTargetPosition = [bx2, by2];
+      // if (this.props.link.index == 0) console.log("edge rerender " + ++this.counter);
+      return true;
+    }
+    return false;
+  }
 
   /**
    * render an arrow-shaped view for edge if this edge is directed
@@ -35,9 +69,9 @@ export default function Edge(props){
    * @param {Number} r : vertexRadius
    * return svg view or undefined (if this edge is undirected)
    */
-  function computeArrow(x1,y1,x2,y2,r){
+  computeArrow(x1,y1,x2,y2,r){
     let dist = distance(x1,y1,x2,y2);
-    let isDirected = props.link.isDirected || false;// get directed setting | default is false
+    let isDirected = this.props.link.isDirected || false;// get directed setting | default is false
     if (isDirected && dist > r){
       // compute arrow
       // size & alpha is editable;
@@ -67,8 +101,8 @@ export default function Edge(props){
    * @param {Number} y2 : target.y 
    * return svg view or undefined (if this edge has no label)
    */
-  function computeLabel(x1,y1,x2,y2){
-    var label = props.link.label || undefined; //get label from props
+  computeLabel(x1,y1,x2,y2){
+    var label = this.props.link.label || undefined; //get label from props
     if (label != undefined){
       //compute label position
       var dist = this.distance(x1,y1,x2,y2);
@@ -86,15 +120,18 @@ export default function Edge(props){
     return undefined;
   }
 
-  // console.log("render edge");
-  const { link, vertexRadius } = props;
-  var [x1, y1] = [link.source.x, link.source.y];
-  var [x2, y2] = [link.target.x, link.target.y];
-  return (
-      <G>
-        <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody}/>
-        {computeArrow(x1,y1,x2,y2,vertexRadius)}      
-        {computeLabel(x1,y1,x2,y2)}
-      </G>
-  )
+  render(){
+    // console.log("render edge");
+    const { link, vertexRadius } = this.props;
+    var [x1, y1] = [link.source.x, link.source.y];
+    var [x2, y2] = [link.target.x, link.target.y];
+    return (
+        <G>
+          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody}/>
+          {this.computeArrow(x1,y1,x2,y2,vertexRadius)}      
+          {this.computeLabel(x1,y1,x2,y2)}
+        </G>
+    )
+  }
+
 }
