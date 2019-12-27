@@ -27,14 +27,27 @@ export default class Vertex extends Component{
     // this.counter = 0;
   }
 
+  // componentDidMount(){
+  //   setTimeout(() => {
+  //     this._vertex.setNativeProps({
+  //       r: 300,
+  //     });
+  //   }, 2500);
+  // }
+
   shouldComponentUpdate(props, state){
+    let { style } = this.props;
+    if (style == undefined) style = styles.normal;
     let [x1, y1] = this.currentPosition;
     let [x2, y2] = [props.node.x, props.node.y];
     let dist = distance(x1,y1,x2,y2);
-    const minDistToChange = 1;
+    const minDistToChange = 1.5;
     if (dist > minDistToChange){
       this.currentPosition = [x2, y2];
-      return true;
+      this._body.setNativeProps({cx: x2, cy: y2});
+      this._text.setNativeProps({x: x2, y: y2});
+      // console.log(this._text.props);
+      // return true;
     }
     return false;
   }
@@ -82,9 +95,15 @@ export default class Vertex extends Component{
           cy = {y}
           r = {vertexRadius}
           style = {style.body}
+          ref={component => this._body = component}
           >
         </Circle>  
-        <Text style = {style.label} x = {x} y = {y} alignmentBaseline={'middle'} textAnchor = {'middle'}>{this.props.children}</Text>
+        <Text style = {style.label} 
+          x = {x}
+          y = {y} 
+          alignmentBaseline={'middle'} 
+          textAnchor = {'middle'}
+          ref={component => this._text = component}>{this.props.children}</Text>
       </G>
     );
    }

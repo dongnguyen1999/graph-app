@@ -234,8 +234,8 @@ export default class GraphView extends Component {
                     node={node}
                     vertexRadius={vertexRadius}
                     pressingCallback={() => {
-                        this.simulation.stop();
-                        this.simulation.tick(3);
+                        // this.simulation.stop();
+                        // this.simulation.tick(3);
                     }}
                     >{node.id}</Vertex>);
             }

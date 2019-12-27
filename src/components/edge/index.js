@@ -40,7 +40,7 @@ export default class Edge extends Component{
 
   shouldComponentUpdate(props, state){
     const minDistToChange = 2*this.props.vertexRadius;
-    const minDegreeToChange = Math.PI/100;
+    const minDegreeToChange = Math.PI/200;
     let [ax1, ay1] = this.currentSourcePosition;
     let [ax2, ay2] = this.currentTargetPosition;
     let [bx1, by1] = [props.link.source.x, props.link.source.y];
@@ -52,10 +52,11 @@ export default class Edge extends Component{
     let cosD = (vtA[0]*vtB[0] + vtA[1]*vtB[1])/(currentDist*newDist);
     let degree = Math.acos(cosD);
     if (degree > minDegreeToChange || (Math.abs(newDist-currentDist) > minDistToChange)){
-      this.currentSourcePosition = [bx1, by2];
+      this.currentSourcePosition = [bx1, by1];
       this.currentTargetPosition = [bx2, by2];
       // if (this.props.link.index == 0) console.log("edge rerender " + ++this.counter);
-      return true;
+      this._line.setNativeProps({x1: bx1, y1: by1, x2: bx2, y2: by2});
+      // return true;
     }
     return false;
   }
@@ -127,7 +128,8 @@ export default class Edge extends Component{
     var [x2, y2] = [link.target.x, link.target.y];
     return (
         <G>
-          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody}/>
+          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody}
+            ref={component => this._line = component}/>
           {this.computeArrow(x1,y1,x2,y2,vertexRadius)}      
           {this.computeLabel(x1,y1,x2,y2)}
         </G>
