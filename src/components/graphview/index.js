@@ -80,8 +80,8 @@ export default class GraphView extends Component {
         this.edges = renderer.getEdgesMap();
 
         this.state = {
-            edgeViews: new Map(),     //is a map
-            nodeViews: [], //render the first graph status //is an array
+            nodeViews: [],
+            edgeViews: [],
             infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane
             //the 3 states for svg transform
             zoom: 1,    
@@ -167,14 +167,20 @@ export default class GraphView extends Component {
 
     
     moveNode(id, newCoord){
+        // console.log(this.vertexRef[id].props);
         if (this.isShowingInfoPane()) this.removeInfoPane();
         point = this.validatePoint(newCoord);
         let node = this.nodes.get(id);
         node.point = point;
+        // node.point = newCoord;
         for (let connection of node.connections){
-            this.updateEdges(node, connection);
+            // this.updateEdges(node, connection);
+            let edge = this.edges.get(connection);
+            // console.log(connection, edge.source.point, edge.target.point);
         }
-        this.setState({});
+        this.renderGraph(this.nodes,this.edges);
+        this.forceUpdate();
+        // this.setState({});
     }
 
     /** For fixing duplicate code
@@ -183,9 +189,22 @@ export default class GraphView extends Component {
      * @param {Node} node: a node object in DraculaGraph
      * return a Vertex component
      */
+    // createNode(id, node){
+    //     return <Vertex
+    //             key={id}
+    //             id={id}
+    //             x={node.point[0]}
+    //             y={node.point[1]}
+    //             style = {this.getNodeStyle(id)}
+    //             r={this.props.nodeRadius}
+    //             pressingCallback={this.pressVerticesListener.bind(this)}
+    //             draggingCallback={this.moveNode.bind(this)}
+    //             >{id}</Vertex>
+    // }
     createNode(id, node){
         return <Vertex
                 key={id}
+                id={id}
                 node={node}
                 style = {this.getNodeStyle(id)}
                 r={this.props.nodeRadius}
@@ -204,11 +223,13 @@ export default class GraphView extends Component {
         let label = edge.style.label || undefined; //get label of edge
         return <Edge
                     key={id}
+                    id={id}
                     source={edge.source}
                     target={edge.target}
                     label={label}
                     r={this.props.nodeRadius}
                     isDirected={this.graph.isDirected}
+                    nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
                 />
     }
 
@@ -254,9 +275,11 @@ export default class GraphView extends Component {
         }
      */
     renderGraph(nodes, edges){
+        this.state.edgeViews = [];
         for (let [id,edge] of edges){
-            //Set edge into edge views map
-            this.state.edgeViews.set(id, this.createEdge(id, edge));
+            // //Set edge into edge views map
+            // this.state.edgeViews.set(id, this.createEdge(id, edge));
+            this.state.edgeViews.push(this.createEdge(id,edge));
         }
         this.state.nodeViews = [];
         for (let [id, node] of nodes){ //Destructuring
@@ -397,8 +420,10 @@ export default class GraphView extends Component {
      * draw edges first, then nodes
      */
     applyViews(){
-        let edgeViews = Array.from(this.state.edgeViews.values());
+        // let edgeViews = Array.from(this.state.edgeViews.values());
         let nodeViews = this.state.nodeViews;
+        // let nodeViews = this.state.nodeViews;
+        let edgeViews = this.state.edgeViews;
         let infoPane = [];
         if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
         return edgeViews.concat(nodeViews).concat(infoPane);
@@ -538,7 +563,8 @@ export default class GraphView extends Component {
                             translateX: left,
                             translateY: top,
                             scale: zoom,
-                          }} >
+                          }} 
+                          >
                         {this.applyViews()}
                     </G>
                 </Svg>

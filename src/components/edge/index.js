@@ -2,7 +2,8 @@ import React, { Component } from 'react'
 import { View,PixelRatio } from "react-native"
 import {styles} from "./style"
 import {colors} from "./color"
-import { Path, Text,G} from 'react-native-svg';
+import { Path, Text,G, Line} from 'react-native-svg';
+import { d2PixcelUtils } from '../../tool/graph_drawing'
 
 
 /**
@@ -27,7 +28,13 @@ import { Path, Text,G} from 'react-native-svg';
  * @prop {Boolean} isDirected: set the edge having arrow or not
  */
 export default class Edge extends Component {
-  
+  constructor(props){
+    super(props);
+    let [sx, sy] = this.props.source.point;
+    let [tx, ty] = this.props.target.point;
+    this.previousSourcePosition = [sx, sy];
+    this.previousTargetPosition = [tx, ty];
+  }
   // getVertexBBox(x,y,r){
   //   return {
   //     x: x-r,
@@ -154,44 +161,62 @@ export default class Edge extends Component {
 
   // }
 
-  distance(x1,y1,x2,y2){
-    return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+  shouldComponentUpdate(){
+    const minDistToChange = 2; //by default offset 1 pixcel is enough to change edge
+    const { nodeStyle, source, target, r } = this.props;
+    let fullRadius = nodeStyle.body.strokeWidth || 0;
+    fullRadius += r;
+    let [x1, y1] = source.point;
+    let [x2, y2] = target.point;
+    let [sx, sy] = this.previousSourcePosition;
+    let [tx, ty] = this.previousTargetPosition;
+    let dist = d2PixcelUtils.distance(sx, sy, x1, y1);
+    if (dist <= minDistToChange) dist = d2PixcelUtils.distance(tx, ty, x2, y2);
+    if (dist > minDistToChange){
+      this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
+      if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
+      let label = this.computeLabel(x1, y1, x2, y2);
+      if (this.labelView) this.labelView.setNativeProps({x: label.x, y: label.y});
+      this.previousSourcePosition = [x1, y1];
+      this.previousTargetPosition = [x2, y2]
+    }
+    return false;
   }
 
-  computeLine(x1,y1,x2,y2,r){
-    var dist = this.distance(x1,y1,x2,y2);
-    var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'L' + x2.toFixed(3), y2.toFixed(3)].join(',');
-    var isDirected = this.props.isDirected || false;// get directed setting
+  computeArrow(x1,y1,x2,y2,r){
+    let dist = d2PixcelUtils.distance(x1,y1,x2,y2);
+    let isDirected = this.props.isDirected || false;// get directed setting
+    let path = undefined;
     if (isDirected && dist > r){
       //compute arrow
       // size&alpha is editable;
-      var size = 10;
-      var alpha = Math.PI/3;
-      var t = 1 - (r/dist);
-      var A = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
+      let size = 10;
+      let alpha = Math.PI/3;
+      let t = 1 - (r/dist);
+      let A = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
       t -= size/dist;
-      var B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
-      var uBC = {x: -(B.y-A.y), y: B.x-A.x};
+      let B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
+      let uBC = {x: -(B.y-A.y), y: B.x-A.x};
       t = t*Math.tan(alpha/2);
-      var C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
-      var D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
-      var path = ['M' + x1.toFixed(3), y1.toFixed(3), 'L' + A.x.toFixed(3), A.y.toFixed(3)].join(',');
-      path = path + ',M' + D.x + ',' + D.y + ',L' + A.x + ',' + A.y + ',L' + C.x + ',' + C.y;
+      let C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
+      let D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
+      path = ',M' + D.x + ',' + D.y + ',L' + A.x + ',' + A.y + ',L' + C.x + ',' + C.y;
     }
     return path;
   }
 
+
   computeLabel(x1,y1,x2,y2){
-    var label = this.props.label || undefined; //get label from props
+    let label = this.props.label || undefined; //get label from props
     if (label != undefined){
       //compute label position
-      var dist = this.distance(x1,y1,x2,y2);
-      var t = 0.5;
-      var B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
-      var uBC = {x: -(y2-y1), y: x2-x1};
+      let dist = this.distance(x1,y1,x2,y2);
+      let t = 0.5;
+      let B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
+      let uBC = {x: -(y2-y1), y: x2-x1};
       t = 1/20;
-      var C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
-      var D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
+      let C = {x: B.x + uBC.x*t, y: B.y + uBC.y*t};
+      let D = {x: B.x - uBC.x*t, y: B.y - uBC.y*t};
       if (x2 < x1) return {text: label, x: C.x, y: C.y};
       return {text: label, x: D.x, y: D.y};
     }
@@ -200,14 +225,19 @@ export default class Edge extends Component {
 
   render() {
     // console.log("render edge");
-    const { source, target, r } = this.props;
-    var [x1, y1] = source.point;
-    var [x2, y2] = target.point;
-    var label = this.computeLabel(x1, y1, x2, y2);
-    var labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y}>{label.text}</Text>:[];
+    const { source, target, r, nodeStyle } = this.props;
+    let [x1, y1] = source.point;
+    let [x2, y2] = target.point;
+    let fullRadius = nodeStyle.body.strokeWidth || 0;
+    fullRadius += r;
+    let label = this.computeLabel(x1, y1, x2, y2);
+    let labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y} ref={com => this.labelView=com}>{label.text}</Text>:[];
+    let arrowPath = this.computeArrow(x1, y1, x2, y2, fullRadius);
+    let arrowView = arrowPath!=undefined?<Path d={arrowPath} style={styles.lineBody} ref={com => this.arrowView=com}/>:[];
     return (
         <G>
-          <Path d = {this.computeLine(x1, y1, x2, y2, r+3)} style = {styles.lineBody} />
+          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody} ref={com => this.lineView=com}/>
+          {arrowView}
           {labelView}
         </G>
     )
