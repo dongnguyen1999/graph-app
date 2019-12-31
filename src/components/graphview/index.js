@@ -9,39 +9,7 @@ import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
 import { Button } from 'react-native-elements'
 import InfoPane from '../infopane'
-import AlgorithmPlayer from './algoritm_player'
-
-
-/**
- * Calculate distance between 2 points
- * @param {Number} x1: x coordinate of the first point
- * @param {Number} y1: y corrdinate of the first point
- * @param {Number} x2: x coordinate of the second point
- * @param {Number} y2: y coordinate of the second point
- */
-function calcDistance(x1, y1, x2, y2) {
-    const dx = x1 - x2;
-    const dy = y1 - y2;
-    return Math.sqrt(dx * dx + dy * dy);
-}
-
-function middle(p1, p2) {
-    return (p1 + p2) / 2;
-}
-
-/**
- * Calculate the middle point between 2 points
- * @param {Number} x1: x coordinate of the first point
- * @param {Number} y1: y corrdinate of the first point
- * @param {Number} x2: x coordinate of the second point
- * @param {Number} y2: y coordinate of the second point
- */
-function calcCenter(x1, y1, x2, y2) {
-    return {
-        x: middle(x1, x2),
-        y: middle(y1, y2),
-    };
-}
+import AlgorithmPlayer from '../algorithm_player'
 
 
 /**
@@ -80,8 +48,8 @@ export default class GraphView extends Component {
         this.edges = renderer.getEdgesMap();
 
         this.state = {
-            nodeViews: [],
-            edgeViews: [],
+            nodeViews: new Map(),
+            edgeViews: new Map(),
             infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane
             //the 3 states for svg transform
             zoom: 1,    
@@ -89,7 +57,8 @@ export default class GraphView extends Component {
             top: 0,
         }
 
-        this.renderGraph(this.nodes, this.edges);
+        this.renderGraph(this.nodes, this.edges);// render UI components the first time
+        
 
         //should use width, height from props
         //pass widthPhone, heightPhone when use GraphView as props
@@ -121,32 +90,6 @@ export default class GraphView extends Component {
     }
 
     /**
-     * rerender edge linked to or linked from a node when its position is changed
-     * @param {Node} node: a node object in DraculaGraph
-     * Node {
-            "connections": Array<String>,
-            "edges": Array<Edge>,
-            "id": "h",
-            "layoutForceX": 0,
-            "layoutForceY": 0,
-            "layoutPosX": -1.1365227254852424,
-            "layoutPosY": -0.6805833973160654,
-            "point": Array [20,20],
-            "shape": true,
-        }
-     * @param {String} connection: id of an edge ("sourceNodeId-targetNodeId")
-     */
-    updateEdges(node,connection){
-        // console.log(connection);
-        let points = connection.split("-");
-        let [source, target] = points;
-        let edge = this.edges.get(connection);
-        if (node.id === source) edge.source.point = node.point;
-        else if (node.id === target) edge.target.point = node.point;
-        this.state.edgeViews = this.rerenderEdge(connection,edge);
-    }
-
-    /**
      * check and compute new position if the point is out of GraphView area
      * if GraphView is zoomable, compute scaled position depend on zooming value
      * @param {Array<Number>} point: an array presents position of a node: [x,y]
@@ -165,42 +108,36 @@ export default class GraphView extends Component {
         return [(x-this.state.left)/this.state.zoom,(y-this.state.top)/this.state.zoom];
     }
 
-    
-    moveNode(id, newCoord){
+    /**
+     * remove infopane if it is showing
+     * update new position for node and call it rerender with new props
+     * loop through the list of edges connected to this node, call it rerender with new props too
+     * force update components tree
+     * @param {Node} node the node that call this callback function
+     * @param {Array<Number} newCoord a 2-length array contains the coordinate which is the new position of the node
+     */
+    moveNode(node, newCoord){
         // console.log(this.vertexRef[id].props);
         if (this.isShowingInfoPane()) this.removeInfoPane();
         point = this.validatePoint(newCoord);
-        let node = this.nodes.get(id);
         node.point = point;
-        // node.point = newCoord;
+        // console.log(node);
+        this.state.nodeViews.set(node.id, this.createNode(node.id, node));// update new props for node
         for (let connection of node.connections){
             // this.updateEdges(node, connection);
             let edge = this.edges.get(connection);
             // console.log(connection, edge.source.point, edge.target.point);
+            this.state.edgeViews.set(connection, this.createEdge(connection, edge));//update new props for edges
         }
-        this.renderGraph(this.nodes,this.edges);
-        this.forceUpdate();
-        // this.setState({});
+        this.forceUpdate();// this.setState({});
     }
 
     /** For fixing duplicate code
-     * create a node with standard setting
+     * create a node with setting from specific node
      * @param {String} id: node.id
      * @param {Node} node: a node object in DraculaGraph
      * return a Vertex component
      */
-    // createNode(id, node){
-    //     return <Vertex
-    //             key={id}
-    //             id={id}
-    //             x={node.point[0]}
-    //             y={node.point[1]}
-    //             style = {this.getNodeStyle(id)}
-    //             r={this.props.nodeRadius}
-    //             pressingCallback={this.pressVerticesListener.bind(this)}
-    //             draggingCallback={this.moveNode.bind(this)}
-    //             >{id}</Vertex>
-    // }
     createNode(id, node){
         return <Vertex
                 key={id}
@@ -214,7 +151,7 @@ export default class GraphView extends Component {
     }
 
     /** For fixing duplicate code
-     * create an edge with standard setting
+     * create an edge with  from specific edge
      * @param {String} id: sourceNodeId + "-" + targetNodeId
      * @param {Edge} edge: an edge object in DraculaGraph
      * return an Edge component
@@ -234,25 +171,10 @@ export default class GraphView extends Component {
     }
 
     /**
-     * rerender an edge when its position is changed
-     * @param {String} id: sourceNodeId + "-" + targetNodeId
-     * @param {Edge} edge: an edge object in DraculaGraph
-     * Edge {
-        "attraction": 1,
-        "shape": true,
-        "source": Node
-        "target": Node
-        "style": { label,...}
-        }
-     */
-    rerenderEdge(id, edge){
-        return this.state.edgeViews.set(id,
-            this.createEdge(id, edge)
-        );
-    }
-
-    /**
      * render nodes, edges for the first time store in views (a Map)
+     * render fully GraphView with nodes and edges
+     * call the first in constructor
+     * be also called when update new state of the running algorithm
      * @param {Node[]} nodes: array of node objects in DraculaGraph
      * Node {
             "connections": Array<String>,
@@ -275,71 +197,35 @@ export default class GraphView extends Component {
         }
      */
     renderGraph(nodes, edges){
-        this.state.edgeViews = [];
+        this.state.edgeViews = new Map();
         for (let [id,edge] of edges){
             // //Set edge into edge views map
-            // this.state.edgeViews.set(id, this.createEdge(id, edge));
-            this.state.edgeViews.push(this.createEdge(id,edge));
+            this.state.edgeViews.set(id, this.createEdge(id,edge));
         }
-        this.state.nodeViews = [];
+        this.state.nodeViews = new Map();
         for (let [id, node] of nodes){ //Destructuring
-            //Set node into node views array
-            this.state.nodeViews.push(this.createNode(id,node));
+            //Set node into node views map
+            this.state.nodeViews.set(id,this.createNode(id,node));
         }
     }
 
     /**
-     * define what to do whenever the next button was pressed
-     * call this.algorithm.next(), rerender the graph
-     * through false everytime the next() method return undefined
-     * require to stop the player automatically
+     * a callback function prepared for algorithm player
+     * force render fully graph
      */
-    clickNextButtonListener(){
-        if (this.algorithm.next() == undefined) {
-            this.algorithm.start();
-            this.setState({views: this.renderGraph(this.nodes, this.edges)});
-            return false;
-        }
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
+    fullyRefresh(){
+        this.renderGraph(this.nodes, this.edges);
+        this.forceUpdate();
     }
 
     /**
-     * define what to do whenever the previous button was pressed
-     * call this.algorithm.previous(), rerender the graph
-     */
-    clickPreviousButtonListener(){
-        if (this.algorithm.previous() == undefined) this.algorithm.start();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
-
-    /**
-     * define what to do whenever the jump-to-starting button was pressed
-     * call this.algorithm.start(), rerender the graph
-     */
-    clickStartButtonListener(){
-        this.algorithm.start();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
-
-    /**
-     * define what to do whenever the jump-to-ending button was pressed
-     * call this.algorithm.end(), rerender the graph
-     */
-    clickEndButtonListener(){
-        this.algorithm.end();
-        return this.setState({views: this.renderGraph(this.nodes, this.edges)});
-    }
-
-    /** TEMP
      * This method render a menu player for algorithms
      */
     renderAlgorithmPlayer(){
         if (this.algorithm) 
             return <AlgorithmPlayer 
-                clickNextButton={this.clickNextButtonListener.bind(this)}
-                clickPreviousButton={this.clickPreviousButtonListener.bind(this)}
-                clickStartButton={this.clickStartButtonListener.bind(this)}
-                clickEndButton={this.clickEndButtonListener.bind(this)}
+                algorithm={this.algorithm}
+                rerenderCallback={this.fullyRefresh.bind(this)}
             />
     }
 
@@ -421,9 +307,8 @@ export default class GraphView extends Component {
      */
     applyViews(){
         // let edgeViews = Array.from(this.state.edgeViews.values());
-        let nodeViews = this.state.nodeViews;
-        // let nodeViews = this.state.nodeViews;
-        let edgeViews = this.state.edgeViews;
+        let nodeViews = Array.from(this.state.nodeViews.values());
+        let edgeViews = Array.from(this.state.edgeViews.values());
         let infoPane = [];
         if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
         return edgeViews.concat(nodeViews).concat(infoPane);

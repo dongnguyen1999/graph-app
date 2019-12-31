@@ -29,58 +29,53 @@ import { d2PixcelUtils } from '../../tool/graph_drawing'
 export default class Vertex extends Component {
   constructor(props){
     super(props)
-    let [x, y] = this.props.node.point;
+    this.counter = 0;
+    let [x, y] = this.props.node.point;//keep the current positon
     this.previousCoord = [x,y];
-    this.state = {
-      isMoving: false //keep whether a vertex are being dragged
-    }
+    this.isMoving = false;
   }
 
   shouldComponentUpdate(){
-    const minDistToChange = 2; //by default offset 1 pixcel is enough to change node
+    if (this.props.shouldRerender){// if this view is set force update fully
+      console.log("force rerender " + ++this.counter);
+      return true;// return true to rerender fully this Vertex
+    }
     const {node} = this.props;
     let [x,y] = node.point; // get new coord will be up to date
-    let [x0, y0] = this.previousCoord;
-    let dist = d2PixcelUtils.distance(x0, y0, x, y);
-    if (dist > minDistToChange){
-      let { style } = this.props || styles.normal; // get current style for node
-      const fontSize = style.label.fontSize || 14; // get font size for label
-      // measure length of label text in pixcel
-      let stringLabel = this.props.children.toString();
-      if (stringLabel instanceof Array){
-        stringLabel = "";
-        this.props.children.map((child) => {
-          stringLabel += child;
-        })
-      }
-      let offset = d2PixcelUtils.measureText(stringLabel, fontSize)/4;// offset calculate from length that used to align text center manually
-      this.bodyView.setNativeProps({cx: x, cy: y});
-      this.labelView.setNativeProps({x: (x)/2-offset, y: (y)/2});// set the new scaled coord
-      this.previousCoord = [x, y];
+    let { style } = this.props || styles.normal; // get current style for node
+    const fontSize = style.label.fontSize || 14; // get font size for label
+    // measure length of label text in pixcel
+    let stringLabel = this.props.children.toString();
+    if (stringLabel instanceof Array){ //array join
+      stringLabel = stringLabel.join("");
     }
+    let offset = d2PixcelUtils.measureText(stringLabel, fontSize)/4;// offset calculate from length that used to align text center manually
+    this.bodyView.setNativeProps({cx: x, cy: y, style});
+    this.labelView.setNativeProps({x: (x)/2-offset, y: (y)/2});// set the new scaled coord
+    this.previousCoord = [x, y];
     return false;
   }
 
 
 
   onDragNodeListener(event, node, draggingCallback){
-    // this.setState({isMoving: true});
-    // let [x1, y1] = this.coord;
-    // let [x2, y2] = [event.nativeEvent.locationX, event.nativeEvent.locationY];
-    // let dist = this.calcDistance(x1,y1,x2,y2);
-    // if (dist > this.props.r) {
-    //   this.coord = [x2, y2];
-    //   draggingCallback(node.id, [x2, y2]);
-    // }
+    const minDistToChange = 5; //by default offset 1 pixcel is enough to change node
+    if (!this.isMoving) this.isMoving = true;
+    let [x1, y1] = this.previousCoord;
+    let [x2, y2] = [event.nativeEvent.locationX, event.nativeEvent.locationY];
+    let dist = d2PixcelUtils.distance(x1,y1,x2,y2);
+    if (dist > minDistToChange) {
+      this.previousCoord = [x2, y2];
+      draggingCallback(node, [x2, y2]);
+    }
     // console.log([event.nativeEvent.locationX, event.nativeEvent.locationY]);
-    draggingCallback(this.props.id, [event.nativeEvent.locationX, event.nativeEvent.locationY]);
   }
 
-  onPressNodeListener(event,node, pressingCallback){
-    // if (!this.state.isMoving) {
-    //   pressingCallback(node);
-    // }
-    // this.setState({isMoving: false});
+  onPressNodeListener(node, pressingCallback){
+    if (!this.isMoving) {
+      pressingCallback(node);
+    }
+    this.isMoving = false;
     // console.log([event.nativeEvent.locationX, event.nativeEvent.locationY]);
   }
 
@@ -90,14 +85,13 @@ export default class Vertex extends Component {
     let { style } = this.props;
     const [x, y ] = node.point;
     if (style == undefined) style = styles.normal;
-    // if (!this.state.isMoving) draggingCallback(node.id, this.state.coord);
     return (
       <G 
         onMoveShouldSetResponder={() => {console.log("onMoveShouldSetResponder")}}
         // onResponderGrant={() => {console.log("onGrant")}}
         onResponderMove={(event) => this.onDragNodeListener(event,node,draggingCallback)}
         onPress={() => {console.log('press')}}
-        onResponderRelease = {(event) => this.onPressNodeListener(event,node,pressingCallback)}
+        onResponderRelease = {() => this.onPressNodeListener(node,pressingCallback)}
         style = {style.label}
         >
         <Circle 
@@ -110,8 +104,6 @@ export default class Vertex extends Component {
         </Circle>
         <Text x = {x} y = {y} alignmentBaseline={'middle'} textAnchor = {'middle'}
           ref={component => this.labelView = component}>{this.props.children}</Text>
-          {/* <Text
-          ref={component => this.labelView = component}>{this.props.children}</Text> */}
       </G>
       
     )
