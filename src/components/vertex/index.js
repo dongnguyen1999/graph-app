@@ -36,13 +36,10 @@ export default class Vertex extends Component {
   }
 
   shouldComponentUpdate(){
-    if (this.props.shouldRerender){// if this view is set force update fully
-      console.log("force rerender " + ++this.counter);
-      return true;// return true to rerender fully this Vertex
-    }
     const {node} = this.props;
     let [x,y] = node.point; // get new coord will be up to date
     let { style } = this.props || styles.normal; // get current style for node
+    // if (node.id == "1") console.log(style);
     const fontSize = style.label.fontSize || 14; // get font size for label
     // measure length of label text in pixcel
     let stringLabel = this.props.children.toString();
@@ -50,7 +47,7 @@ export default class Vertex extends Component {
       stringLabel = stringLabel.join("");
     }
     let offset = d2PixcelUtils.measureText(stringLabel, fontSize)/4;// offset calculate from length that used to align text center manually
-    this.bodyView.setNativeProps({cx: x, cy: y, style});
+    this.bodyView.setNativeProps({cx: x, cy: y});
     this.labelView.setNativeProps({x: (x)/2-offset, y: (y)/2});// set the new scaled coord
     this.previousCoord = [x, y];
     return false;
