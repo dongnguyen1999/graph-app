@@ -43,6 +43,49 @@ const tabNavigator = createMaterialBottomTabNavigator({
         navigationOptions: {
             tabBarIcon: <MaterialIcons style={{fontSize: 20, color: "rgb(149,151,203)"}} name={'receipt'}/>
         }
+// const MainNavigator = createStackNavigator({
+//     // Home: { screen: HomeScreen,
+//     // },
+//     // Input: { screen: InputGraph },
+//     //Drawing: { screen: DrawGraph },
+//     //Input: { screen: StringInputGraph },
+//     //First: {screen: Test}
+//     ExecuteAlgorithm: { // this element will show a MaterialBottomTabNavigator
+//     screen: executeAlgorithmScreen,// the prepared sceen
+//     navigationOptions: ( {navigation}) => {//function to set the header title automatically
+//       let tabTitle = ['Graph Drawing', 'Tutorial']
+//       return {
+//           title: tabTitle[navigation.state.index],
+//           headerStyle: {
+//             backgroundColor: 'rgb(55,57,106)'
+//           },
+//           headerTintColor: '#fff'
+//       }}}},{
+
+//       headerLayoutPreset: 'center'
+//     }
+//     );
+// const SettingStack = createStackNavigator({
+//     Setting: { screen: SettingScreen },
+//     //Input: { screen: InputGraph }
+// });
+// const TutorialStack = createStackNavigator({
+//     Tutorial: { screen: VideoScreen },
+//     //Input: { screen: InputGraph }
+// });
+// const ForumStack = createStackNavigator({
+//     Forum: { screen: ForumScreen },
+//     //Input: { screen: InputGraph }
+// });
+// const TabNavigator = createMaterialBottomTabNavigator({
+//     Home: {
+//       screen: MainNavigator,
+//       navigationOptions: {
+//         tabBarIcon: <MaterialIcons style={{
+//           fontSize: 20,
+//           color: "rgb(149,151,203)"
+//         }} name={'home'}/>
+//       }
     },
     Forum: {
         screen: ForumScreen,
