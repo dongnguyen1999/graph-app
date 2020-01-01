@@ -34,7 +34,7 @@ export default class GraphView extends Component {
             this.algorithm.run();//run algorithm for the first time
             this.algorithm.start();
         } else this.graph = graph;//keep graph from prop
-
+        //console.log(this.graph);
         let uiGraph = this.convertToUIGraph(this.graph);
         let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
@@ -74,6 +74,7 @@ export default class GraphView extends Component {
      * @param {Graph} graph: a basic graph (src/tool/graph_theory/graphs/Graph)
      */
     convertToUIGraph(graph){
+        //const { graph } = this.props;
         let uiGraph = new DraculaGraph();//init uiGraph
         for (let nodeId = 1; nodeId <= graph.nbVertex; nodeId++){
             //add nodes with id is number
@@ -157,14 +158,16 @@ export default class GraphView extends Component {
      * return an Edge component
      */
     createEdge(id, edge){
+        //const { graph, nodeRadius } = this.props;
         let label = edge.style.label || undefined; //get label of edge
+        //console.log(this.props.graph);
         return <Edge
                     key={id}
                     id={id}
                     source={edge.source}
                     target={edge.target}
                     label={label}
-                    r={this.props.nodeRadius}
+                    r={this.nodeRadius}
                     isDirected={this.graph.isDirected}
                     nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
                 />
@@ -434,6 +437,7 @@ export default class GraphView extends Component {
     render() {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
+        //console.log(this.props.graph);
         return (
             <View>
                 {this.renderAlgorithmPlayer()}
