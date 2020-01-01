@@ -4,11 +4,11 @@ export const styles = {
         flexDirection: 'row',
         justifyContent: 'center',
         backgroundColor: colors.body,
-        height: 80,
+        height: 60,
         alignItems: 'center'
     },
     button: {
         color: colors.button,
-        size: 60
+        size: 50
     }
 }
