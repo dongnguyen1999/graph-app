@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
-import { View, TextInput, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient'
-import {Button,Header, SearchBar} from 'react-native-elements';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import { View, Button, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import GraphView from '../graphview';
+import { AdjacencyMatrixGraph } from '../../tool/graph_theory/graphs';
+
 export default class HomeScreen extends Component{
     static navigationOptions = {
-        header: null
+        title: 'Home'
     };
+
     constructor(props){
         super(props);
+        this.state = {
+            isDirected: false
+        }
+        /*
         this.state = {
             search: '',
             hasFocus: false
@@ -28,9 +33,9 @@ export default class HomeScreen extends Component{
             Kruskal: 'Kruskal',
             Prim: 'Prim',
             FordFullkerson: 'Ford-Fullkerson'
-        };
+        }; */
     }
-
+    /*
     getAlgorithmsName(){
         return this.algorithmsName;
     }
@@ -41,8 +46,49 @@ export default class HomeScreen extends Component{
         this.setState({
             hasFocus
         })
+    } */
+
+    makeGraph(){
+        let graph = new AdjacencyMatrixGraph(5,7,this.state.isDirected);
+        graph.addEdge({u: 1, v: 2});
+        graph.addEdge({u: 1, v: 3});
+        graph.addEdge({u: 1, v: 4});
+        graph.addEdge({u: 1, v: 5});
+        graph.addEdge({u: 2, v: 3});
+        graph.addEdge({u: 2, v: 4});
+        graph.addEdge({u: 4, v: 5});
+        return graph;
     }
+
     render(){
+        let widthPhone = Dimensions.get('window').width;
+        let heightPhone = Dimensions.get('window').height;
+        //console.log(this.state.isDirected);
+        return(
+            <View>
+                <View style = { styles.buttonContainer }>
+                    <Button
+                        title = 'Undirected'
+                        color = 'rgb(55,57,106)'
+                        onPress = {() => this.setState({isDirected:false})}    
+                    />
+                    <Button 
+                        title = 'Directed'
+                        color = 'rgb(55,57,106)'
+                        onPress = {() => this.setState({isDirected:true})}
+                    />  
+                </View>
+                <GraphView 
+                    graph = { this.makeGraph() }
+                    key = { this.state.isDirected }
+                    width = { widthPhone }
+                    height = { heightPhone-200 }
+                    nodeRadius = { 20 }
+                    zoomable= { true }
+                />
+            </View>
+        );
+        /*
         const { navigate } = this.props.navigation;
         let listAlgorithmsName = [];
         for(let name in this.algorithmsName)
@@ -109,10 +155,19 @@ export default class HomeScreen extends Component{
                     )}
                 </ScrollView>
             </View>
-        );
+        ); */
     }
 }
+
+
 const styles = StyleSheet.create({
+    buttonContainer: {
+        flexDirection: 'row',
+        marginHorizontal: 20,
+        marginTop: 20,
+        justifyContent: 'center',
+    }
+    /*
     container: {
       padding: 10,
       backgroundColor: 'rgb(25,27,71)',
@@ -155,5 +210,5 @@ const styles = StyleSheet.create({
         shadowColor: 'white', //no effect
         borderBottomColor: 'transparent',
         borderTopColor: 'transparent',
-    }
+    } */
 });

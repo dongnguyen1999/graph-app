@@ -89,7 +89,7 @@ export default class DrawGraph extends Component {
      * @param {Array<String>} edgeList: array of text-input for edges: ["1,2", "2,3",...]
      * @param {Boolean} isDirected: directed style of graph
      */
-    makeGraph(vertex, edge, edgeList,isDirected) {
+    makeGraph(vertex, edge, edgeList, isDirected) {
         var graph = new AdjacencyMatrixGraph(vertex, edge, isDirected);
         for (var value of edgeList) {
             var edge;
@@ -179,7 +179,8 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 5});
         // graph.display();
         // let algorithm = new BreadthFirstSearch(graph, 1);
-        let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
+        let choiceAlgorithm = this.algorithmsList[algorithmValue];
+        // console.log(algorithmValue);
         // console.log(choiceAlgorithm);
         let algorithm = new choiceAlgorithm(graph, 1);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
