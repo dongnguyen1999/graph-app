@@ -8,13 +8,13 @@ export default class Tarjan extends Algorithms{
         super(graph); // call super.constructor to record graph for this algorithm
         this.s = startingNode; // this variable need for algorithm but not need to show on GraphView
         this.setState({
-            counter: 0, // Counter number of strong connection
-            k: 1,
             stack: this.initArray(0), // Init stack
             num: this.initArray(-1), // Save index of v vertex
-            minNum: this.initArray(9999), // Save index smallest,
-            onStack: this.initArray(0), // Checking x in stack
+            min_num: this.initArray(9999), // Save index smallest,
         });
+        this.counter = 0; // count number of strong connection
+        this.k = 1;
+        this.onStack = this.initArray(0);
     }
 
     /**
@@ -35,27 +35,27 @@ export default class Tarjan extends Algorithms{
      * @param {Number} x: a source vertex in the graph
      */
     tarjanSolve(x){//Strong connection
-        this.state.num[x] = this.state.k;
-        this.state.minNum[x] = this.state.k;
-        this.state.k++;
+        this.state.num[x] = this.k;
+        this.state.min_num[x] = this.k;
+        this.k++;
         this.state.stack.push(x); // push x into stack
-        this.state.onStack[x] = 1; // x is on stack
+        this.onStack[x] = 1; // x is on stack
         this.saveState();
         //Get neighbors of current node
         let neighbors = this.graph.getChildrenVertices(x);
         for(let y of neighbors) { // traversing all v neighbors of u vertex
             if (this.state.num[y] < 0) {
                 this.tarjanSolve(y);
-                this.state.minNum[x] = Math.min(this.state.minNum[x], this.state.minNum[y]);
+                this.state.min_num[x] = Math.min(this.state.min_num[x], this.state.min_num[y]);
                 this.saveState();
             } else if (this.state.onStack[y]) {
-                this.state.minNum[x] = Math.min(this.state.minNum[x], this.state.num[y]);
+                this.state.min_num[x] = Math.min(this.state.min_num[x], this.state.num[y]);
                 this.saveState();
             }
         }
         // checking where num[x] == minNum[x]
-        if(this.state.num[x] === this.state.minNum[x] ){
-            this.state.counter++;
+        if(this.state.num[x] === this.state.min_num[x] ){
+            this.counter++;
             this.saveState();
             let w;
             do{
@@ -67,7 +67,7 @@ export default class Tarjan extends Algorithms{
     }   
     
     isStrongConnection(){
-        return this.state.counter === 1;
+        return this.counter === 1;
     }
     /**
      * override

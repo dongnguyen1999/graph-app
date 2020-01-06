@@ -247,7 +247,7 @@ export default class GraphView extends Component {
     }
 
     renderInfoFrame(){
-        let listAlgo = ['DFS', 'BFS', 'FordFullkerson'];
+        let listAlgo = ['DFS', 'BFS', 'Tarjan', 'FordFullkerson'];
         for(let algo of listAlgo){
             if(this.algorithm && this.state.algorithmPlaying && this.keyAlgo == algo){
                 return <InfoFrame state = {this.algorithm.getState()}/>

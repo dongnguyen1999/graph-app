@@ -17,24 +17,9 @@ export default class HomeScreen extends Component{
         this.state = {
             search: '',
             hasFocus: false
-        };
-        this.algorithmsName = {
-            DFS: 'Depth First Search',
-            DFSR: 'Depth First Search Recursive',
-            BFS: 'Breadth First Search',
-            Tarjan: 'Tarjan',
-            Cycle: 'Checking Cycle',
-            Bigraph: 'Checking Bigraph',
-            HamitonCycle: 'Finding Hamiton Cycle',
-            Dijkstra: 'Dijkstra',
-            BellmanFord: 'Bellman-Ford',
-            Warshall: 'Floyd-Warshall',
-            TopoSort: 'Topological Sorting',
-            Kruskal: 'Kruskal',
-            Prim: 'Prim',
-            FordFullkerson: 'Ford-Fullkerson'
         }; */
     }
+    
     /*
     getAlgorithmsName(){
         return this.algorithmsName;
