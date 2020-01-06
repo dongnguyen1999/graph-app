@@ -13,7 +13,8 @@ export default class FordFullkerson extends Algorithms{
             capacity: this.graph.adjacencyMatrix,
             dir: this.initArray(0),
             predecessor: this.initArray(0),
-            sigma: this.initArray(0)
+            sigma: this.initArray(0),
+            queue: this.initArray(0),
         });
         this.maxFlowValue = 0; // Initializing maximum flow value is zero
         this.S = [];
@@ -72,28 +73,26 @@ export default class FordFullkerson extends Algorithms{
             this.state.dir[s] = 1;
             this.state.predecessor[s] = s;
             this.state.sigma[s] = INFINITY;
-            
+            // push s to the queue
+            this.state.queue.push(s); // push s into queue
             this.saveState();
-            // initializing a queue and push s to the queue
-            let queue = [];
-            queue.push(s); // push s into queue
             // finding a path which can increase flow
-            while(queue.length > 0){
-                let u = queue.pop(); // pop u from queue
+            while(this.state.queue.length > 0){
+                let u = this.state.queue.pop(); // pop u from queue
                 for(let v = 1; v <= this.graph.nbVertex; v++){
                     // assign label for directed edges are [+, u, min(sigma(u), capacity[u][v] - flow[u][v])]
                     if(this.state.dir[v] == 0 && this.graph.adjacent(u,v) && this.state.flow[u][v] < this.state.capacity[u][v]){
                         this.state.dir[v] = 1;
                         this.state.predecessor[v] = u;
                         this.state.sigma[v] = this.min(this.state.sigma[u], (this.state.capacity[u][v] - this.state.flow[u][v]));
-                        queue.push(v);
+                        this.state.queue.push(v);
                     }
                     // assign label for inverted edges are [-, u, min(sigma(u), flow[v][u])]
                     if(this.state.dir[v] == 0 && this.graph.adjacent(v,u) && this.state.flow[v][u] > 0){
                         this.state.dir[v] = -1;
                         this.state.predecessor[v] = u;
                         this.state.sigma[v] = this.min(this.state.sigma[u], this.state.flow[v][u]);
-                        queue.push(v);
+                        this.state.queue.push(v);
                     }
                 }
                 this.saveState();

@@ -150,11 +150,15 @@ export default class InputGraph extends Component {
                     </View>
                     {/* <Text>{this.state.input}</Text> */}
                     {/*{this.makeListOfEdgesInput()}*/}
-                    <TouchableOpacity style = { styles.button } onPress = {() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
+                    <TouchableOpacity 
+                            style = { styles.button } 
+                            onPress = {() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
                         <Text style={styles.textSubmit}> Choose algorithm </Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style = { styles.button } onPress = {() => {this.startDrawingGraph(navigation)}}>
+                    <TouchableOpacity 
+                            style = { styles.button } 
+                            onPress = {() => {this.startDrawingGraph(navigation)}}>
                         <Text style={styles.textSubmit}> Submit </Text>
                     </TouchableOpacity>
                 </ScrollView>

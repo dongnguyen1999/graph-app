@@ -50,6 +50,7 @@ export default class HamiltonCycle extends Algorithms{
      */
     hamilton(i){
         this.state.hamiltonCycle[this.count][1] = 1;
+        this.saveState();
         for(let v = 1; v <= this.graph.nbVertex; v++){
             let u = this.state.hamiltonCycle[this.count][i-1]; // get vertex u and chech whether u adjacent with v or not
             if(this.state.mark[v] == 0 && (this.graph.adjacent(u,v) != false)){ // an v is visited or not
@@ -61,12 +62,12 @@ export default class HamiltonCycle extends Algorithms{
                 }
                 else
                     if(this.graph.adjacent(v,1) != false){
-                        this.saveState();
                         this.count++; // increasing count by one
                         for(let j = 1; j <= this.graph.nbVertex; j++)
                             this.state.hamiltonCycle[this.count][j] = this.state.hamiltonCycle[this.count-1][j];
                     }
             }
+            this.saveState();
         }
     }
     

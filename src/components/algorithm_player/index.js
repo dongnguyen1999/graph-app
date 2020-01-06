@@ -1,7 +1,8 @@
 import React, { Component } from "react"
-import { TouchableOpacity,Text,View } from "react-native"
+import { TouchableOpacity,Text,View, Dimensions } from "react-native"
 import { Icon } from "react-native-elements"
 import { styles } from './style'
+import InfoFrame from '../infoFrame/InfoFrame';
 
 /**
  * This class make a UI component using in GraphView when algorithm running on it
@@ -27,9 +28,11 @@ export default class AlgorithmPlayer extends Component{
      * else stop it
      */
     clickPlayButtonListener(){
+        const {  dataCallBack } = this.props;
         if (!this.state.isPlaying){
-            this.setState({isPlaying: true})
-        } else this.setState({isPlaying: false})
+            dataCallBack(true);//tell GraphView player was started
+            this.setState({isPlaying: true});// set to playing
+        } else this.setState({isPlaying: false});
     }
 
     /**
@@ -95,19 +98,21 @@ export default class AlgorithmPlayer extends Component{
                 />
     }
 
-
-
     /**
      * run algorithm automatically by the way call clickNextButtonListener every delay time
      */
     runAlgorithm(){
-        console.disableYellowBox = true;//just demiss all warning =))
-            //if everything work fine
-        
-        // clickNextButtonListener is a function bind GraphView -> read more in GraphView class
+        const {  dataCallBack } = this.props;
+        console.disableYellowBox = true; // just demiss all warning if everything work fine
+        // clickNextButtonListener is a function bind GraphView -> read more in GraphView class    
         if (this.state.isPlaying){
             if (!this.state.isSleeping){// if it is playing and not sleeping
-                if (this.clickNextButtonListener() == false) this.state.isPlaying = false;//click next button
+                if (this.clickNextButtonListener() == false) {//click next button
+                    // faild in clicking next button 
+                    // this is the last state
+                    this.state.isPlaying = false;// stop playing
+                    dataCallBack(false);// tell graphview
+                }
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping
                 setTimeout(() => {//delay amount delayTime millisecond and wake the system up
@@ -115,14 +120,13 @@ export default class AlgorithmPlayer extends Component{
                 },this.delayTime);
             }
         }
+        // dataCallBack(this.state.isPlaying); //no no no
     }
 
     render(){
         this.runAlgorithm();//press next button automatically
         return (
-            <View
-                style = {styles.body}
-                >
+            <View style = {styles.body}>
                 <Icon 
                     name='skip-previous'
                     size={styles.button.size}

@@ -75,7 +75,7 @@ export default class Tarjan extends Algorithms{
     run(){
         this.saveState(); // save first state;
         this.tarjanSolve(this.s); // start tarjanSolve() method from source vertex
-        let check = this.isStrongConnection();
-        console.log(check);
+        //let check = this.isStrongConnection();
+        //console.log(check);
     }
 }

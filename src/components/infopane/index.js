@@ -30,12 +30,12 @@ export default class InfoPane extends Component{
         const { padding } = styles.paneBody;
         let content = new Map(); //init empty array
         let width = height = 0; //init width and height of infopane at 0
-        const { node, state } = this.props;// to get nodeId and state data
-        for (let prop in state) {// loop through props of state
+        const { node, state } = this.props; // to get nodeId and state data
+        for (let prop in state) { // loop through props of state
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
                 let kvPair = undefined;//init an object to record key-value pair added into content array
                 if (typeof state[prop] != "object"){//if prop is a non-object variable 
-                    kvPair = {key: prop,value: state[prop]};//record key-value pair
+                    kvPair = {key: prop, value: state[prop]};//record key-value pair
                     // if (prop == "focusOn"){
                     //     kvPair = {key: "customKey",value: state[prop]};//record key-value pair
                     // }
@@ -91,6 +91,7 @@ export default class InfoPane extends Component{
         let [x,y] = this.computeNode(node);
         let {padding} = styles.paneBody;
         let {content, width, height} = this.prepareContent();
+        // console.log(content);
         return (
             <G>
                 <Rect x={x} y={y} width={width} height={height} style={styles.paneBody} rx={5}/>

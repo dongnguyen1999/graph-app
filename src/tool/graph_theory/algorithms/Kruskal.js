@@ -78,7 +78,7 @@ export default class Kruskal extends Algorithms{
                 this.sumW += w;
             }
         }
-        this.state.minimumSpanningTree.display();
+        // this.state.minimumSpanningTree.display();
     }
 
     /**

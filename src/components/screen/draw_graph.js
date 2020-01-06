@@ -138,9 +138,9 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
-        // let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
-        // console.log('algorithmName' +algorithmValue.key);
-        // let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
+        let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
+        //console.log('algorithm key: ' + algorithmValue);
+        let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
 
         // var graph = this.makeGraphFromString(
         //   `13 16
@@ -168,26 +168,25 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 2, v: 4});
 
-        let graph = new AdjacencyMatrixGraph(5,7,false);
-        // let graph = this.makeGraph(vertex, edge,edgeList, isDirected);
-        graph.addEdge({u: 1, v: 2});
-        graph.addEdge({u: 1, v: 3});
-        graph.addEdge({u: 1, v: 4});
-        graph.addEdge({u: 1, v: 5});
-        graph.addEdge({u: 2, v: 3});
-        graph.addEdge({u: 2, v: 4});
-        graph.addEdge({u: 4, v: 5});
+        //let graph = new AdjacencyMatrixGraph(5,7,false);
+        // graph.addEdge({u: 1, v: 2});
+        // graph.addEdge({u: 1, v: 3});
+        // graph.addEdge({u: 1, v: 4});
+        // graph.addEdge({u: 1, v: 5});
+        // graph.addEdge({u: 2, v: 3});
+        // graph.addEdge({u: 2, v: 4});
+        // graph.addEdge({u: 4, v: 5});
         // graph.display();
 
         // let algorithm = new BreadthFirstSearch(graph, 1);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
-        // console.log(algorithmValue);
+        //console.log(choiceAlgorithm);
 
         //let algorithm = new BreadthFirstSearch(graph, 1);
-        // let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
+        //let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
 
         // console.log(choiceAlgorithm);
-        // let algorithm = new choiceAlgorithm(graph, 1);
+        let algorithm = new choiceAlgorithm(graph, 1);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
         let view = '';
@@ -196,22 +195,21 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-250}
+                height = {heightPhone-180}
                 nodeRadius = { 20 }
                 zoomable={true}
+                keyAlgo = { algorithmValue }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (
             <View style={styles.container}>
-                {
-                    view
-                }
+                { view }
             </View>
         )
     }
 }
 const styles = StyleSheet.create({
     container: {
-        padding: 0,
+        padding: 0
     }
 })

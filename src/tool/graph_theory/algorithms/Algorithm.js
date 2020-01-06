@@ -55,6 +55,7 @@ export default class Algorithm {
      * @prop {Array<Array<Number>>} hamiltonCycle: 2D-array store all hamilton cycles on a graph (Ex: if a graph exists a cycle 1 2 3 4 5 1, then this cycle will store in this 2D-array)
      * @prop {Array<Number>} color: array store color of a vertex. It useful for detecting a cycle or checking a graph which is a bigraph or not.
      * @prop {Array<Number>} stack: array store all vertices which are not found strong connection
+     * @prop {Array<Number>} queue: 
      * @prop {Array<Number>} num: array save index of v vertex
      * @prop {Array<Number>} minNum: array save index smallest
      * @prop {Array<Number>} onStack: array use for checking x in stack
@@ -115,6 +116,7 @@ export default class Algorithm {
      * set states cursor to the first state and return this state
      */
     start(){
+        //console.log(this.getState());
         this.statesCursor = 0;
         return this.getState();
     }
