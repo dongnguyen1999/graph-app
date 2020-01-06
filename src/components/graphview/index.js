@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import Vertex from "../vertex"
-import Edge from "../edge"
-import {Dimensions, View, TouchableOpacity, Text} from "react-native"
-import {styles} from "./style"
-import { styles as nodeStyles } from "../vertex/style"
-import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing"
+import React, { Component } from 'react';
+import Vertex from "../vertex";
+import Edge from "../edge";
+import {Dimensions, View, TouchableOpacity, Text} from "react-native";
+import {styles} from "./style";
+import { styles as nodeStyles } from "../vertex/style";
+import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing";
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
-import { Button } from 'react-native-elements'
-import InfoPane from '../infopane'
-import AlgorithmPlayer from '../algorithm_player'
-
+import { Button } from 'react-native-elements';
+import InfoPane from '../infopane';
+import AlgorithmPlayer from '../algorithm_player';
+import InfoFrame from '../infoFrame/InfoFrame';
 
 /**
  * An instance of this class presents a GraphView area with vertices and edges inside
@@ -26,7 +26,8 @@ import AlgorithmPlayer from '../algorithm_player'
 export default class GraphView extends Component {
     constructor(props){
         super(props);
-        const {graph, width, height, nodeRadius, algorithm} = this.props;
+        const { graph, width, height, nodeRadius, algorithm, keyAlgo } = this.props;
+        this.keyAlgo = keyAlgo;
         this.algorithm = undefined;
         if (algorithm != undefined){ //if graphview is initialized with algorithm
             this.algorithm = algorithm;// keep algorithm object used as controller
@@ -55,11 +56,10 @@ export default class GraphView extends Component {
             zoom: 1,    
             left: 0,
             top: 0,
+            algorithmPlaying: false
         }
 
         this.renderGraph(this.nodes, this.edges);// render UI components the first time
-        
-
         //should use width, height from props
         //pass widthPhone, heightPhone when use GraphView as props
         // this.widthPhone = Math.round(Dimensions.get('window').width);
@@ -167,7 +167,7 @@ export default class GraphView extends Component {
                     source={edge.source}
                     target={edge.target}
                     label={label}
-                    r={this.nodeRadius}
+                    r={this.props.nodeRadius}
                     isDirected={this.graph.isDirected}
                     nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
                 />
@@ -221,15 +221,38 @@ export default class GraphView extends Component {
         this.forceUpdate();
     }
 
+    handleDataCallback(event){
+        if(event){
+            this.setState({
+                algorithmPlaying: event
+            });
+        }
+        else{
+            this.setState({
+                algorithmPlaying: event
+            })
+        }
+    }
+
     /**
      * This method render a menu player for algorithms
      */
     renderAlgorithmPlayer(){
         if (this.algorithm) 
             return <AlgorithmPlayer 
-                algorithm={this.algorithm}
-                rerenderCallback={this.fullyRefresh.bind(this)}
-            />
+                    algorithm = { this.algorithm }
+                    rerenderCallback = { this.fullyRefresh.bind(this) }
+                    dataCallBack = { this.handleDataCallback.bind(this) }
+                />
+    }
+
+    renderInfoFrame(){
+        let listAlgo = ['DFS', 'BFS', 'FordFullkerson'];
+        for(let algo of listAlgo){
+            if(this.algorithm && this.state.algorithmPlaying && this.keyAlgo == algo){
+                return <InfoFrame state = {this.algorithm.getState()}/>
+            }
+        }
     }
 
     /**
@@ -297,9 +320,13 @@ export default class GraphView extends Component {
         if (!this.algorithm) return nodeStyles.normal;
         let state = this.algorithm.getState();
         if (state){
-            if (state.focusOn == nodeId && state.mark[nodeId]) return nodeStyles.focusOnMarked;
-            if (state.focusOn == nodeId && !state.mark[nodeId]) return nodeStyles.focusOn;
-            if (state.mark[nodeId]) return nodeStyles.marked;
+            if (state.focusOn == nodeId){
+                if (state.mark){
+                    if (state.mark[nodeId]) return nodeStyles.focusOnMarked;
+                    if (!state.mark[nodeId]) return nodeStyles.focusOn;
+                }
+            }
+            if (state.mark && state.mark[nodeId]) return nodeStyles.marked;
         }
         return nodeStyles.normal;
     }
@@ -432,15 +459,16 @@ export default class GraphView extends Component {
             top: initialTop + dy,
           });
         }
-      }
+    } 
 
     render() {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
-        //console.log(this.props.graph);
+        //console.log(this.state.algorithmPlaying);
         return (
             <View>
                 {this.renderAlgorithmPlayer()}
+                {this.renderInfoFrame()}
                 <Svg width={width} height={height}
                     marginTop={10}
                     onResponderGrant={() => this.removeInfoPane()}
@@ -458,6 +486,6 @@ export default class GraphView extends Component {
                     </G>
                 </Svg>
             </View>
-        )
+        );
     }
 }
