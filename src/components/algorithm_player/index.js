@@ -31,6 +31,7 @@ export default class AlgorithmPlayer extends Component{
      * else stop it
      */
     clickPlayButtonListener(){
+        this.removeResultCallback();
         if (!this.state.isPlaying){
             this.dataCallBack(true);//tell GraphView player was started
             this.setState({isPlaying: true});// set to playing
