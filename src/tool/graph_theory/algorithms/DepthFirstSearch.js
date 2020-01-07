@@ -13,7 +13,8 @@ export default class DepthFirstSearch extends Algorithms{
             focusOn: 0, // The first state have no node in order to focus on it so initialize focusOn of first state is zero
             step: 0, // Initializing the first step is zero
             traversingList: this.initArray(0), // Initializing the order of traversing of all vertex is zero
-            stack: this.initArray(0), 
+            stack: this.initArray(0),
+            parent: this.initArray(0),
         });
     }
 
@@ -43,15 +44,23 @@ export default class DepthFirstSearch extends Algorithms{
             this.state.focusOn = u;
             this.saveState();
             if(this.state.mark[u] == 1) // cheking u vertex is visited or not
-                continue; // if it visited then ignoring it
+                continue; // if u visited then ignoring it
             this.state.mark[u] = 1; // if not, then visited u vertex
             this.state.traversingList[u] = ++this.state.step;
             let getAdjList = this.graph.getChildrenVertices(u);
-            for(let v of getAdjList){ // traversing all v neighbors of u vertex
-                this.state.stack[top++] = v; // inserting the v neighbor into stack
+            for(let v of getAdjList){ // traversing all v neighbors of u vertex 
+                if(this.state.mark[v] == 0){
+                    this.state.stack[top++] = v; // inserting the v neighbor into stack
+                    this.state.parent[v] = u;
+                }
                 this.saveState();
             }
         }
+    }
+
+    displayParent(){
+        for(let i = 1; i <= this.graph.nbVertex; i++)
+            console.log('parent[' + i + '] = ' + this.state.parent[i]);
     }
 
     /**
@@ -60,5 +69,6 @@ export default class DepthFirstSearch extends Algorithms{
     run(){
         this.saveState(); // save first state;
         this.dfs(this.source); // start dfs() method from source vertex
+        this.displayParent();
     }
 }
