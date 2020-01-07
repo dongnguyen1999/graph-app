@@ -4,13 +4,14 @@ import Edge from "../edge";
 import {Dimensions, View, TouchableOpacity, Text} from "react-native";
 import {styles} from "./style";
 import { styles as nodeStyles } from "../vertex/style";
-import { GraphRenderer, Graph, Layout} from "../../tool/graph_drawing";
+import { GraphRenderer, Graph, Layout, d2PixcelUtils} from "../../tool/graph_drawing";
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
 import { Button } from 'react-native-elements';
 import InfoPane from '../infopane';
 import AlgorithmPlayer from '../algorithm_player';
 import InfoFrame from '../infoFrame/InfoFrame';
+import { AdjacencyMatrixGraph } from '../../tool/graph_theory/graphs';
 
 /**
  * An instance of this class presents a GraphView area with vertices and edges inside
@@ -36,17 +37,11 @@ export default class GraphView extends Component {
             this.algorithm.start();
         } else this.graph = graph;//keep graph from prop
         //console.log(this.graph);
-        let uiGraph = this.convertToUIGraph(this.graph);
-        let layout = new Layout.Spring(uiGraph);
-        //first layout nodes in graph
-        layout.layout();
-        const renderer = new GraphRenderer(uiGraph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
-        //first render graph
-        renderer.draw();
-
-        //get nodes, edges with their first position
-        this.nodes = renderer.getNodesMap();
-        this.edges = renderer.getEdgesMap();
+        
+        //init nodes map and edges map
+        this.nodes = new Map();
+        this.edges = new Map();
+        this.isDirected = false;
 
         this.state = {
             nodeViews: new Map(),
@@ -56,10 +51,10 @@ export default class GraphView extends Component {
             zoom: 1,    
             left: 0,
             top: 0,
-            algorithmPlaying: false
+            algorithmPlaying: false,// keep whether the player is playing or not
+            graphType: undefined // keep the 'key' of current graph, 'key' is used to load a whole new displaying with a new graph data
         }
 
-        this.renderGraph(this.nodes, this.edges);// render UI components the first time
         //should use width, height from props
         //pass widthPhone, heightPhone when use GraphView as props
         // this.widthPhone = Math.round(Dimensions.get('window').width);
@@ -69,11 +64,18 @@ export default class GraphView extends Component {
         // this.renderGraph = this.renderGraph.bind(this);
     }
 
+    componentDidMount(){
+        this.processingGraphData = this.convertToUIGraph(this.graph);// produce graphData{nodes, edges, isDirected} from input basic graph
+        this.loadNewGraphData("process", this.processingGraphData);// load graphData to draw in screen
+    }
+
     /**
-     * convert a basic graph to DraculaGraph
-     * @param {Graph} graph: a basic graph (src/tool/graph_theory/graphs/Graph)
+     * convert a basic graph to UIGraph that is actually an object { nodes: Map<Node>, edges: Map<Edge>, isDirected: Boolean }
+     * @param {Graph} graph a basic graph (src/tool/graph_theory/graphs/Graph)
+     * @returns an object { nodes: Map<Node>, edges: Map<Edge>, isDirected: Boolean }
      */
     convertToUIGraph(graph){
+        const { width, height, nodeRadius } = this.props;
         //const { graph } = this.props;
         let uiGraph = new DraculaGraph();//init uiGraph
         for (let nodeId = 1; nodeId <= graph.nbVertex; nodeId++){
@@ -87,7 +89,28 @@ export default class GraphView extends Component {
                 uiGraph.addEdge(u,v,{label: w});
             } else uiGraph.addEdge(u,v);//add edge without label
         }
-        return uiGraph;
+        
+        let layout = new Layout.Spring(uiGraph);
+        //first layout nodes in graph
+        layout.layout();
+        const renderer = new GraphRenderer(uiGraph, width-(2*nodeRadius), height-(2*nodeRadius), nodeRadius);
+        //first render graph
+        renderer.draw();
+        this.isDirected = graph.isDirected;
+        return {nodes: renderer.getNodesMap(), edges: renderer.getEdgesMap(), isDirected: graph.isDirected}
+    }
+
+    /**
+     * Apply new displaying with a specific graphData
+     * @param {String} key string that will be set to new graphView as 'key' props
+     * @param {Graph} graphData an object { nodes: Map<Node>, edges: Map<Edge> }
+     */
+    loadNewGraphData(key, graphData){
+        this.nodes = graphData.nodes;
+        this.edges = graphData.edges;
+        this.isDirected = graphData.isDirected;
+        this.renderGraph(this.nodes, this.edges);// render UI components the first time
+        this.setState({graphType: key});
     }
 
     /**
@@ -168,7 +191,7 @@ export default class GraphView extends Component {
                     target={edge.target}
                     label={label}
                     r={this.props.nodeRadius}
-                    isDirected={this.graph.isDirected}
+                    isDirected={this.isDirected}
                     nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
                 />
     }
@@ -243,6 +266,8 @@ export default class GraphView extends Component {
                     algorithm = { this.algorithm }
                     rerenderCallback = { this.fullyRefresh.bind(this) }
                     dataCallBack = { this.handleDataCallback.bind(this) }
+                    showResultCallback = { this.showResultGraph.bind(this) }
+                    removeResultCallback = { this.removeResultGraph.bind(this) }
                 />
     }
 
@@ -252,6 +277,46 @@ export default class GraphView extends Component {
             if(this.algorithm && this.state.algorithmPlaying && this.keyAlgo == algo){
                 return <InfoFrame state = {this.algorithm.getState()}/>
             }
+        }
+    }
+
+    /**
+     * make result graph from state and show it on GraphView svg
+     * @param {State} state the last state of current algorithm (this.algotithm)
+     */
+    showResultGraph(state){
+        let supportedAlgos = ['DFS', 'BFS'];
+        if (supportedAlgos.includes(this.keyAlgo) && !this.isShowingResultGraph() && state.parent){
+            //make resultGraph from state
+            let nbVertex = this.graph.nbVertex;
+            let graph = new AdjacencyMatrixGraph(nbVertex, nbVertex-1, true);
+            for (let i = 1; i <= nbVertex; i++){
+                if (state.parent[i] != 0) graph.addEdge({u: state.parent[i], v: i});
+            }
+            //get UI data and load on svg
+            this.resultGraphData = this.convertToUIGraph(graph);
+            this.loadNewGraphData("result", this.resultGraphData);
+        }
+    }
+
+    renderResultTextIntro(){
+        if (this.isShowingResultGraph()) return (
+            <View style={styles.resultTextContainer}>
+                <Text style={styles.resultTextView}>Result Graph</Text>
+            </View>
+        );
+    }
+
+    isShowingResultGraph(){
+        return (this.state.graphType == "result");
+    }
+
+    /**
+     * remove result graph if it is showing
+     */
+    removeResultGraph(){
+        if (this.isShowingResultGraph()){
+            this.loadNewGraphData("process", this.processingGraphData);
         }
     }
 
@@ -391,8 +456,8 @@ export default class GraphView extends Component {
      * @param {Number} y2: y coordinate of the second touched point
      */
     processPinch(x1, y1, x2, y2) {
-        const distance = calcDistance(x1, y1, x2, y2);
-        const { x, y } = calcCenter(x1, y1, x2, y2);   
+        const distance = d2PixcelUtils.distance(x1, y1, x2, y2);
+        const { x, y } = d2PixcelUtils.center(x1, y1, x2, y2);   
         if (!this.state.isZooming) {//if is not in zooming state
           //set GraphView into zooming state with initial values
           const { top, left, zoom } = this.state;
@@ -469,7 +534,9 @@ export default class GraphView extends Component {
             <View>
                 {this.renderAlgorithmPlayer()}
                 {this.renderInfoFrame()}
+                {this.renderResultTextIntro()}
                 <Svg width={width} height={height}
+                    key={this.state.graphType}
                     marginTop={10}
                     onResponderGrant={() => this.removeInfoPane()}
                     onResponderMove={(event) => this.processMoveAndZoomEvent(event)}

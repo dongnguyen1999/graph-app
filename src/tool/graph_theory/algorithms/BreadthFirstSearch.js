@@ -58,13 +58,15 @@ export default class BreadthFirstSearch extends Algorithms{
                 }
             }
         }
+        this.state.focusOn = 0;//focus on nothing for the last state
     }
 
     /**
      * override
      */
     run(){
-        this.saveState(); // save first state;
+        this.saveState(); // save the first state;
         this.bfs(this.source); // start bfs() method from source vertex
+        this.saveState(); // save the last state
     }
 }

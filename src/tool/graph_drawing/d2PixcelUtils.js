@@ -1,3 +1,14 @@
+function middle(p1, p2) {
+    return (p1 + p2) / 2;
+}
+
+function center(x1, y1, x2, y2) {
+    return {
+        x: middle(x1, x2),
+        y: middle(y1, y2),
+    };
+}
+
 function distance(x1, y1, x2, y2) {
     const dx = x1 - x2;
     const dy = y1 - y2;
@@ -20,4 +31,4 @@ function measureText(string, fontSize = 10) {
         .reduce((cur, acc) => acc + cur) * fontSize
 }
 
-export {distance, measureText};
+export {distance, measureText, middle, center};

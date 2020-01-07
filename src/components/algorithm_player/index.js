@@ -17,9 +17,12 @@ export default class AlgorithmPlayer extends Component{
             isPlaying: false,// to keep the state whether the algorithm is running automatically or not
             isSleeping: true,// to keep the state system is sleeping during delayTime
         }
-        const { algorithm, rerenderCallback } = this.props;
+        const { algorithm, rerenderCallback, dataCallBack, showResultCallback, removeResultCallback } = this.props;
         this.algorithm = algorithm;
         this.rerenderCallback = rerenderCallback;
+        this.dataCallBack = dataCallBack;
+        this.showResultCallback = showResultCallback;
+        this.removeResultCallback = removeResultCallback;
     }
 
     /**
@@ -28,9 +31,8 @@ export default class AlgorithmPlayer extends Component{
      * else stop it
      */
     clickPlayButtonListener(){
-        const {  dataCallBack } = this.props;
         if (!this.state.isPlaying){
-            dataCallBack(true);//tell GraphView player was started
+            this.dataCallBack(true);//tell GraphView player was started
             this.setState({isPlaying: true});// set to playing
         } else this.setState({isPlaying: false});
     }
@@ -43,8 +45,8 @@ export default class AlgorithmPlayer extends Component{
      */
     clickNextButtonListener(){
         if (this.algorithm.next() == undefined) {
-            this.algorithm.start();
-            this.rerenderCallback();
+            let state = this.algorithm.end();
+            this.showResultCallback(state);
             return false;
         }
         this.rerenderCallback();
@@ -55,6 +57,7 @@ export default class AlgorithmPlayer extends Component{
      * call this.algorithm.previous(), rerender the graph
      */
     clickPreviousButtonListener(){
+        this.removeResultCallback();
         if (this.algorithm.previous() == undefined) this.algorithm.start();
         this.rerenderCallback();
     }
@@ -64,17 +67,18 @@ export default class AlgorithmPlayer extends Component{
      * call this.algorithm.start(), rerender the graph
      */
     clickStartButtonListener(){
+        this.removeResultCallback();
         this.algorithm.start();
         this.rerenderCallback();
     }
 
     /**
      * define what to do whenever the jump-to-ending button was pressed
-     * call this.algorithm.end(), rerender the graph
+     * call this.algorithm.end(), rerender the graph with result graph
      */
     clickEndButtonListener(){
-        this.algorithm.end();
-        this.rerenderCallback();
+        let state = this.algorithm.end();
+        this.showResultCallback(state);
     }
 
     /**
@@ -102,7 +106,6 @@ export default class AlgorithmPlayer extends Component{
      * run algorithm automatically by the way call clickNextButtonListener every delay time
      */
     runAlgorithm(){
-        const {  dataCallBack } = this.props;
         console.disableYellowBox = true; // just demiss all warning if everything work fine
         // clickNextButtonListener is a function bind GraphView -> read more in GraphView class    
         if (this.state.isPlaying){
@@ -111,7 +114,7 @@ export default class AlgorithmPlayer extends Component{
                     // faild in clicking next button 
                     // this is the last state
                     this.state.isPlaying = false;// stop playing
-                    dataCallBack(false);// tell graphview
+                    this.dataCallBack(false);// tell graphview
                 }
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping
@@ -120,7 +123,6 @@ export default class AlgorithmPlayer extends Component{
                 },this.delayTime);
             }
         }
-        // dataCallBack(this.state.isPlaying); //no no no
     }
 
     render(){

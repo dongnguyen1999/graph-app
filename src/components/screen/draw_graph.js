@@ -75,7 +75,7 @@ export default class DrawGraph extends Component {
                 if (isNaN(out)) return false;
             }
             if (inputs.length == 3) outputs.push(w);
-            console.log(outputs);
+            // console.log(outputs);
             return outputs;
         }
         return false;
@@ -139,7 +139,7 @@ export default class DrawGraph extends Component {
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
         let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
-        //console.log('algorithm key: ' + algorithmValue);
+        // console.log('algorithm key: ' + algorithmValue);
         let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
 
         // var graph = this.makeGraphFromString(
@@ -168,7 +168,7 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 2, v: 4});
 
-        //let graph = new AdjacencyMatrixGraph(5,7,false);
+        // let graph = new AdjacencyMatrixGraph(5,7,false);
         // graph.addEdge({u: 1, v: 2});
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 1, v: 4});
@@ -183,7 +183,7 @@ export default class DrawGraph extends Component {
         //console.log(choiceAlgorithm);
 
         //let algorithm = new BreadthFirstSearch(graph, 1);
-        //let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
+        // let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
 
         // console.log(choiceAlgorithm);
         let algorithm = new choiceAlgorithm(graph, 1);
@@ -197,8 +197,9 @@ export default class DrawGraph extends Component {
                 //set height with heightPhone-heightTitlebar
                 height = {heightPhone-180}
                 nodeRadius = { 20 }
-                zoomable={true}
+                zoomable={false}
                 keyAlgo = { algorithmValue }
+                // keyAlgo = { "DFS" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

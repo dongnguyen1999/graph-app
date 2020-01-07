@@ -56,6 +56,7 @@ export default class DepthFirstSearch extends Algorithms{
                 this.saveState();
             }
         }
+        this.state.focusOn = 0; // focus on nothing for the last state
     }
 
     displayParent(){
@@ -67,8 +68,9 @@ export default class DepthFirstSearch extends Algorithms{
      * override
      */
     run(){
-        this.saveState(); // save first state;
+        this.saveState(); // save the first state;
         this.dfs(this.source); // start dfs() method from source vertex
-        this.displayParent();
+        // this.displayParent();
+        this.saveState(); // save the last state
     }
 }
