@@ -176,14 +176,14 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 2, v: 3});
         // graph.addEdge({u: 2, v: 4});
         // graph.addEdge({u: 4, v: 5});
-        // graph.display();
+        // // graph.display();
 
         // let algorithm = new BreadthFirstSearch(graph, 1);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
         //console.log(choiceAlgorithm);
 
         //let algorithm = new BreadthFirstSearch(graph, 1);
-        // let choiceAlgorithm = this.algorithmsList[algorithmValue.key];
+        
 
         // console.log(choiceAlgorithm);
         let algorithm = new choiceAlgorithm(graph, 1);
@@ -198,8 +198,8 @@ export default class DrawGraph extends Component {
                 height = {heightPhone-180}
                 nodeRadius = { 20 }
                 zoomable={false}
-                keyAlgo = { algorithmValue }
-                // keyAlgo = { "DFS" }
+                // keyAlgo = { algorithmValue }
+                keyAlgo = { "DFS" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

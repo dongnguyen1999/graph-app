@@ -30,7 +30,9 @@ export default class InfoPane extends Component{
         const { padding } = styles.paneBody;
         let content = new Map(); //init empty array
         let width = height = 0; //init width and height of infopane at 0
-        const { node, state } = this.props; // to get nodeId and state data
+        const { node, algorithm } = this.props; // to get nodeId and state data
+        let state = algorithm.getState();
+        let config = algorithm.config;
         for (let prop in state) { // loop through props of state
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
                 let kvPair = undefined;//init an object to record key-value pair added into content array
@@ -45,8 +47,20 @@ export default class InfoPane extends Component{
                     //get data match with node id and add to content
                     let key = prop + "[" + node.id + "]";
                     kvPair = {key: key,value: state[prop][node.id]};//record key-value pair
+                } 
+
+                if (config.representName){
+                    let representName = config.representName[prop];
+                    // console.log(rere)
+                    if (representName){
+                        let key = representName;
+                        if (typeof representName == "function") key = representName(state, node);
+                        kvPair.key = key;
+                    }
                 }
 
+                if (config.hidden && config.hidden.includes(prop)) kvPair = undefined;
+                
                 if (kvPair){
                     content.set(kvPair.key, kvPair.value);//add to content
                     //update width and height

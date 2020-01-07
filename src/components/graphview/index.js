@@ -300,8 +300,7 @@ export default class GraphView extends Component {
             for (let node of this.processingGraphData.nodes.values()){
                 let resultNode = this.resultGraphData.nodes.get(node.id);
                 // console.log(resultNode);
-                resultNode.point[0] = node.point[0];
-                resultNode.point[1] = node.point[1];
+                resultNode.point = node.point;
             }
             this.loadNewGraphData("result", this.resultGraphData);
         }
@@ -324,12 +323,6 @@ export default class GraphView extends Component {
      */
     removeResultGraph(){
         if (this.isShowingResultGraph()){
-            for (let node of this.resultGraphData.nodes.values()){
-                let processNode = this.processingGraphData.nodes.get(node.id);
-                // console.log(resultNode);
-                processNode.point[0] = node.point[0];
-                processNode.point[1] = node.point[1];
-            }
             this.loadNewGraphData("process", this.processingGraphData);
         }
     }
@@ -348,7 +341,8 @@ export default class GraphView extends Component {
                 infoPane: <InfoPane
                     node={node}
                     key={"#InfoPane"+":"+node.id}
-                    state={this.algorithm.getState()}/>
+                    algorithm={this.algorithm}
+                    />
             })
         }
     }

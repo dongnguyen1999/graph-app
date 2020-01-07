@@ -21,6 +21,20 @@ export default class Algorithm {
         // the state can contain props such as distance[], predecessor[], mark[],... 
         // Ex: { focusOn: 1, mark: new Array() }
         this.states = []; // an array save states(State objects) every step in runtime
+        this.config = {
+            // Implement in subclass
+            /** algorithm.config is an object
+             *  @prop {Array<String} hidden an array of strings that are props in State you want to hide
+             *  @prop {Object} representName an object contains 'props: representName' pairs
+             *      representName is what you want to display instead of name of props
+             *      Ex: {
+             *          focusOn: "Working at",
+             *          mark: (state, node) => { function using data from state and node return a string }
+             *      }
+             *      InfoPane will show "Working at: ..." instead of "focusOn: ..."
+             *      Or pass a function that return a represent name for this props
+             */
+        }
         this.statesCursor = undefined; // set cursor to nothing
     }
 
