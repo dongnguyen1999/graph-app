@@ -1,8 +1,8 @@
-import React, { Component } from "react"
-import { TouchableOpacity,Text,View, Dimensions } from "react-native"
-import { Icon } from "react-native-elements"
-import { styles } from './style'
-import InfoFrame from '../infoFrame/InfoFrame';
+import React, { Component } from "react";
+import { TouchableOpacity,Text,View, Dimensions } from "react-native";
+import { Icon } from "react-native-elements";
+import { styles } from './style';
+import DialogInput from 'react-native-dialog-input';
 
 /**
  * This class make a UI component using in GraphView when algorithm running on it
@@ -23,6 +23,11 @@ export default class AlgorithmPlayer extends Component{
         this.dataCallBack = dataCallBack;
         this.showResultCallback = showResultCallback;
         this.removeResultCallback = removeResultCallback;
+        
+        this.state = {
+            dialogVisible: false,
+            sourceNode: 0,
+        }
     }
 
     /**
@@ -32,9 +37,37 @@ export default class AlgorithmPlayer extends Component{
      */
     clickPlayButtonListener(){
         if (!this.state.isPlaying){
-            this.dataCallBack(true);//tell GraphView player was started
-            this.setState({isPlaying: true});// set to playing
+            if(this.algorithm.statesCursor == 0)
+                this.setState({dialogVisible: true});
+            else {
+                this.dataCallBack(true); // tell GraphView player was started
+                this.setState({isPlaying: true});// set to playing
+            }
         } else this.setState({isPlaying: false});
+    }
+
+    renderDialog(){
+        return(
+            <DialogInput 
+                isDialogVisible = {this.state.dialogVisible}
+                title = {"Notification"}
+                message = {"Enter source node: "}
+                hintInput = {'1'} 
+                submitInput = {(sourceNode) => {
+                    this.setState({dialogVisible: false});
+                    // console.log("Sdkfdig");
+                    //console.log(sourceNode);
+                    this.algorithm.run(sourceNode);
+                    this.algorithm.start();
+                    this.algorithm.next();
+                    // console.log(this.algorithm.source);
+                    // console.log(this.algorithm.getStates().slice(2));
+                    // this.dataCallBack(true); // tell GraphView player was started
+                    // this.setState({isPlaying: true});// set to playing
+                }}
+                closeDialog = {() => {false}}
+            />
+        );
     }
 
     /**
@@ -126,9 +159,10 @@ export default class AlgorithmPlayer extends Component{
     }
 
     render(){
-        this.runAlgorithm();//press next button automatically
+        this.runAlgorithm(); // press next button automatically
         return (
             <View style = {styles.body}>
+                {this.renderDialog()}
                 <Icon 
                     name='skip-previous'
                     size={styles.button.size}

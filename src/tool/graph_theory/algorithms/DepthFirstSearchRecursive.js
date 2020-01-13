@@ -12,8 +12,15 @@ export default class DepthFirstSearchRecursive extends Algorithms{
             mark: this.initArray(0), // Mark all the vertices as not visited 
             focusOn: 0, // The first state have no node in order to focus on it so initialize focusOn of first state is zero
             step: 0, // Initializing the first step is zero
-            traversingList: this.initArray(0) // Initializing the order of traversing of all vertex is zero
+            traversingList: this.initArray(0), // Initializing the order of traversing of all vertex is zero
+            //parent: this.initArray(0),
         });
+        this.config = {
+            hidden: ["focusOn", "traversingList", "step"],
+            // parent: (state, node) => {
+            //     return "p[" + node.id + "]" 
+            // }
+        }
     }
 
     /**
@@ -36,8 +43,9 @@ export default class DepthFirstSearchRecursive extends Algorithms{
     dfsRecursive(source){
         this.state.focusOn = source; // set working on node u;
         this.saveState(); // save the state when first jump to new node
-        if (this.state.mark[source]) return; // do nothing if node is marked 
-        this.state.mark[source] = 1; // visited u
+        if (this.state.mark[source]) 
+            return; // do nothing if node is marked 
+        this.state.mark[source] = 1; // visited source
         this.state.traversingList[source] = ++this.state.step;
         this.saveState(); // save the state when marking the new node
         let getAdjList = this.graph.getChildrenVertices(source);

@@ -13,6 +13,8 @@ export default class Cycle extends Algorithms{
         // Initializing first state
         this.setState({
             color: this.initArray(WHITE), // Initializing color of all vertices is white
+            focusOn: 0,
+            mark: this.initArray(0),
         });
         this.conflict = 0;
     }
@@ -62,7 +64,7 @@ export default class Cycle extends Algorithms{
      */
     run(){
         this.saveState(); // saving first state;
-        this.colorize(this.source,BLUE);
+        this.colorize(this.source, BLUE);
         /*
         if(this.conflict)
             console.log("no");

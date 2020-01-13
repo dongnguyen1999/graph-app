@@ -16,15 +16,15 @@ export default class BreadthFirstSearch extends Algorithms{
             queue: this.initArray(0),
             parent: this.initArray(0),
         });
-        // this.config = {
-        //     hidden: ["mark", "focusOn"],
-        //     representName: {
-        //         step: "Buoc",
-        //         parent: (state, node) => {
-        //             return "p[" + node.id + "]" 
-        //         }
-        //     }
-        // }
+        this.config = {
+            hidden: ["focusOn", "traversingList", "queue", "step"],
+            representName: {
+                //step: "Buoc",
+                parent: (state, node) => {
+                    return "p[" + node.id + "]" 
+                }
+            }
+        }
     }
 
     /**
@@ -67,7 +67,7 @@ export default class BreadthFirstSearch extends Algorithms{
                 }
             }
         }
-        this.state.focusOn = 0;//focus on nothing for the last state
+        this.state.focusOn = 0; // focus on nothing for the last state
     }
 
     /**
