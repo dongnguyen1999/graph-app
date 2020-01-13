@@ -174,4 +174,10 @@ export default class Algorithm {
         this.statesCursor = index;
         return this.getState();
     }
+
+    clearStates(){
+        while(this.states.length != 0){
+            this.states.pop();
+        }
+    }
 } 

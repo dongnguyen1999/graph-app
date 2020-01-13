@@ -12,7 +12,6 @@ import InfoPane from '../infopane';
 import AlgorithmPlayer from '../algorithm_player';
 import InfoFrame from '../infoFrame/InfoFrame';
 import { AdjacencyMatrixGraph } from '../../tool/graph_theory/graphs';
-import DialogInput from 'react-native-dialog-input';
 
 /**
  * An instance of this class presents a GraphView area with vertices and edges inside
@@ -34,7 +33,7 @@ export default class GraphView extends Component {
         if (algorithm != undefined){ //if graphview is initialized with algorithm
             this.algorithm = algorithm;// keep algorithm object used as controller
             this.graph = algorithm.graph;//keep graph from algorithm
-            this.algorithm.run();//run algorithm for the first time
+            this.algorithm.run(); //run algorithm for the first time
             this.algorithm.start();
         } else this.graph = graph;//keep graph from prop
         //console.log(this.graph);
@@ -248,24 +247,24 @@ export default class GraphView extends Component {
         this.forceUpdate();
     }
 
-    getInput(){
-        console.log("Source node from Dialog Input: " + this.state.sourceNode);
-    }
+    // getInput(){
+    //     console.log("Source node from Dialog Input: " + this.state.sourceNode);
+    // }
 
-    renderDialog(){
-        if(this.state.algorithmPlaying){
-            return(
-                <DialogInput 
-                    isDialogVisible = {this.state.dialogVisible}
-                    title = {"Notification"}
-                    message = {"Enter source node: "}
-                    hintInput = {'1'}
-                    submitInput = {(sourceNode) => {this.setState({sourceNode: sourceNode, dialogVisible: false})}}
-                    // closeDialog = {() => {this.state.dialogVisible}}
-                />
-            );
-        }
-    }
+    // renderDialog(){
+    //     if(this.state.algorithmPlaying){
+    //         return(
+    //             <DialogInput 
+    //                 isDialogVisible = {this.state.dialogVisible}
+    //                 title = {"Notification"}
+    //                 message = {"Enter source node: "}
+    //                 hintInput = {'1'} 
+    //                 submitInput = {(sourceNode) => {this.setState({sourceNode: sourceNode, dialogVisible: false})}}
+    //                 closeDialog = {() => {false}}
+    //             />
+    //         );
+    //     }
+    // }
 
     handleDataCallback(event){
         if(event){
@@ -559,10 +558,10 @@ export default class GraphView extends Component {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
         //console.log(this.state.algorithmPlaying);
-        this.getInput();
+        // this.getInput();
         return (
             <View>
-                {this.renderDialog()}
+                {/* {this.renderDialog()} */}
                 {this.renderAlgorithmPlayer()}
                 {this.renderInfoFrame()}
                 {this.renderResultTextIntro()}

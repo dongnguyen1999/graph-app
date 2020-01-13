@@ -4,9 +4,9 @@ import Algorithms from "./Algorithm";
  * A graph view
  */
 export default class DepthFirstSearch extends Algorithms{
-    constructor(graph, startingNode){
+    constructor(graph){
         super(graph); // Calling super.constructor to record parent graph for this algorithm
-        this.source = startingNode; // Initializing the source vertex is a startingNode which is passed from outside
+        this.source = 1; // Initializing the source vertex is a startingNode which is passed from outside
         // Initializing first state
         this.setState({
             mark: this.initArray(0), // Mark all the vertices as not visited 
@@ -44,11 +44,13 @@ export default class DepthFirstSearch extends Algorithms{
      * @param {Number} source: a source vertex in the graph
      */
     dfs(source){
+        // console.log(source);
         let top = 0;
         this.state.stack[top++] = source; // pushing source vertex into Stack
         this.saveState();
         while(top != 0){
             let u = this.state.stack[--top]; // get the first vertex from stack and call it is u vertex
+            console.log("Dinh " + u);
             this.state.focusOn = u;
             if(this.state.mark[u] == 1){ // cheking u vertex is visited or not
                 //this.state.stack.shift();
@@ -56,6 +58,7 @@ export default class DepthFirstSearch extends Algorithms{
             }
             this.state.mark[u] = 1; // if not, then visited u vertex
             this.state.traversingList[u] = ++this.state.step;
+            console.log("Length: " + this.states.length);
             this.saveState();
             let getAdjList = this.graph.getChildrenVertices(u);
             for(let v of getAdjList){ // traversing all v neighbors of u vertex 
@@ -77,7 +80,10 @@ export default class DepthFirstSearch extends Algorithms{
     /**
      * override
      */
-    run(){
+    run(source){
+        this.source = source || 1;
+        // console.log(this.source);
+        // this.clearStates();
         this.saveState(); // save the first state;
         this.dfs(this.source); // start dfs() method from source vertex
         // this.displayParent();
