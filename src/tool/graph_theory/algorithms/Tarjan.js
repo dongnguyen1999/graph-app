@@ -11,10 +11,17 @@ export default class Tarjan extends Algorithms{
             stack: this.initArray(0), // Init stack
             num: this.initArray(-1), // Save index of v vertex
             min_num: this.initArray(9999), // Save index smallest,
+            mark: this.initArray(0),
+            focusOn: 0,
+            counter: 0, // count number of strong connection
+            k: 1,
+            on_stack: this.initArray(0),
+            countNode: 0, // count number of nodes removed from stack,
+            parent: this.initArray(0),
         });
-        this.counter = 0; // count number of strong connection
-        this.k = 1;
-        this.onStack = this.initArray(0);
+        this.config = {
+            hidden: ["stack", "mark", "focusOn", "counter", "k", "countNode"]
+        };
     }
 
     /**
@@ -35,11 +42,12 @@ export default class Tarjan extends Algorithms{
      * @param {Number} x: a source vertex in the graph
      */
     tarjanSolve(x){//Strong connection
-        this.state.num[x] = this.k;
-        this.state.min_num[x] = this.k;
-        this.k++;
+        this.state.num[x] = this.state.k;
+        this.state.min_num[x] = this.state.k;
+        this.state.focusOn = x;
+        this.state.k++;
         this.state.stack.push(x); // push x into stack
-        this.onStack[x] = 1; // x is on stack
+        this.state.on_stack[x] = 1; // x is on stack
         this.saveState();
         //Get neighbors of current node
         let neighbors = this.graph.getChildrenVertices(x);
@@ -47,35 +55,58 @@ export default class Tarjan extends Algorithms{
             if (this.state.num[y] < 0) {
                 this.tarjanSolve(y);
                 this.state.min_num[x] = Math.min(this.state.min_num[x], this.state.min_num[y]);
+                this.state.focusOn = y;
                 this.saveState();
-            } else if (this.state.onStack[y]) {
+            } else if (this.state.on_stack[y]) {
                 this.state.min_num[x] = Math.min(this.state.min_num[x], this.state.num[y]);
+                this.state.focusOn = y;
                 this.saveState();
             }
         }
         // checking where num[x] == minNum[x]
         if(this.state.num[x] === this.state.min_num[x] ){
-            this.counter++;
+            this.state.counter++;
             this.saveState();
             let w;
             do{
                 w = this.state.stack.pop();
-                this.state.onStack[w] = 0;
+                this.state.on_stack[w] = 0;
+                this.state.mark[w] = 1;
+                if(x != w) 
+                    this.state.countNode++;
                 this.saveState();
             } while(w !== x);
         }
     }   
     
-    isStrongConnection(){
-        return this.counter === 1;
+    numberOfStrongConnected(){
+        return this.state.counter;
     }
+
+    isStrongConnected(){
+        if(this.state.countNode == this.graph.nbVertex)
+            return true;
+        return false;
+    }
+
+    displayParent(){
+        for(let i = 1; i <= this.graph.nbVertex; i++)
+            console.log('parent[' + i + '] = ' + this.state.parent[i]);
+    }
+
     /**
      * override
      */
     run(){
-        this.saveState(); // save first state;
+        this.saveState(); // save the first state;
         this.tarjanSolve(this.s); // start tarjanSolve() method from source vertex
-        //let check = this.isStrongConnection();
-        //console.log(check);
+        this.state.focusOn = 0; // focus on nothing for the last state
+        this.saveState(); // save the last state
+        // console.log("Number of strong connected: " + this.numberOfStrongConnected());
+        // if(this.isStrongConnected()){
+        //     console.log("strong connected");
+        // }
+        // else console.log("unconnected")
+        this.displayParent();
     }
 }

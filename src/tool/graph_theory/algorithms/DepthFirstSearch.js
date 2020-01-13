@@ -16,6 +16,14 @@ export default class DepthFirstSearch extends Algorithms{
             stack: this.initArray(0),
             parent: this.initArray(0),
         });
+        this.config = {
+            hidden: ["focusOn", "traversingList", "stack", "step"],
+            representName: {
+                parent: (state, node) => {
+                    return "p[" + node.id + "]" 
+                }
+            }
+        }
     }
 
     /**
@@ -42,17 +50,19 @@ export default class DepthFirstSearch extends Algorithms{
         while(top != 0){
             let u = this.state.stack[--top]; // get the first vertex from stack and call it is u vertex
             this.state.focusOn = u;
-            this.saveState();
-            if(this.state.mark[u] == 1) // cheking u vertex is visited or not
+            if(this.state.mark[u] == 1){ // cheking u vertex is visited or not
+                //this.state.stack.shift();
                 continue; // if u visited then ignoring it
+            }
             this.state.mark[u] = 1; // if not, then visited u vertex
             this.state.traversingList[u] = ++this.state.step;
+            this.saveState();
             let getAdjList = this.graph.getChildrenVertices(u);
             for(let v of getAdjList){ // traversing all v neighbors of u vertex 
                 if(this.state.mark[v] == 0){
-                    this.state.stack[top++] = v; // inserting the v neighbor into stack
                     this.state.parent[v] = u;
                 }
+                this.state.stack[top++] = v; // inserting the v neighbor into stack
                 this.saveState();
             }
         }

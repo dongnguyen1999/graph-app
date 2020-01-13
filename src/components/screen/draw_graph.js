@@ -5,7 +5,8 @@ import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
 import { Header } from "react-navigation"
 import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
-import { DepthFirstSearch,
+import { 
+    DepthFirstSearch,
     BreadthFirstSearch,
     DepthFirstSearchRecursive,
     Tarjan,
@@ -161,13 +162,7 @@ export default class DrawGraph extends Component {
         //   10 12
         //   11 12`
         // );
-        // let graph = this.makeGraphFromText(state.params.input);
-
-        // let graph = new AdjacencyMatrixGraph(4,3, false);
-        // graph.addEdge({u: 2, v: 1, w: 5});
-        // graph.addEdge({u: 1, v: 3});
-        // graph.addEdge({u: 2, v: 4});
-
+        
         // let graph = new AdjacencyMatrixGraph(5,7,false);
         // graph.addEdge({u: 1, v: 2});
         // graph.addEdge({u: 1, v: 3});
@@ -176,16 +171,11 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 2, v: 3});
         // graph.addEdge({u: 2, v: 4});
         // graph.addEdge({u: 4, v: 5});
-        // // graph.display();
+        // graph.display();
 
         // let algorithm = new BreadthFirstSearch(graph, 1);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
         //console.log(choiceAlgorithm);
-
-        //let algorithm = new BreadthFirstSearch(graph, 1);
-        
-
-        // console.log(choiceAlgorithm);
         let algorithm = new choiceAlgorithm(graph, 1);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
@@ -199,7 +189,7 @@ export default class DrawGraph extends Component {
                 nodeRadius = { 20 }
                 zoomable={false}
                 // keyAlgo = { algorithmValue }
-                keyAlgo = { "DFS" }
+                keyAlgo = { algorithmValue }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

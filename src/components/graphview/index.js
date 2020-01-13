@@ -12,6 +12,7 @@ import InfoPane from '../infopane';
 import AlgorithmPlayer from '../algorithm_player';
 import InfoFrame from '../infoFrame/InfoFrame';
 import { AdjacencyMatrixGraph } from '../../tool/graph_theory/graphs';
+import DialogInput from 'react-native-dialog-input';
 
 /**
  * An instance of this class presents a GraphView area with vertices and edges inside
@@ -52,7 +53,10 @@ export default class GraphView extends Component {
             left: 0,
             top: 0,
             algorithmPlaying: false,// keep whether the player is playing or not
-            graphType: undefined // keep the 'key' of current graph, 'key' is used to load a whole new displaying with a new graph data
+            graphType: undefined, // keep the 'key' of current graph, 'key' is used to load a whole new displaying with a new graph data
+            sourceNode: 0,
+            targetNode: 0,
+            dialogVisible: true,
         }
 
         //should use width, height from props
@@ -119,7 +123,7 @@ export default class GraphView extends Component {
      * @param {Array<Number>} point: an array presents position of a node: [x,y]
      */
     validatePoint(point){
-        let {width, height, nodeRadius, zoomable } = this.props;
+        let { width, height, nodeRadius, zoomable } = this.props;
         let [x,y] = point;
         if (!zoomable){
             if (x < nodeRadius) x = nodeRadius;
@@ -244,6 +248,25 @@ export default class GraphView extends Component {
         this.forceUpdate();
     }
 
+    getInput(){
+        console.log("Source node from Dialog Input: " + this.state.sourceNode);
+    }
+
+    renderDialog(){
+        if(this.state.algorithmPlaying){
+            return(
+                <DialogInput 
+                    isDialogVisible = {this.state.dialogVisible}
+                    title = {"Notification"}
+                    message = {"Enter source node: "}
+                    hintInput = {'1'}
+                    submitInput = {(sourceNode) => {this.setState({sourceNode: sourceNode, dialogVisible: false})}}
+                    // closeDialog = {() => {this.state.dialogVisible}}
+                />
+            );
+        }
+    }
+
     handleDataCallback(event){
         if(event){
             this.setState({
@@ -253,7 +276,7 @@ export default class GraphView extends Component {
         else{
             this.setState({
                 algorithmPlaying: event
-            })
+            });
         }
     }
 
@@ -263,20 +286,18 @@ export default class GraphView extends Component {
     renderAlgorithmPlayer(){
         if (this.algorithm) 
             return <AlgorithmPlayer 
-                    algorithm = { this.algorithm }
-                    rerenderCallback = { this.fullyRefresh.bind(this) }
-                    dataCallBack = { this.handleDataCallback.bind(this) }
-                    showResultCallback = { this.showResultGraph.bind(this) }
-                    removeResultCallback = { this.removeResultGraph.bind(this) }
-                />
+                        algorithm = { this.algorithm }
+                        rerenderCallback = { this.fullyRefresh.bind(this) }
+                        dataCallBack = { this.handleDataCallback.bind(this) }
+                        showResultCallback = { this.showResultGraph.bind(this) }
+                        removeResultCallback = { this.removeResultGraph.bind(this) }
+                    />
     }
 
     renderInfoFrame(){
-        let listAlgo = ['DFS', 'BFS', 'Tarjan', 'FordFullkerson'];
-        for(let algo of listAlgo){
-            if(this.algorithm && this.state.algorithmPlaying && this.keyAlgo == algo){
-                return <InfoFrame state = {this.algorithm.getState()}/>
-            }
+        let listAlgos = ['DFS', 'BFS', 'Tarjan', 'FordFullkerson'];
+        if(this.state.algorithmPlaying && listAlgos.includes(this.keyAlgo)){
+            return <InfoFrame state = { this.algorithm.getState()}/>
         }
     }
 
@@ -538,8 +559,10 @@ export default class GraphView extends Component {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
         //console.log(this.state.algorithmPlaying);
+        this.getInput();
         return (
             <View>
+                {this.renderDialog()}
                 {this.renderAlgorithmPlayer()}
                 {this.renderInfoFrame()}
                 {this.renderResultTextIntro()}

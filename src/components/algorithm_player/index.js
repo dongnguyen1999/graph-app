@@ -1,8 +1,7 @@
-import React, { Component } from "react"
-import { TouchableOpacity,Text,View, Dimensions } from "react-native"
-import { Icon } from "react-native-elements"
-import { styles } from './style'
-import InfoFrame from '../infoFrame/InfoFrame';
+import React, { Component } from "react";
+import { TouchableOpacity,Text,View, Dimensions } from "react-native";
+import { Icon } from "react-native-elements";
+import { styles } from './style';
 
 /**
  * This class make a UI component using in GraphView when algorithm running on it
@@ -126,7 +125,7 @@ export default class AlgorithmPlayer extends Component{
     }
 
     render(){
-        this.runAlgorithm();//press next button automatically
+        this.runAlgorithm(); // press next button automatically
         return (
             <View style = {styles.body}>
                 <Icon 
