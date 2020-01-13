@@ -55,15 +55,11 @@ export default class AlgorithmPlayer extends Component{
                 hintInput = {'1'} 
                 submitInput = {(sourceNode) => {
                     this.setState({dialogVisible: false});
-                    // console.log("Sdkfdig");
                     //console.log(sourceNode);
                     this.algorithm.run(sourceNode);
                     this.algorithm.start();
-                    this.algorithm.next();
-                    // console.log(this.algorithm.source);
-                    // console.log(this.algorithm.getStates().slice(2));
-                    // this.dataCallBack(true); // tell GraphView player was started
-                    // this.setState({isPlaying: true});// set to playing
+                    this.dataCallBack(true); // tell GraphView player was started
+                    this.setState({isPlaying: true});// set to playing
                 }}
                 closeDialog = {() => {false}}
             />

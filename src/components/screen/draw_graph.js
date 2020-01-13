@@ -175,7 +175,7 @@ export default class DrawGraph extends Component {
 
         // let algorithm = new BreadthFirstSearch(graph, 1);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
-        //console.log(choiceAlgorithm);
+        console.log(algorithmValue);
         let algorithm = new choiceAlgorithm(graph);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen

@@ -307,15 +307,13 @@ export default class GraphView extends Component {
     showResultGraph(state){
         let supportedAlgos = ['DFS', 'BFS'];
         if (supportedAlgos.includes(this.keyAlgo) && !this.isShowingResultGraph() && state.parent){
-            if (!this.resultGraphData){
-                //make resultGraph from state
-                let nbVertex = this.graph.nbVertex;
-                let graph = new AdjacencyMatrixGraph(nbVertex, nbVertex-1, true);
-                for (let i = 1; i <= nbVertex; i++){
-                    if (state.parent[i] != 0) graph.addEdge({u: state.parent[i], v: i});
-                }
-                this.resultGraphData = this.convertToUIGraph(graph);//get UI data
+            //make resultGraph from state
+            let nbVertex = this.graph.nbVertex;
+            let graph = new AdjacencyMatrixGraph(nbVertex, nbVertex-1, true);
+            for (let i = 1; i <= nbVertex; i++){
+                if (state.parent[i] != 0) graph.addEdge({u: state.parent[i], v: i});
             }
+            this.resultGraphData = this.convertToUIGraph(graph);//get UI data
             // load on svg
             for (let node of this.processingGraphData.nodes.values()){
                 let resultNode = this.resultGraphData.nodes.get(node.id);

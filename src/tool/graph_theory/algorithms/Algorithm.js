@@ -17,6 +17,16 @@ import cloneDeep from "lodash/cloneDeep"
 export default class Algorithm {
     constructor(graph){ // an instance of basic graph (src/tool/graph_theory/graphs/Graph) or its subclass
         this.graph = graph; // recording a graph as property
+        this.init();
+    }
+
+
+    init(){
+        //extent in subclass
+        // init(){
+        //     super.init();
+        //     ...init state, config, source,...
+        // }
         this.state = {}; // initializing a state as an empty object
         // the state can contain props such as distance[], predecessor[], mark[],... 
         // Ex: { focusOn: 1, mark: new Array() }

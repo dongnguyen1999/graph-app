@@ -4,9 +4,9 @@ import Algorithms from "./Algorithm";
  * A graph view
  */
 export default class DepthFirstSearch extends Algorithms{
-    constructor(graph){
-        super(graph); // Calling super.constructor to record parent graph for this algorithm
-        this.source = 1; // Initializing the source vertex is a startingNode which is passed from outside
+    init(source){
+        super.init();
+        this.source = source || 1; // Initializing the source vertex is a startingNode which is passed from outside
         // Initializing first state
         this.setState({
             mark: this.initArray(0), // Mark all the vertices as not visited 
@@ -81,9 +81,8 @@ export default class DepthFirstSearch extends Algorithms{
      * override
      */
     run(source){
-        this.source = source || 1;
         // console.log(this.source);
-        // this.clearStates();
+        this.init(source);
         this.saveState(); // save the first state;
         this.dfs(this.source); // start dfs() method from source vertex
         // this.displayParent();
