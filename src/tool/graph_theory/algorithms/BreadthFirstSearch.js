@@ -1,4 +1,5 @@
 import Algorithms from "./Algorithm";
+import { Queue } from "../../graph_drawing";
 
 /**
  * A graph view
@@ -13,7 +14,7 @@ export default class BreadthFirstSearch extends Algorithms{
             focusOn: 0, // The first state have no node in order to focus on it so initialize focusOn of first state is zero
             step: 0, // Initializing the first step is zero
             traversingList: this.initArray(0), // Initializing the order of traversing of all vertex is zero
-            queue: this.initArray(0),
+            queue: new Queue(),
             parent: this.initArray(0),
         });
         this.config = {
@@ -47,20 +48,19 @@ export default class BreadthFirstSearch extends Algorithms{
     bfs(source){
         let front = 0, rear = 0;
         this.state.focusOn = source;
-        this.state.queue[rear++] = source; // inserting the source vertex into queue
+        this.state.queue.enqueue(source); // inserting the source vertex into queue
         this.state.mark[source] = 1; // visited source
         this.state.traversingList[source] = ++this.state.step;
         this.saveState();
-        while(front < rear){
-            let u = this.state.queue[front]; // get a vertex from queue and call it is u vertex
-            this.state.queue[front] = this.state.queue[++front];
+        while(!this.state.queue.empty()){
+            let u = this.state.queue.dequeue(); // get a vertex from queue and call it is u vertex
             this.saveState();
             let getAdjList = this.graph.getChildrenVertices(u);
             for(let v of getAdjList){ // travesing all v neighbors of u vertex
                 this.state.focusOn = v;// focus on new vertex
                 if(this.state.mark[v] != 1){ // cheking v neighbor is visited or not
                     this.state.mark[v] = 1; // if not then mark v is visited
-                    this.state.queue[rear++] = v; // inserting the v neighbor into queue
+                    this.state.queue.enqueue(v); // inserting the v neighbor into queue
                     this.state.parent[v] = u;
                     this.state.traversingList[v] = ++this.state.step;
                     this.saveState();

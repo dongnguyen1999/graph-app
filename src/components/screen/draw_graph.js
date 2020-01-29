@@ -22,6 +22,7 @@ import {
     FordFullkerson
 } from "../../tool/graph_theory/algorithms"
 import { Icon } from "react-native-elements"
+import Stack from '../../tool/graph_drawing/stack'
 
 export default class DrawGraph extends Component {
     static navigationOptions = {
@@ -162,6 +163,17 @@ export default class DrawGraph extends Component {
         //   10 12
         //   11 12`
         // );
+
+        // let stack = new Stack();
+        // stack.push(1);
+        // stack.push(2);
+        // stack.push(3);
+        // console.log(stack.pop());
+        // stack.push(4);
+        // console.log(stack.values);
+        // for(let i of stack.inStack){
+        //     console.log(stack.values[i]);
+        // }
         
         // let graph = new AdjacencyMatrixGraph(5,7,false);
         // graph.addEdge({u: 1, v: 2});
@@ -173,9 +185,9 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 5});
         // graph.display();
 
-        // let algorithm = new BreadthFirstSearch(graph, 1);
+        // let algorithm = new DepthFirstSearch(graph);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
-        console.log(algorithmValue);
+        // console.log(algorithmValue);
         let algorithm = new choiceAlgorithm(graph);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
@@ -188,8 +200,8 @@ export default class DrawGraph extends Component {
                 height = {heightPhone-180}
                 nodeRadius = { 20 }
                 zoomable={false}
-                // keyAlgo = { algorithmValue }
                 keyAlgo = { algorithmValue }
+                // keyAlgo = { "DFS" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

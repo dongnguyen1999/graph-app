@@ -73,10 +73,12 @@ export default class Vertex extends Component {
   }
 
   onPressNodeListener(node, pressingCallback){
+    const { releaseCallback } = this.props;
     if (!this.isMoving) {
       pressingCallback(node);
     }
     this.isMoving = false;
+    releaseCallback();
     // console.log([event.nativeEvent.locationX, event.nativeEvent.locationY]);
   }
 

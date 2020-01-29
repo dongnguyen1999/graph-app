@@ -1,4 +1,5 @@
 import Algorithms from "./Algorithm";
+import Stack from "../../graph_drawing/stack";
 
 /**
  * A graph view
@@ -13,15 +14,23 @@ export default class DepthFirstSearch extends Algorithms{
             focusOn: 0, // The first state have no node in order to focus on it so initialize focusOn of first state is zero
             step: 0, // Initializing the first step is zero
             traversingList: this.initArray(0), // Initializing the order of traversing of all vertex is zero
-            stack: this.initArray(0),
+            stack: new Stack(),
             parent: this.initArray(0),
         });
+
+        //an example for algorithm.config
         this.config = {
-            hidden: ["focusOn", "traversingList", "stack", "step"],
+            hidden: ["focusOn", "stack", "step"],
             representName: {
                 parent: (state, node) => {
-                    return "p[" + node.id + "]" 
+                    return "p[" + node.id + "]";
                 }
+            },
+            overrideRow: {
+                traversingList: (state, node) => {
+                    if (state.traversingList[node.id] == 0) return "Not marked yet"
+                    return "Marked at step " + state.traversingList[node.id];
+                },
             }
         }
     }
@@ -45,27 +54,26 @@ export default class DepthFirstSearch extends Algorithms{
      */
     dfs(source){
         // console.log(source);
-        let top = 0;
-        this.state.stack[top++] = source; // pushing source vertex into Stack
+        this.state.stack.push(source); // pushing source vertex into Stack
         this.saveState();
-        while(top != 0){
-            let u = this.state.stack[--top]; // get the first vertex from stack and call it is u vertex
-            console.log("Dinh " + u);
+        while(!this.state.stack.empty()){
+            let u = this.state.stack.pop(); // get the first vertex from stack and call it is u vertex
             this.state.focusOn = u;
             if(this.state.mark[u] == 1){ // cheking u vertex is visited or not
                 //this.state.stack.shift();
+                this.saveState();
                 continue; // if u visited then ignoring it
             }
             this.state.mark[u] = 1; // if not, then visited u vertex
             this.state.traversingList[u] = ++this.state.step;
-            console.log("Length: " + this.states.length);
+            // console.log("Length: " + this.states.length);
             this.saveState();
             let getAdjList = this.graph.getChildrenVertices(u);
             for(let v of getAdjList){ // traversing all v neighbors of u vertex 
                 if(this.state.mark[v] == 0){
                     this.state.parent[v] = u;
                 }
-                this.state.stack[top++] = v; // inserting the v neighbor into stack
+                this.state.stack.push(v); // inserting the v neighbor into stack
                 this.saveState();
             }
         }

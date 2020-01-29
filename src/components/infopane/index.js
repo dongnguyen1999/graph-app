@@ -9,7 +9,6 @@ import { d2PixcelUtils } from '../../tool/graph_drawing'
  * 
  */
 export default class InfoPane extends Component{
-
     /**
      * compute the coordinate of the infopane using node position
      * @param {Node} node: an object present a vertex in DraculaGraph
@@ -59,13 +58,25 @@ export default class InfoPane extends Component{
                     }
                 }
 
+                if (config.overrideRow){
+                    let overrideRow = config.overrideRow[prop];
+                    if (overrideRow){
+                        let key = overrideRow;
+                        if (typeof overrideRow == "function") key = overrideRow(state, node);
+                        kvPair.key = key;
+                        kvPair.value = "overrideRow";
+                    }
+                }
+
                 if (config.hidden && config.hidden.includes(prop)) kvPair = undefined;
                 
                 if (kvPair){
                     content.set(kvPair.key, kvPair.value);//add to content
                     //update width and height
                     height++;
-                    let line = kvPair.key + ": " + kvPair.value;
+                    let line;
+                    if (kvPair.value == "overrideRow") line = kvPair.key;
+                    else line = kvPair.key + ": " + kvPair.value;
                     let textWidth = d2PixcelUtils.measureText(line, fontSize);//compute width of the line in pixcel
                     if (textWidth > width) width = textWidth;
                 }
@@ -90,11 +101,11 @@ export default class InfoPane extends Component{
         let views = []//init list of Tspan 
         y += fontSize;
         for (let [key, value] of content){// loop through each line
-            views.push(
-                <TSpan key = { key } x = { x } y = { y }>
-                    {key + ": " + value}
-                </TSpan>
-            );
+            let view = <TSpan key = { key } x = { x } y = { y }>{key + ": " + value}</TSpan>
+            if (value == "overrideRow"){
+                view = <TSpan key = { key } x = { x } y = { y }>{key}</TSpan>
+            }
+            views.push(view);
             y += parseInt(vGap) + parseInt(fontSize);
         }
         return views;

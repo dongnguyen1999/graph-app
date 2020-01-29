@@ -17,12 +17,13 @@ export default class AlgorithmPlayer extends Component{
             isPlaying: false,// to keep the state whether the algorithm is running automatically or not
             isSleeping: true,// to keep the state system is sleeping during delayTime
         }
-        const { algorithm, rerenderCallback, dataCallBack, showResultCallback, removeResultCallback } = this.props;
+        const { algorithm, rerenderCallback, dataCallBack, showResultCallback, removeResultCallback, removeInfoPaneCallback} = this.props;
         this.algorithm = algorithm;
         this.rerenderCallback = rerenderCallback;
-        this.dataCallBack = dataCallBack;
+        // this.dataCallBack = dataCallBack;
         this.showResultCallback = showResultCallback;
         this.removeResultCallback = removeResultCallback;
+        this.removeInfoPaneCallback = removeInfoPaneCallback;
         
         this.state = {
             dialogVisible: false,
@@ -36,14 +37,23 @@ export default class AlgorithmPlayer extends Component{
      * else stop it
      */
     clickPlayButtonListener(){
+        this.removeInfoPaneCallback();
         if (!this.state.isPlaying){
             if(this.algorithm.statesCursor == 0)
                 this.setState({dialogVisible: true});
             else {
-                this.dataCallBack(true); // tell GraphView player was started
+                // this.dataCallBack(true); // tell GraphView player was started
                 this.setState({isPlaying: true});// set to playing
             }
         } else this.setState({isPlaying: false});
+    }
+
+    handleGraphViewChanging(){
+        const { graphViewIsChanging } = this.props;
+        // console.log(graphViewIsChanging);
+        if (graphViewIsChanging && this.state.isPlaying){
+            this.state.isPlaying = false;
+        }
     }
 
     renderDialog(){
@@ -58,7 +68,7 @@ export default class AlgorithmPlayer extends Component{
                     //console.log(sourceNode);
                     this.algorithm.run(sourceNode);
                     this.algorithm.start();
-                    this.dataCallBack(true); // tell GraphView player was started
+                    // this.dataCallBack(true); // tell GraphView player was started
                     this.setState({isPlaying: true});// set to playing
                 }}
                 closeDialog = {() => {false}}
@@ -79,6 +89,7 @@ export default class AlgorithmPlayer extends Component{
             return false;
         }
         this.rerenderCallback();
+        this.removeInfoPaneCallback();
     }
 
     /**
@@ -89,6 +100,7 @@ export default class AlgorithmPlayer extends Component{
         this.removeResultCallback();
         if (this.algorithm.previous() == undefined) this.algorithm.start();
         this.rerenderCallback();
+        this.removeInfoPaneCallback();
     }
 
     /**
@@ -99,6 +111,7 @@ export default class AlgorithmPlayer extends Component{
         this.removeResultCallback();
         this.algorithm.start();
         this.rerenderCallback();
+        this.removeInfoPaneCallback();
     }
 
     /**
@@ -108,6 +121,7 @@ export default class AlgorithmPlayer extends Component{
     clickEndButtonListener(){
         let state = this.algorithm.end();
         this.showResultCallback(state);
+        this.removeInfoPaneCallback();
     }
 
     /**
@@ -137,13 +151,15 @@ export default class AlgorithmPlayer extends Component{
     runAlgorithm(){
         console.disableYellowBox = true; // just demiss all warning if everything work fine
         // clickNextButtonListener is a function bind GraphView -> read more in GraphView class    
+        // console.log(this.props.graphViewIsChanging);
+        this.handleGraphViewChanging();
         if (this.state.isPlaying){
             if (!this.state.isSleeping){// if it is playing and not sleeping
                 if (this.clickNextButtonListener() == false) {//click next button
                     // faild in clicking next button 
                     // this is the last state
                     this.state.isPlaying = false;// stop playing
-                    this.dataCallBack(false);// tell graphview
+                    // this.dataCallBack(false);// tell graphview
                 }
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping

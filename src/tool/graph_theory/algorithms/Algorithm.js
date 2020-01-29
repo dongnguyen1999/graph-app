@@ -43,6 +43,9 @@ export default class Algorithm {
              *      }
              *      InfoPane will show "Working at: ..." instead of "focusOn: ..."
              *      Or pass a function that return a represent name for this props
+             *  @prop {Oject} overrideRow is the same usage with representName
+             *      But the string put here overrides the whole row in InfoPane, not just label like representName
+             *  See example in src/tool/graph_theory/algorithms/DepthFirstSearch.js
              */
         }
         this.statesCursor = undefined; // set cursor to nothing

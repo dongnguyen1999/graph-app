@@ -47,15 +47,18 @@ export default class GraphView extends Component {
             nodeViews: new Map(),
             edgeViews: new Map(),
             infoPane: undefined,//keep the only InfoPane showing on GraphView, init with no InfoPane
+
             //the 3 states for svg transform
             zoom: 1,    
             left: 0,
             top: 0,
-            algorithmPlaying: false,// keep whether the player is playing or not
+
+            // algorithmPlaying: false,// keep whether the player is playing or not
             graphType: undefined, // keep the 'key' of current graph, 'key' is used to load a whole new displaying with a new graph data
             sourceNode: 0,
             targetNode: 0,
             dialogVisible: true,
+            isMovingNode: false,
         }
 
         //should use width, height from props
@@ -137,6 +140,7 @@ export default class GraphView extends Component {
 
     /**
      * remove infopane if it is showing
+     * force stop algorithm player if it is playing
      * update new position for node and call it rerender with new props
      * loop through the list of edges connected to this node, call it rerender with new props too
      * force update components tree
@@ -156,6 +160,7 @@ export default class GraphView extends Component {
             // console.log(connection, edge.source.point, edge.target.point);
             this.state.edgeViews.set(connection, this.createEdge(connection, edge));//update new props for edges
         }
+        if (!this.state.isMovingNode) this.state.isMovingNode = true;
         this.forceUpdate();// this.setState({});
     }
 
@@ -174,6 +179,7 @@ export default class GraphView extends Component {
                 r={this.props.nodeRadius}
                 pressingCallback={this.pressVerticesListener.bind(this)}
                 draggingCallback={this.moveNode.bind(this)}
+                releaseCallback={this.releaseVerticesListener.bind(this)}
                 >{id}</Vertex>
     }
 
@@ -266,18 +272,18 @@ export default class GraphView extends Component {
     //     }
     // }
 
-    handleDataCallback(event){
-        if(event){
-            this.setState({
-                algorithmPlaying: event
-            });
-        }
-        else{
-            this.setState({
-                algorithmPlaying: event
-            });
-        }
-    }
+    // handleDataCallback(event){
+    //     if(event){
+    //         this.setState({
+    //             algorithmPlaying: event
+    //         });
+    //     }
+    //     else{
+    //         this.setState({
+    //             algorithmPlaying: event
+    //         });
+    //     }
+    // }
 
     /**
      * This method render a menu player for algorithms
@@ -287,15 +293,18 @@ export default class GraphView extends Component {
             return <AlgorithmPlayer 
                         algorithm = { this.algorithm }
                         rerenderCallback = { this.fullyRefresh.bind(this) }
-                        dataCallBack = { this.handleDataCallback.bind(this) }
+                        // dataCallBack = { this.handleDataCallback.bind(this) }
                         showResultCallback = { this.showResultGraph.bind(this) }
                         removeResultCallback = { this.removeResultGraph.bind(this) }
+                        graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane }
+                        removeInfoPaneCallback = {this.removeInfoPane.bind(this)}
                     />
     }
 
     renderInfoFrame(){
         let listAlgos = ['DFS', 'BFS', 'Tarjan', 'FordFullkerson'];
-        if(this.state.algorithmPlaying && listAlgos.includes(this.keyAlgo)){
+        // if(this.state.algorithmPlaying && listAlgos.includes(this.keyAlgo)){
+        if(listAlgos.includes(this.keyAlgo)){
             return <InfoFrame state = { this.algorithm.getState()}/>
         }
     }
@@ -341,6 +350,11 @@ export default class GraphView extends Component {
      */
     removeResultGraph(){
         if (this.isShowingResultGraph()){
+            for (let resultNode of this.resultGraphData.nodes.values()){
+                let node = this.processingGraphData.nodes.get(resultNode.id);
+                // console.log(resultNode);
+                node.point = resultNode.point;
+            }
             this.loadNewGraphData("process", this.processingGraphData);
         }
     }
@@ -399,6 +413,10 @@ export default class GraphView extends Component {
                 if (removedNodeId != node.id) this.renderInfoPane(node);
             }
         }
+    }
+
+    releaseVerticesListener(){
+        this.setState({isMovingNode: false});
     }
 
 
