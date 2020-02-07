@@ -3,7 +3,6 @@ import { TouchableOpacity,Text,View, Dimensions } from "react-native";
 import { Icon } from "react-native-elements";
 import { styles } from './style';
 import DialogInput from 'react-native-dialog-input';
-
 /**
  * This class make a UI component using in GraphView when algorithm running on it
  * @prop {Algorithm} algorithm: a reference of the algorithm running on GraphView
@@ -17,14 +16,15 @@ export default class AlgorithmPlayer extends Component{
             isPlaying: false,// to keep the state whether the algorithm is running automatically or not
             isSleeping: true,// to keep the state system is sleeping during delayTime
         }
-        const { algorithm, rerenderCallback, dataCallBack, showResultCallback, removeResultCallback, removeInfoPaneCallback} = this.props;
+        const { algorithm, keyAlgo, rerenderCallback, dataCallback, showResultCallback, removeResultCallback, removeInfoPaneCallback} = this.props;
         this.algorithm = algorithm;
+        this.keyAlgo = keyAlgo;
         this.rerenderCallback = rerenderCallback;
-        // this.dataCallBack = dataCallBack;
         this.showResultCallback = showResultCallback;
-        this.removeResultCallback = removeResultCallback;
+        this.removeResultCallback = removeResultCallback;   
         this.removeInfoPaneCallback = removeInfoPaneCallback;
-        
+        this.dataCallback = dataCallback;
+
         this.state = {
             dialogVisible: false,
             sourceNode: 0,
@@ -39,13 +39,23 @@ export default class AlgorithmPlayer extends Component{
     clickPlayButtonListener(){
         this.removeInfoPaneCallback();
         if (!this.state.isPlaying){
-            if(this.algorithm.statesCursor == 0)
-                this.setState({dialogVisible: true});
+            if(this.algorithm.statesCursor == 0){
+                if(this.keyAlgo == "Kruskal"){
+                    this.dataCallback(true);
+                    this.setState({dialogVisible: false, isPlaying: true});
+                }
+                else
+                    this.setState({dialogVisible: true});
+            }
             else {
-                // this.dataCallBack(true); // tell GraphView player was started
+                this.dataCallback(true);
                 this.setState({isPlaying: true});// set to playing
             }
-        } else this.setState({isPlaying: false});
+        } 
+        else{
+            this.dataCallback(false);
+            this.setState({isPlaying: false});
+        }
     }
 
     handleGraphViewChanging(){
@@ -65,15 +75,14 @@ export default class AlgorithmPlayer extends Component{
                 hintInput = {'1'} 
                 submitInput = {(sourceNode) => {
                     this.setState({dialogVisible: false});
-                    //console.log(sourceNode);
+                    // console.log(sourceNode);
                     this.algorithm.run(sourceNode);
                     this.algorithm.start();
-                    // this.dataCallBack(true); // tell GraphView player was started
                     this.setState({isPlaying: true});// set to playing
-                }}
+                    }}
                 closeDialog = {() => {false}}
-            />
-        );
+                />
+            );
     }
 
     /**
@@ -159,7 +168,7 @@ export default class AlgorithmPlayer extends Component{
                     // faild in clicking next button 
                     // this is the last state
                     this.state.isPlaying = false;// stop playing
-                    // this.dataCallBack(false);// tell graphview
+                    this.dataCallback(false);
                 }
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping

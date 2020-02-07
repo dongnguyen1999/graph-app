@@ -105,10 +105,9 @@ export default class Vertex extends Component {
 
   render() {
     // console.log('vertex is rendering');
-    const { node, r,pressingCallback, draggingCallback } = this.props;
+    const { node, r, pressingCallback, draggingCallback } = this.props;
     let { style } = this.props;
     const [x, y ] = node.point;
-    
     let position = this.scalePositionToRender(x, y);
     if (style == undefined) style = styles.normal;
     return (

@@ -4,7 +4,7 @@ import { DraculaGraph, Layout } from "graphdracula"
 import { GraphRenderer } from "../../tool/graph_drawing"
 import GraphView from "../graphview"
 import { Header } from "react-navigation"
-import { AdjacencyMatrixGraph } from "../../tool/graph_theory/graphs"
+import { AdjacencyMatrixGraph, EdgeListGraph } from "../../tool/graph_theory/graphs"
 import { 
     DepthFirstSearch,
     BreadthFirstSearch,
@@ -175,17 +175,29 @@ export default class DrawGraph extends Component {
         //     console.log(stack.values[i]);
         // }
         
-        // let graph = new AdjacencyMatrixGraph(5,7,false);
-        // graph.addEdge({u: 1, v: 2});
+        // let graph = new AdjacencyMatrixGraph(6,6,false);
         // graph.addEdge({u: 1, v: 3});
         // graph.addEdge({u: 1, v: 4});
-        // graph.addEdge({u: 1, v: 5});
-        // graph.addEdge({u: 2, v: 3});
-        // graph.addEdge({u: 2, v: 4});
-        // graph.addEdge({u: 4, v: 5});
-        // graph.display();
+        // graph.addEdge({u: 3, v: 4});
+        // graph.addEdge({u: 3, v: 5});
+        // graph.addEdge({u: 4, v: 2});
+        // graph.addEdge({u: 5, v: 2});
 
-        // let algorithm = new DepthFirstSearch(graph);
+        // let graph = new AdjacencyMatrixGraph(7,12,false);
+        // graph.addEdge({u: 1, v: 4, w: 5});
+        // graph.addEdge({u: 1, v: 5, w: 7});
+        // graph.addEdge({u: 1, v: 7, w: 7});
+        // graph.addEdge({u: 2, v: 3, w: 6});
+        // graph.addEdge({u: 2, v: 4, w: 8});
+        // graph.addEdge({u: 2, v: 6, w: 2});
+        // graph.addEdge({u: 3, v: 4, w: 8});
+        // graph.addEdge({u: 3, v: 7, w: 5});
+        // graph.addEdge({u: 4, v: 5, w: 4});
+        // graph.addEdge({u: 4, v: 6, w: 4});
+        // graph.addEdge({u: 4, v: 7, w: 3});
+        // graph.addEdge({u: 5, v: 6, w: 3});
+
+        // let algorithm = new Kruskal(graph);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
         // console.log(algorithmValue);
         let algorithm = new choiceAlgorithm(graph);
@@ -201,7 +213,7 @@ export default class DrawGraph extends Component {
                 nodeRadius = { 20 }
                 zoomable={false}
                 keyAlgo = { algorithmValue }
-                // keyAlgo = { "DFS" }
+                // keyAlgo = { "Kruskal" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (
