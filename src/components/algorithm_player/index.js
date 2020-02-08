@@ -23,7 +23,7 @@ export default class AlgorithmPlayer extends Component{
         this.showResultCallback = showResultCallback;
         this.removeResultCallback = removeResultCallback;   
         this.removeInfoPaneCallback = removeInfoPaneCallback;
-        this.dataCallback = dataCallback;
+        // this.dataCallback = dataCallback; //R.I.P
 
         this.state = {
             dialogVisible: false,
@@ -37,25 +37,35 @@ export default class AlgorithmPlayer extends Component{
      * else stop it
      */
     clickPlayButtonListener(){
+        // this.removeInfoPaneCallback();
+        // if (!this.state.isPlaying){
+        //     if(this.algorithm.statesCursor == 0){
+        //         if(this.keyAlgo == "Kruskal"){
+        //             this.dataCallback(true);
+        //             this.setState({dialogVisible: false, isPlaying: true});
+        //         }
+        //         else
+        //             this.setState({dialogVisible: true});
+        //     }
+        //     else {
+        //         this.dataCallback(true);
+        //         this.setState({isPlaying: true});// set to playing
+        //     }
+        // } 
+        // else{
+        //     this.dataCallback(false);
+        //     this.setState({isPlaying: false});
+        // }
+
         this.removeInfoPaneCallback();
         if (!this.state.isPlaying){
-            if(this.algorithm.statesCursor == 0){
-                if(this.keyAlgo == "Kruskal"){
-                    this.dataCallback(true);
-                    this.setState({dialogVisible: false, isPlaying: true});
-                }
-                else
-                    this.setState({dialogVisible: true});
-            }
+            if(this.algorithm.statesCursor == 0)
+                this.setState({dialogVisible: true});
             else {
-                this.dataCallback(true);
+                // this.dataCallBack(true); // tell GraphView player was started
                 this.setState({isPlaying: true});// set to playing
             }
-        } 
-        else{
-            this.dataCallback(false);
-            this.setState({isPlaying: false});
-        }
+        } else this.setState({isPlaying: false});
     }
 
     handleGraphViewChanging(){
@@ -168,7 +178,7 @@ export default class AlgorithmPlayer extends Component{
                     // faild in clicking next button 
                     // this is the last state
                     this.state.isPlaying = false;// stop playing
-                    this.dataCallback(false);
+                    // this.dataCallback(false);
                 }
                 this.setState({isSleeping: true});//tell the system to sleep
             } else {// if it is playing and sleeping

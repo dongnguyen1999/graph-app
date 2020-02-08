@@ -16,4 +16,9 @@ export const styles = {
         strokeWidth: 5,
         fill: "transparent",
     },
+    markedStyle: {
+        stroke: colors.markedEdgeColor,
+        strokeWidth: 5,
+        fill: "transparent",
+    },
 };

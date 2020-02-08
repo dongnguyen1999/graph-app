@@ -203,7 +203,7 @@ export default class GraphView extends Component {
                     r={this.props.nodeRadius}
                     isDirected={this.isDirected}
                     nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
-                    onPlayingCallback = { this.handleDataCallback.bind(this) }
+                    // onPlayingCallback = { this.handleDataCallback.bind(this) }
                 />
     }
 
@@ -255,12 +255,16 @@ export default class GraphView extends Component {
         this.forceUpdate();
     }
 
-    handleDataCallback(data){
-        if(data) 
-            this.setState({isPlaying:true});
-        else 
-            this.setState({isPlaying:false});
-    }
+
+    // R.I.P
+    // Using data callback from algoithmPlayer is very dangerous
+    // It can break player if it is playing
+    // handleDataCallback(data){
+    //     if(data) 
+    //         this.setState({isPlaying:true});
+    //     else 
+    //         this.setState({isPlaying:false});
+    // }
 
     /**
      * This method render a menu player for algorithms
@@ -275,7 +279,7 @@ export default class GraphView extends Component {
                         removeResultCallback = { this.removeResultGraph.bind(this) }
                         graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane }
                         removeInfoPaneCallback = {this.removeInfoPane.bind(this)}
-                        dataCallback = { this.handleDataCallback.bind(this) }
+                        // dataCallback = { this.handleDataCallback.bind(this) }
                     />
     }
 
@@ -311,7 +315,7 @@ export default class GraphView extends Component {
                 resultNode.point = node.point;
             }
             this.loadNewGraphData("result", this.resultGraphData);
-        }
+        } else this.fullyRefresh();
     }
 
     renderResultTextIntro(){
@@ -434,6 +438,18 @@ export default class GraphView extends Component {
         let state = this.algorithm.getState();
         if(this.keyAlgo == "Kruskal"){
             if(state){
+                let spanningTree = state.minimumSpanningTree;
+                let edges = spanningTree.getEdges();
+                // console.log(edges);
+                for (let edge of edges){
+                    if (edge.u == sourceId && edge.v == targetId){
+                        // console.log(edgeStyles.markedStyle);
+                        return edgeStyles.markedStyle;
+                    }
+                }
+                if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId){
+                    return edgeStyles.focusOnEdgeStyle;
+                }
                 if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId){
                     return edgeStyles.focusOnEdgeStyle;
                 }
@@ -476,7 +492,7 @@ export default class GraphView extends Component {
                     touch2.locationY
                 );
             }
-        } else console.log('onMove');//if !isZoomable this wont do anything
+        } //else console.log('onMove');//if !isZoomable this wont do anything
     }
 
     /**
@@ -490,7 +506,7 @@ export default class GraphView extends Component {
                 isZooming: false,
                 isMoving: false,
               });
-        } else console.log('onMoveRelease');//if !isZoomable this wont do anything
+        } //else console.log('onMoveRelease');//if !isZoomable this wont do anything
     }
 
     /**

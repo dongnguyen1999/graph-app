@@ -30,11 +30,14 @@ import { d2PixcelUtils } from '../../tool/graph_drawing'
 export default class Edge extends Component {
   constructor(props){
     super(props);
-    this.isPlaying = false;
+    this.sourcePosition = [this.props.source[0],this.props.source[1]];
+    this.targetPosition = [this.props.target[0],this.props.target[1]];
+    this.firstChanged = false; // keep the state this node has been changed by setNativeProps method
   }
 
   shouldComponentUpdate(){
-    if(!this.isPlaying){
+    if(this.isMoving(this.props)){
+      // console.log("is moving");
       const { nodeStyle, source, target, r }  = this.props;
       let fullRadius = nodeStyle.body.strokeWidth || 0;
       fullRadius += r;
@@ -44,19 +47,30 @@ export default class Edge extends Component {
       if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
       let label = this.computeLabel(x1, y1, x2, y2);
       if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
-      this.previousSourcePosition = [x1, y1];
-      this.previousTargetPosition = [x2, y2]
+      this.sourcePosition = [x1, y1];
+      this.targetPosition = [x2, y2];
+      if (!this.firstChanged) this.firstChanged = true;// tell that this node has been changed with scaled coord
       return false;
     }
-    let { style } = this.props;
     return true;
   }
 
-  runAlgorithm(){
-    const { onPlayingCallback } = this.props;
-    if(!this.isPlaying)
-      this.isPlaying = true;
-    onPlayingCallback();
+  isMoving(props){
+    let newSource = props.source.point;
+    let newTarget = props.target.point;
+    return (
+      this.sourcePosition[0] != newSource[0] ||
+      this.sourcePosition[1] != newSource[1] ||
+      this.targetPosition[0] != newTarget[0] ||
+      this.targetPosition[1] != newTarget[1] 
+    );
+  }
+
+  // runAlgorithm(){
+  //   const { onPlayingCallback } = this.props;
+  //   if(!this.isPlaying)
+  //     this.isPlaying = true;
+  //   onPlayingCallback();
 
 //     const { nodeStyle, source, target, r } = this.props;
 //     let fullRadius = nodeStyle.body.strokeWidth || 0;
@@ -71,7 +85,7 @@ export default class Edge extends Component {
 //     this.previousTargetPosition = [x2, y2]
 //     return false;
 
-  }
+  // }
 
   computeArrow(x1,y1,x2,y2,r){
     let dist = d2PixcelUtils.distance(x1,y1,x2,y2);
@@ -113,8 +127,21 @@ export default class Edge extends Component {
     return undefined;
   }
 
+    /**
+   * When a edges has ever been changed position by setNativeProps, 
+   * the position of labelView must be changed with a scaled positon. see at line 49
+   * the major of this function is calculate labelView position before update times (after Edge is first mounted)
+   * return new position as Object {x, y}
+   * @param {Number} x x coord from computeLabel
+   * @param {Number} y y coord from computeLabel
+   */
+  scaleLabelPositionToRender(x, y){
+    if (!this.firstChanged) return {x, y};
+    return {x: x/2,y: y/2};// return label position with scaled position
+  }
+
   render() {
-    this.runAlgorithm();
+    // this.runAlgorithm();
     // console.log(this.isPlaying);
     // console.log("render edge");
     const { source, target, r, nodeStyle } = this.props;
@@ -126,7 +153,8 @@ export default class Edge extends Component {
     let fullRadius = nodeStyle.body.strokeWidth || 0;
     fullRadius += r;
     let label = this.computeLabel(x1, y1, x2, y2);
-    let labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y} ref={com => this.labelView=com}>{label.text}</Text>:[];
+    let labelPosition = this.scaleLabelPositionToRender(label.x, label.y);
+    let labelView = label!=undefined?<Text textAnchor={"middle"} x={labelPosition.x} y={labelPosition.y} ref={com => this.labelView=com}>{label.text}</Text>:[];
     let arrowPath = this.computeArrow(x1, y1, x2, y2, fullRadius);
     let arrowView = arrowPath!=undefined?<Path d={arrowPath} style={style} ref={com => this.arrowView=com}/>:[];
     return (
