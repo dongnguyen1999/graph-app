@@ -29,6 +29,7 @@ export default class Graph{
         // return array of vertices
         let adjList = []; // array that represent adjacency list of an vertex 
         for(let i = 1; i <= this.nbVertex; i++)
+            // console.log(vertex, i)
             if(this.adjacent(vertex,i) == true)
                 adjList.push(i);
         return adjList;

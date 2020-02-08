@@ -140,9 +140,11 @@ export default class DrawGraph extends Component {
         const { state } = this.props.navigation;
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
+
         let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
-        // console.log('algorithm key: ' + algorithmValue);
         let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
+
+        // console.log('algorithm key: ' + algorithmValue);
 
         // var graph = this.makeGraphFromString(
         //   `13 16
@@ -185,7 +187,7 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 5});
         // graph.display();
 
-        // let algorithm = new DepthFirstSearch(graph);
+        // let algorithm = new DepthFirstSearchRecursive(graph);
         let choiceAlgorithm = this.algorithmsList[algorithmValue];
         // console.log(algorithmValue);
         let algorithm = new choiceAlgorithm(graph);
@@ -201,7 +203,7 @@ export default class DrawGraph extends Component {
                 nodeRadius = { 20 }
                 zoomable={false}
                 keyAlgo = { algorithmValue }
-                // keyAlgo = { "DFS" }
+                // keyAlgo = { "DFSR" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

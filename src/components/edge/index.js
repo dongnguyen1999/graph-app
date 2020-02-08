@@ -38,7 +38,7 @@ export default class Edge extends Component {
     this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
     if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
     let label = this.computeLabel(x1, y1, x2, y2);
-    if (this.labelView) this.labelView.setNativeProps({x: label.x, y: label.y});
+    if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
     this.previousSourcePosition = [x1, y1];
     this.previousTargetPosition = [x2, y2]
     return false;
@@ -71,7 +71,7 @@ export default class Edge extends Component {
     let label = this.props.label || undefined; //get label from props
     if (label != undefined){
       //compute label position
-      let dist = this.distance(x1,y1,x2,y2);
+      // let dist = this.distance(x1,y1,x2,y2);
       let t = 0.5;
       let B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
       let uBC = {x: -(y2-y1), y: x2-x1};

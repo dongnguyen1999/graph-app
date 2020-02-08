@@ -45,6 +45,7 @@ export default class AdjacencyMatrixGraph extends Graph{
     }
     // override parent method
     adjacent(vertex1, vertex2){
+        // console.log(this.adjacencyMatrix[vertex1]);
         return this.adjacencyMatrix[vertex1][vertex2] != 0;
     }
     // override parent method
@@ -61,6 +62,7 @@ export default class AdjacencyMatrixGraph extends Graph{
     }
     // override parent method
     getChildrenVertices(vertex){
+        // console.log(vertex);
        return this.getAdjacentVertices(vertex);
     }
 }

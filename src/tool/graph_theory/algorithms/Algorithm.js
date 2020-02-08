@@ -88,6 +88,7 @@ export default class Algorithm {
      * @prop {Array<Number>} onStack: array use for checking x in stack
      * @prop {Number} counter: counter number of strong connection
      * @prop {Number} k: index use to assign for num[] of all vertices
+     * @prop {Number} level: the recursive deepth of recursive algorithms
      * ...
      * using these props in state when you want to display these informations on GraphView
      */
