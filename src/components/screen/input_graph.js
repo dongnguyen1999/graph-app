@@ -39,8 +39,11 @@ export default class InputGraph extends Component {
         // console.log(navigation);
         let edgeList = []
         for (let value of this.state.listOfEdge.values()){
-            edgeList.push(value.replace(" ", ","));
+            // console.log(value);
+            edgeList.push(value.split(" ").join(","));
+            // console.log(edgeList);
         }
+        console.log(edgeList);
         navigation.navigate('Drawing',{
             vertex: this.state.vertex,
             edge: this.state.edge,
@@ -108,6 +111,7 @@ export default class InputGraph extends Component {
         //const algorithm = this.props.navigation.getParam('algorithm');
         // const keyAlgorithm = algorithm.key;
         // console.log(keyAlgorithm);
+        // console.log(this.state.listOfEdge);
         return(
             <View style={styles.container}>
                 {/* <TextInput style={styles.title}>{algorithmName}</TextInput> */}
