@@ -1,3 +1,5 @@
 export const colors = {
-    edgeColor: '#000000',
+    normalEdgeColor: '#000000',
+    focusOnEdgeColor: '#ff2424',
+    focusOnMarkEdgeColor: '#12a110',
 };

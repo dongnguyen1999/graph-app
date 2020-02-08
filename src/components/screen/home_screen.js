@@ -53,15 +53,15 @@ export default class HomeScreen extends Component{
             <View>
                 <View style = { styles.buttonContainer }>
                     <Button
-                        title = 'Change'
+                        title = 'Undirected'
                         color = 'rgb(55,57,106)'
-                        onPress = {() => this.setState({isDirected:!this.state.isDirected})}    
+                        onPress = {() => this.setState({isDirected:false})}    
                     />
-                    {/* <Button 
+                    <Button 
                         title = 'Directed'
                         color = 'rgb(55,57,106)'
                         onPress = {() => this.setState({isDirected:true})}
-                    />   */}
+                    />  
                 </View>
                 <GraphView 
                     graph = { this.makeGraph() }

@@ -4,6 +4,7 @@ import Edge from "../edge";
 import {Dimensions, View, TouchableOpacity, Text} from "react-native";
 import {styles} from "./style";
 import { styles as nodeStyles } from "../vertex/style";
+import { styles as edgeStyles } from "../edge/style";
 import { GraphRenderer, Graph, Layout, d2PixcelUtils} from "../../tool/graph_drawing";
 import Svg, { Path, G } from 'react-native-svg';
 import { DraculaGraph } from 'graphdracula';
@@ -53,7 +54,7 @@ export default class GraphView extends Component {
             left: 0,
             top: 0,
 
-            // algorithmPlaying: false,// keep whether the player is playing or not
+            isPlaying: false, // keep whether the algorithm player is playing or not
             graphType: undefined, // keep the 'key' of current graph, 'key' is used to load a whole new displaying with a new graph data
             sourceNode: 0,
             targetNode: 0,
@@ -192,16 +193,17 @@ export default class GraphView extends Component {
     createEdge(id, edge){
         //const { graph, nodeRadius } = this.props;
         let label = edge.style.label || undefined; //get label of edge
-        //console.log(this.props.graph);
         return <Edge
                     key={id}
                     id={id}
                     source={edge.source}
                     target={edge.target}
+                    style = {this.getEdgeStyle(id)}
                     label={label}
                     r={this.props.nodeRadius}
                     isDirected={this.isDirected}
                     nodeStyle = {this.getNodeStyle(edge.target.id)} // used to carculate arrow shape (directed graph)
+                    onPlayingCallback = { this.handleDataCallback.bind(this) }
                 />
     }
 
@@ -253,54 +255,33 @@ export default class GraphView extends Component {
         this.forceUpdate();
     }
 
-    // getInput(){
-    //     console.log("Source node from Dialog Input: " + this.state.sourceNode);
-    // }
-
-    // renderDialog(){
-    //     if(this.state.algorithmPlaying){
-    //         return(
-    //             <DialogInput 
-    //                 isDialogVisible = {this.state.dialogVisible}
-    //                 title = {"Notification"}
-    //                 message = {"Enter source node: "}
-    //                 hintInput = {'1'} 
-    //                 submitInput = {(sourceNode) => {this.setState({sourceNode: sourceNode, dialogVisible: false})}}
-    //                 closeDialog = {() => {false}}
-    //             />
-    //         );
-    //     }
-    // }
-
-    // handleDataCallback(event){
-    //     if(event){
-    //         this.setState({
-    //             algorithmPlaying: event
-    //         });
-    //     }
-    //     else{
-    //         this.setState({
-    //             algorithmPlaying: event
-    //         });
-    //     }
-    // }
+    handleDataCallback(data){
+        if(data) 
+            this.setState({isPlaying:true});
+        else 
+            this.setState({isPlaying:false});
+    }
 
     /**
      * This method render a menu player for algorithms
      */
     renderAlgorithmPlayer(){
-        if (this.algorithm) 
+        if(this.algorithm) 
             return <AlgorithmPlayer 
                         algorithm = { this.algorithm }
+                        keyAlgo = { this.keyAlgo }
                         rerenderCallback = { this.fullyRefresh.bind(this) }
-                        // dataCallBack = { this.handleDataCallback.bind(this) }
                         showResultCallback = { this.showResultGraph.bind(this) }
                         removeResultCallback = { this.removeResultGraph.bind(this) }
                         graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane }
                         removeInfoPaneCallback = {this.removeInfoPane.bind(this)}
+                        dataCallback = { this.handleDataCallback.bind(this) }
                     />
     }
 
+    /**
+     * Function to render stack/queue frame which will apply for algorithms using stack and queue
+     */
     renderInfoFrame(){
         let listAlgos = ['DFS', 'BFS', 'Tarjan', 'FordFullkerson'];
         // if(this.state.algorithmPlaying && listAlgos.includes(this.keyAlgo)){
@@ -441,6 +422,27 @@ export default class GraphView extends Component {
     }
 
     /**
+     * Style a edge depend on information from this.algorithm
+     * return a edgeStyle - src/components/edge/style
+     * @param {String} edgeId: id of a edge (sourceNodeId + "-" + targetNodeId)
+     */
+    getEdgeStyle(edgeId){
+        let [sourceNodeId, targetNodeid] = edgeId.split("-");
+        let sourceId = parseInt(sourceNodeId);
+        let targetId = parseInt(targetNodeid);
+        if(!this.algorithm) return edgeStyles.normalEdgeStyle;
+        let state = this.algorithm.getState();
+        if(this.keyAlgo == "Kruskal"){
+            if(state){
+                if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId){
+                    return edgeStyles.focusOnEdgeStyle;
+                }
+            }
+        }
+        return edgeStyles.normalEdgeStyle;
+    }
+
+    /**
      * order views to draw the graph on screen
      * draw edges first, then nodes
      */
@@ -573,8 +575,7 @@ export default class GraphView extends Component {
     render() {
         const {width, height} = this.props;
         const { left, top, zoom } = this.state;
-        //console.log(this.state.algorithmPlaying);
-        // this.getInput();
+        // console.log(this.state.isPlaying);
         return (
             <View>
                 {/* {this.renderDialog()} */}

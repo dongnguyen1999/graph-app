@@ -68,8 +68,8 @@ export default class DepthFirstSearch extends Algorithms{
             this.state.traversingList[u] = ++this.state.step;
             // console.log("Length: " + this.states.length);
             this.saveState();
-            let getAdjList = this.graph.getChildrenVertices(u);
-            for(let v of getAdjList){ // traversing all v neighbors of u vertex 
+            let adjList = this.graph.getChildrenVertices(u);
+            for(let v of adjList){ // traversing all v neighbors of u vertex 
                 if(this.state.mark[v] == 0){
                     this.state.parent[v] = u;
                 }

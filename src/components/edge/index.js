@@ -28,20 +28,49 @@ import { d2PixcelUtils } from '../../tool/graph_drawing'
  * @prop {Boolean} isDirected: set the edge having arrow or not
  */
 export default class Edge extends Component {
+  constructor(props){
+    super(props);
+    this.isPlaying = false;
+  }
 
   shouldComponentUpdate(){
-    const { nodeStyle, source, target, r } = this.props;
-    let fullRadius = nodeStyle.body.strokeWidth || 0;
-    fullRadius += r;
-    let [x1, y1] = source.point;
-    let [x2, y2] = target.point;
-    this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
-    if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
-    let label = this.computeLabel(x1, y1, x2, y2);
-    if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
-    this.previousSourcePosition = [x1, y1];
-    this.previousTargetPosition = [x2, y2]
-    return false;
+    if(!this.isPlaying){
+      const { nodeStyle, source, target, r }  = this.props;
+      let fullRadius = nodeStyle.body.strokeWidth || 0;
+      fullRadius += r;
+      let [x1, y1] = source.point;
+      let [x2, y2] = target.point;
+      this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
+      if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
+      let label = this.computeLabel(x1, y1, x2, y2);
+      if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
+      this.previousSourcePosition = [x1, y1];
+      this.previousTargetPosition = [x2, y2]
+      return false;
+    }
+    let { style } = this.props;
+    return true;
+  }
+
+  runAlgorithm(){
+    const { onPlayingCallback } = this.props;
+    if(!this.isPlaying)
+      this.isPlaying = true;
+    onPlayingCallback();
+
+//     const { nodeStyle, source, target, r } = this.props;
+//     let fullRadius = nodeStyle.body.strokeWidth || 0;
+//     fullRadius += r;
+//     let [x1, y1] = source.point;
+//     let [x2, y2] = target.point;
+//     this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
+//     if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
+//     let label = this.computeLabel(x1, y1, x2, y2);
+//     if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
+//     this.previousSourcePosition = [x1, y1];
+//     this.previousTargetPosition = [x2, y2]
+//     return false;
+
   }
 
   computeArrow(x1,y1,x2,y2,r){
@@ -71,7 +100,7 @@ export default class Edge extends Component {
     let label = this.props.label || undefined; //get label from props
     if (label != undefined){
       //compute label position
-      // let dist = this.distance(x1,y1,x2,y2);
+      // let dist = d2PixcelUtils.distance(x1,y1,x2,y2);
       let t = 0.5;
       let B = {x: x1 + (x2-x1)*t, y: y1 + (y2-y1)*t};
       let uBC = {x: -(y2-y1), y: x2-x1};
@@ -85,8 +114,13 @@ export default class Edge extends Component {
   }
 
   render() {
+    this.runAlgorithm();
+    // console.log(this.isPlaying);
     // console.log("render edge");
     const { source, target, r, nodeStyle } = this.props;
+    let { style } = this.props;
+    if(style == undefined) style = this.props || styles.normalEdgeStyle;
+    // console.log(style);
     let [x1, y1] = source.point;
     let [x2, y2] = target.point;
     let fullRadius = nodeStyle.body.strokeWidth || 0;
@@ -94,10 +128,10 @@ export default class Edge extends Component {
     let label = this.computeLabel(x1, y1, x2, y2);
     let labelView = label!=undefined?<Text textAnchor={"middle"} x={label.x} y={label.y} ref={com => this.labelView=com}>{label.text}</Text>:[];
     let arrowPath = this.computeArrow(x1, y1, x2, y2, fullRadius);
-    let arrowView = arrowPath!=undefined?<Path d={arrowPath} style={styles.lineBody} ref={com => this.arrowView=com}/>:[];
+    let arrowView = arrowPath!=undefined?<Path d={arrowPath} style={style} ref={com => this.arrowView=com}/>:[];
     return (
         <G>
-          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={styles.lineBody} ref={com => this.lineView=com}/>
+          <Line x1={x1} y1={y1} x2={x2} y2={y2} style={style} ref={com => this.lineView=com}/>
           {arrowView}
           {labelView}
         </G>

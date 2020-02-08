@@ -61,7 +61,5 @@ export const styles = {
             fontWeight: 'bold',
             fontSize: 20,
         },
-    }
-    
-    
+    },
 };
