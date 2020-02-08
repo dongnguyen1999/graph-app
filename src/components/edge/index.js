@@ -57,6 +57,20 @@ export default class Edge extends Component {
     if(!this.isPlaying)
       this.isPlaying = true;
     onPlayingCallback();
+
+//     const { nodeStyle, source, target, r } = this.props;
+//     let fullRadius = nodeStyle.body.strokeWidth || 0;
+//     fullRadius += r;
+//     let [x1, y1] = source.point;
+//     let [x2, y2] = target.point;
+//     this.lineView.setNativeProps({x1: x1, y1: y1, x2: x2, y2: y2});
+//     if (this.arrowView) this.arrowView.setNativeProps({d: this.computeArrow(x1, y1, x2, y2, fullRadius)});
+//     let label = this.computeLabel(x1, y1, x2, y2);
+//     if (this.labelView) this.labelView.setNativeProps({x: label.x/2, y: label.y/2});
+//     this.previousSourcePosition = [x1, y1];
+//     this.previousTargetPosition = [x2, y2]
+//     return false;
+
   }
 
   computeArrow(x1,y1,x2,y2,r){
