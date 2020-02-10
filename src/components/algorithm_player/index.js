@@ -59,10 +59,15 @@ export default class AlgorithmPlayer extends Component{
 
         this.removeInfoPaneCallback();
         if (!this.state.isPlaying){
-            if(this.algorithm.statesCursor == 0)
-                this.setState({dialogVisible: true});
+            if(this.algorithm.statesCursor == 0){
+                if(this.keyAlgo == "Kruskal"){
+                    this.setState({dialogVisible: false, isPlaying: true});
+                }
+                else{
+                    this.setState({dialogVisible: true});
+                }
+            }
             else {
-                // this.dataCallBack(true); // tell GraphView player was started
                 this.setState({isPlaying: true});// set to playing
             }
         } else this.setState({isPlaying: false});

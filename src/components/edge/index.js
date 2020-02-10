@@ -153,7 +153,7 @@ export default class Edge extends Component {
     let fullRadius = nodeStyle.body.strokeWidth || 0;
     fullRadius += r;
     let label = this.computeLabel(x1, y1, x2, y2);
-    let labelPosition = this.scaleLabelPositionToRender(label.x, label.y);
+    let labelPosition = label!=undefined?this.scaleLabelPositionToRender(label.x, label.y):{};
     let labelView = label!=undefined?<Text textAnchor={"middle"} x={labelPosition.x} y={labelPosition.y} ref={com => this.labelView=com}>{label.text}</Text>:[];
     let arrowPath = this.computeArrow(x1, y1, x2, y2, fullRadius);
     let arrowView = arrowPath!=undefined?<Path d={arrowPath} style={style} ref={com => this.arrowView=com}/>:[];
