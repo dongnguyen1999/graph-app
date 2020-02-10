@@ -52,6 +52,18 @@ export default class Algorithm {
     }
 
     /**
+     * defined in subclass
+     * use current state at statesCursor and this.graph to make a result graph
+     * @returns a basic Graph that is the structure result graph
+     */
+    getResultGraph(){
+        // let thisGraph = this.graph;
+        // let state = this.getState();
+        // This function will implement in sub class
+        return this.graph;
+    }
+
+    /**
      * set state using a fully state object or just update some props of state
      * Ex1: setState({ focusOn: 1, mark: new Array(), predecessor: new Array()});
      * Ex2: setState({ focusOn: 3 }); //just update
@@ -89,6 +101,7 @@ export default class Algorithm {
      * @prop {Number} counter: counter number of strong connection
      * @prop {Number} k: index use to assign for num[] of all vertices
      * @prop {Number} level: the recursive deepth of recursive algorithms
+     * @prop {Array<Number>} markAtLevel: the recursive deepth where a vertex was marked
      * ...
      * using these props in state when you want to display these informations on GraphView
      */

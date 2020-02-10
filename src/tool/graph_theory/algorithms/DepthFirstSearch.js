@@ -1,5 +1,6 @@
 import Algorithms from "./Algorithm";
 import Stack from "../../graph_drawing/stack";
+import { AdjacencyMatrixGraph } from "../graphs";
 
 /**
  * A graph view
@@ -45,6 +46,16 @@ export default class DepthFirstSearch extends Algorithms{
             array.push(initValue);
         }
         return array;
+    }
+
+    getResultGraph(){
+        let nbVertex = this.graph.nbVertex;
+        let graph = new AdjacencyMatrixGraph(nbVertex, nbVertex-1, true);
+        for (let i = 1; i <= nbVertex; i++){
+            let state = this.getState();
+            if (state.parent[i] != 0) graph.addEdge({u: state.parent[i], v: i});
+        }
+        return graph;
     }
 
     /**

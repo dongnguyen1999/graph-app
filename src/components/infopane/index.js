@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { G, Rect, Text, TSpan} from 'react-native-svg'
+import {Dimensions} from 'react-native'
 import { styles } from './style'
 import { object, array } from 'prop-types';
 import { d2PixcelUtils } from '../../tool/graph_drawing'
@@ -13,9 +14,17 @@ export default class InfoPane extends Component{
      * compute the coordinate of the infopane using node position
      * @param {Node} node: an object present a vertex in DraculaGraph
      */
-    computeNode(node){
+    computeNode(node, contentWidth, contentHeight){
+        const {zoomable} = this.props;
         const [x,y] = node.point;
-        return [x+node.radius*Math.sqrt(2)/2, y+node.radius*Math.sqrt(2)/2];
+        const widthPhone = Math.round(Dimensions.get('window').width);// width of screen
+        const heightPhone = Math.round(Dimensions.get('window').height-200);// height of screen TEMP
+        let position = [x+node.radius*Math.sqrt(2)/2, y+node.radius*Math.sqrt(2)/2];
+        if (!zoomable){
+            if (x > widthPhone/2) position[0] = x-node.radius*Math.sqrt(2)/2-contentWidth;
+            if (y > heightPhone/2) position[1] = y-node.radius*Math.sqrt(2)/2-contentHeight;
+        }
+        return position;
     }
 
     /**
@@ -113,9 +122,9 @@ export default class InfoPane extends Component{
 
     render(){
         const {node} = this.props;
-        let [x,y] = this.computeNode(node);
         let {padding} = styles.paneBody;
         let {content, width, height} = this.prepareContent();
+        let [x,y] = this.computeNode(node, width, height);
         // console.log(content);
         return (
             <G>

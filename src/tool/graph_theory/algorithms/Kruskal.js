@@ -113,6 +113,6 @@ export default class Kruskal extends Algorithms{
         // console.log("Sum weight = " + sumW);
         // console.log("Minimum spanning tree: ");
         // this.state.minimumSpanningTree.display();
-        this.saveState(); // save last state
+        // this.saveState(); // save last state
     }
 }

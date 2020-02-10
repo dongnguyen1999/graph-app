@@ -278,7 +278,7 @@ export default class GraphView extends Component {
                         rerenderCallback = { this.fullyRefresh.bind(this) }
                         showResultCallback = { this.showResultGraph.bind(this) }
                         removeResultCallback = { this.removeResultGraph.bind(this) }
-                        graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane}
+                        graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane || this.state.isMoving || this.state.isZooming}
                         // renderInfoPaneCallback = {this.pressVerticesListener.bind(this)}
                         removeInfoPaneCallback = {this.removeInfoPane.bind(this)}
                         // dataCallback = { this.handleDataCallback.bind(this) }
@@ -301,14 +301,11 @@ export default class GraphView extends Component {
      * @param {State} state the last state of current algorithm (this.algotithm)
      */
     showResultGraph(state){
-        let supportedAlgos = ['DFS', 'BFS'];
-        if (supportedAlgos.includes(this.keyAlgo) && !this.isShowingResultGraph() && state.parent){
+        // let supportedAlgos = ['DFS', 'BFS'];
+        if (!this.isShowingResultGraph() && state.parent){
             //make resultGraph from state
-            let nbVertex = this.graph.nbVertex;
-            let graph = new AdjacencyMatrixGraph(nbVertex, nbVertex-1, true);
-            for (let i = 1; i <= nbVertex; i++){
-                if (state.parent[i] != 0) graph.addEdge({u: state.parent[i], v: i});
-            }
+            let graph = this.algorithm.getResultGraph();
+            // console.log(graph);
             this.resultGraphData = this.convertToUIGraph(graph);//get UI data
             // load on svg
             for (let node of this.processingGraphData.nodes.values()){
@@ -361,19 +358,9 @@ export default class GraphView extends Component {
                     node={node}
                     key={"#InfoPane"+":"+node.id}
                     algorithm={this.algorithm}
+                    zoomable={this.props.zoomable}
                     />
             })
-        }
-    }
-
-    renderInfoPane1(node){
-        if (this.algorithm){
-            // console.log("render infopane for node ", node.id);
-            this.state.infoPane = <InfoPane
-                    node={node}
-                    key={"#InfoPane"+":"+node.id}
-                    algorithm={this.algorithm}
-                />
         }
     }
 
@@ -479,15 +466,18 @@ export default class GraphView extends Component {
         // let edgeViews = Array.from(this.state.edgeViews.values());
         let nodeViews = Array.from(this.state.nodeViews.values());
         let edgeViews = Array.from(this.state.edgeViews.values());
-        let state = this.algorithm.getState();
         let defaultInfoPane = [];
-        if (!this.state.isMovingNode && state.focusOn && state.focusOn > 0){
-            let node = this.nodes.get(state.focusOn);
-            defaultInfoPane = <InfoPane
-                            node={node}
-                            key={"#InfoPane"+":"+node.id}
-                            algorithm={this.algorithm}
-                            />
+        if (this.algorithm){
+            let state = this.algorithm.getState();
+            if (!this.state.isMovingNode && state.focusOn && state.focusOn > 0){
+                // console.log(state.focusOn);
+                let node = this.nodes.get(state.focusOn);
+                defaultInfoPane = <InfoPane
+                                node={node}
+                                key={"#InfoPane"+":"+node.id}
+                                algorithm={this.algorithm}
+                                />
+            }
         }
         let infoPane = (this.isShowingInfoPane())? this.state.infoPane: defaultInfoPane;
         return edgeViews.concat(nodeViews).concat(infoPane);
