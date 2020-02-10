@@ -16,12 +16,13 @@ export default class AlgorithmPlayer extends Component{
             isPlaying: false,// to keep the state whether the algorithm is running automatically or not
             isSleeping: true,// to keep the state system is sleeping during delayTime
         }
-        const { algorithm, keyAlgo, rerenderCallback, dataCallback, showResultCallback, removeResultCallback, removeInfoPaneCallback} = this.props;
+        const { algorithm, keyAlgo, rerenderCallback, dataCallback, showResultCallback, removeResultCallback, renderInfoPaneCallback, removeInfoPaneCallback} = this.props;
         this.algorithm = algorithm;
         this.keyAlgo = keyAlgo;
         this.rerenderCallback = rerenderCallback;
         this.showResultCallback = showResultCallback;
         this.removeResultCallback = removeResultCallback;   
+        this.renderInfoPaneCallback = removeInfoPaneCallback;
         this.removeInfoPaneCallback = removeInfoPaneCallback;
         // this.dataCallback = dataCallback; //R.I.P
 
@@ -112,7 +113,9 @@ export default class AlgorithmPlayer extends Component{
             this.showResultCallback(state);
             return false;
         }
-        this.rerenderCallback();
+        let state = this.algorithm.getState();
+        if (state.focusOn && state.focusOn > 0) this.rerenderCallback(state.focusOn);
+        else this.rerenderCallback();
         this.removeInfoPaneCallback();
     }
 

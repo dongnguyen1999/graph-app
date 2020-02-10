@@ -249,6 +249,7 @@ export default class GraphView extends Component {
     /**
      * a callback function prepared for algorithm player
      * force render fully graph
+     * @param {Number} showInfoPaneAt node id tell where to show infoPane
      */
     fullyRefresh(){
         this.renderGraph(this.nodes, this.edges);
@@ -277,7 +278,8 @@ export default class GraphView extends Component {
                         rerenderCallback = { this.fullyRefresh.bind(this) }
                         showResultCallback = { this.showResultGraph.bind(this) }
                         removeResultCallback = { this.removeResultGraph.bind(this) }
-                        graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane }
+                        graphViewIsChanging = { this.state.isMovingNode || this.state.infoPane}
+                        // renderInfoPaneCallback = {this.pressVerticesListener.bind(this)}
                         removeInfoPaneCallback = {this.removeInfoPane.bind(this)}
                         // dataCallback = { this.handleDataCallback.bind(this) }
                     />
@@ -364,6 +366,17 @@ export default class GraphView extends Component {
         }
     }
 
+    renderInfoPane1(node){
+        if (this.algorithm){
+            // console.log("render infopane for node ", node.id);
+            this.state.infoPane = <InfoPane
+                    node={node}
+                    key={"#InfoPane"+":"+node.id}
+                    algorithm={this.algorithm}
+                />
+        }
+    }
+
     isShowingInfoPane(){
         return this.state.infoPane != undefined;
     }
@@ -414,7 +427,7 @@ export default class GraphView extends Component {
         if (!this.algorithm) return nodeStyles.normal;
         let state = this.algorithm.getState();
         if (state){
-            if (state.focusOn == nodeId){
+            if (state.focusOn && state.focusOn == nodeId){
                 if (state.mark){
                     if (state.mark[nodeId]) return nodeStyles.focusOnMarked;
                     if (!state.mark[nodeId]) return nodeStyles.focusOn;
@@ -466,8 +479,17 @@ export default class GraphView extends Component {
         // let edgeViews = Array.from(this.state.edgeViews.values());
         let nodeViews = Array.from(this.state.nodeViews.values());
         let edgeViews = Array.from(this.state.edgeViews.values());
-        let infoPane = [];
-        if (this.isShowingInfoPane()) infoPane.push(this.state.infoPane);
+        let state = this.algorithm.getState();
+        let defaultInfoPane = [];
+        if (!this.state.isMovingNode && state.focusOn && state.focusOn > 0){
+            let node = this.nodes.get(state.focusOn);
+            defaultInfoPane = <InfoPane
+                            node={node}
+                            key={"#InfoPane"+":"+node.id}
+                            algorithm={this.algorithm}
+                            />
+        }
+        let infoPane = (this.isShowingInfoPane())? this.state.infoPane: defaultInfoPane;
         return edgeViews.concat(nodeViews).concat(infoPane);
     }
 

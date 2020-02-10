@@ -141,8 +141,8 @@ export default class DrawGraph extends Component {
         // const { input } = state.params;
         // this.makeGraphFromText(state.params.input);
 
-        let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
-        let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
+        // let { vertex, edge, edgeList, isDirected, algorithmValue } = state.params;
+        // let graph = this.makeGraph(vertex, edge, edgeList, isDirected);
         // console.log(edgeList);
         // console.log('algorithm key: ' + algorithmValue);
 
@@ -177,13 +177,13 @@ export default class DrawGraph extends Component {
         //     console.log(stack.values[i]);
         // }
         
-        // let graph = new AdjacencyMatrixGraph(6,6,false);
-        // graph.addEdge({u: 1, v: 3});
-        // graph.addEdge({u: 1, v: 4});
-        // graph.addEdge({u: 3, v: 4});
-        // graph.addEdge({u: 3, v: 5});
-        // graph.addEdge({u: 4, v: 2});
-        // graph.addEdge({u: 5, v: 2});
+        let graph = new AdjacencyMatrixGraph(5,6,false);
+        graph.addEdge({u: 1, v: 3});
+        graph.addEdge({u: 1, v: 4});
+        graph.addEdge({u: 3, v: 4});
+        graph.addEdge({u: 3, v: 5});
+        graph.addEdge({u: 4, v: 2});
+        graph.addEdge({u: 5, v: 2});
 
         // let graph = new AdjacencyMatrixGraph(7,12,false);
         // graph.addEdge({u: 1, v: 4, w: 5});
@@ -201,10 +201,10 @@ export default class DrawGraph extends Component {
 
         // let algorithm = new Kruskal(graph);
 
-        // let algorithm = new DepthFirstSearchRecursive(graph);
+        let algorithm = new DepthFirstSearchRecursive(graph);
 
-        let choiceAlgorithm = this.algorithmsList[algorithmValue];
-        let algorithm = new choiceAlgorithm(graph);
+        // let choiceAlgorithm = this.algorithmsList[algorithmValue];
+        // let algorithm = new choiceAlgorithm(graph);
         // console.log(choiceAlgorithm);
         let widthPhone = Math.round(Dimensions.get('window').width);// width of screen
         let heightPhone = Math.round(Dimensions.get('window').height);// height of screen
@@ -217,7 +217,8 @@ export default class DrawGraph extends Component {
                 height = {heightPhone-180}
                 nodeRadius = { 20 }
                 zoomable={false}
-                keyAlgo = { algorithmValue }
+                // keyAlgo = { algorithmValue }
+                keyAlgo = { "DFSR" }
                 // keyAlgo = { "Kruskal" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
