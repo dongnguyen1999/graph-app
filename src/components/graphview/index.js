@@ -302,7 +302,7 @@ export default class GraphView extends Component {
      */
     showResultGraph(state){
         // let supportedAlgos = ['DFS', 'BFS'];
-        if (!this.isShowingResultGraph() && state.parent){
+        if (!this.isShowingResultGraph()){
             //make resultGraph from state
             let graph = this.algorithm.getResultGraph();
             // console.log(graph);
@@ -436,22 +436,35 @@ export default class GraphView extends Component {
         let targetId = parseInt(targetNodeid);
         if(!this.algorithm) return edgeStyles.normalEdgeStyle;
         let state = this.algorithm.getState();
-        if(this.keyAlgo == "Kruskal"){
+        let supportedAlgos = ["Kruskal", "BellmanFord"];
+        if(supportedAlgos.includes(this.keyAlgo)){
             if(state){
+                // check if this edge is focused on
+                if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId ||
+                    state.focusOnEdge.v == sourceId && state.focusOnEdge.u == targetId
+                    ){
+                    return edgeStyles.focusOnEdgeStyle;
+                }
+
                 let spanningTree = state.minimumSpanningTree;
-                let edges = spanningTree.getEdges();
-                // console.log(edges);
-                for (let edge of edges){
-                    if (edge.u == sourceId && edge.v == targetId){
-                        // console.log(edgeStyles.markedStyle);
-                        return edgeStyles.markedStyle;
+                let edges = undefined;
+                if (spanningTree) edges = spanningTree.getEdges();// if having spanningTree, get edges from it
+                if (this.keyAlgo == "BellmanFord"){// only work with BellmanFord, to show marked edges
+                    edges = [];
+                    for (let i = 1; i <= this.graph.nbVertex; i++){
+                        let p = state.predecessor[i];
+                        if (p > 0) edges.push({u: p, v: i});
                     }
                 }
-                if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId){
-                    return edgeStyles.focusOnEdgeStyle;
-                }
-                if(state.focusOnEdge.u == sourceId && state.focusOnEdge.v == targetId){
-                    return edgeStyles.focusOnEdgeStyle;
+                // console.log(edges);
+                if (edges){
+                    for (let edge of edges){
+                        if (edge.u == sourceId && edge.v == targetId ||
+                            edge.v == sourceId && edge.u == targetId
+                            ){
+                            return edgeStyles.markedStyle;
+                        }
+                    }
                 }
             }
         }

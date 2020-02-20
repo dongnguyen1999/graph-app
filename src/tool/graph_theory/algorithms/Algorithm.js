@@ -34,7 +34,7 @@ export default class Algorithm {
         this.config = {
             // Implement in subclass
             /** algorithm.config is an object
-             *  @prop {Array<String} hidden an array of strings that are props in State you want to hide
+             *  @prop {Array<String>} hidden an array of strings that are props in State you want to hide
              *  @prop {Object} representName an object contains 'props: representName' pairs
              *      representName is what you want to display instead of name of props
              *      Ex: {
@@ -101,7 +101,7 @@ export default class Algorithm {
      * @prop {Number} counter: counter number of strong connection
      * @prop {Number} k: index use to assign for num[] of all vertices
      * @prop {Number} level: the recursive deepth of recursive algorithms
-     * @prop {Array<Number>} markAtLevel: the recursive deepth where a vertex was marked
+     * @prop {Array<Number>} markAtLevel: the recursive deepth where a vertex was marked 
      * ...
      * using these props in state when you want to display these informations on GraphView
      */

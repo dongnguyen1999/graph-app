@@ -1,19 +1,37 @@
 import Algorithms from "./Algorithm";
+import { AdjacencyMatrixGraph } from "../graphs";
 const INFINITY = 9999999999;
 /**
  * A graph view
  */
 export default class BellmanFord extends Algorithms{
-    constructor(graph, startingNode){
-        super(graph); // Calling super.constructor to record parent graph for this algorithm
-        this.source = startingNode; // Initializing the source vertex is a startingNode which is passed from outside
+    init(source){
+        super.init(); // Calling super.init
+        this.source = source || 1; // Initializing the source vertex is a startingNode which is passed from outside
         // Initializing first state
         this.setState({
             distance : this.initArray(INFINITY), // Initializing the distance to all vertices to infinity
             predecessor : this.initArray(0), // And having a zero predecessor
-            path: [] // An empty array which store the shortest path
+            path: [], // An empty array which store the shortest path
+            focusOnEdge: {},
+            markedEdges: [],
         });
         this.isNegative = false; // This variable use to check a graph which exists negative cycle or not
+
+        this.config = {
+            hidden: ["focusOnEdge"],
+            representName: {
+                predecessor: (state, node) => {
+                    return "p[" + node.id + "]";
+                }
+            },
+            overrideRow: {
+                distance: (state, node) => {
+                    let distance = state.distance[node.id]==INFINITY?"oo":state.distance[node.id];
+                    return "Distance from source: " + distance;
+                }
+            }
+        }
     }
 
     /**
@@ -26,6 +44,25 @@ export default class BellmanFord extends Algorithms{
             array.push(initValue);
         }
         return array;
+    }
+
+    getResultGraph(){
+        let thisGraph = this.graph;
+        let state = this.getState();
+        let markedEdges = [];
+        for (let edge of thisGraph.getEdges()){
+            let u = edge.u;
+            let v = edge.v;
+            let w = edge.w;
+            if (state.predecessor[u] == v || state.predecessor[v] == u){
+                markedEdges.push({u, v, w});
+            }
+        }
+        let graph = new AdjacencyMatrixGraph(thisGraph.nbVertex, thisGraph.nbEdge-1,true);
+        for (let edge of markedEdges){
+            graph.addEdge(edge);
+        }
+        return graph;
     }
 
     /**
@@ -45,11 +82,24 @@ export default class BellmanFord extends Algorithms{
                 let u = edge.u;
                 let v = edge.v;
                 let w = edge.w;
+                this.state.focusOnEdge = {u, v, w};
+                this.saveState();
                 // considering new path is better old path, then updating the old path
-                if(this.state.distance[u] != INFINITY && this.state.distance[u] + w < this.state.distance[v]){
-                    this.state.distance[v] = this.state.distance[u] + w;
+                let temp = this.state.distance[u] + w;
+                if(temp < this.state.distance[v]){
+                    this.state.distance[v] = temp;
                     this.state.predecessor[v] = u;
+                    this.state.focusOnEdge = {};
                     this.saveState();
+                } else if (!this.graph.isDirected){
+                    let s = v, t = u;
+                    temp = this.state.distance[s] + w;
+                    if(temp < this.state.distance[t]){
+                        this.state.distance[t] = temp;
+                        this.state.predecessor[t] = s;
+                        this.state.focusOnEdge = {};
+                        this.saveState();
+                    }
                 }
             }
         }
@@ -63,6 +113,7 @@ export default class BellmanFord extends Algorithms{
                 break;
             }
         }
+        this.state.focusOnEdge = {}
     }
 
     /**
@@ -91,10 +142,7 @@ export default class BellmanFord extends Algorithms{
     run(){
         this.saveState(); // saving first state;
         this.bellmanFord(this.source); // starting bellmanFord() method from source vertex
-        // let path = this.getShortestPath();
-        // for(let i of path){
-        //     console.log(i);
-        // }
-        console.log(this.state.distance);
+        this.saveState();
+        // console.log(this.state.distance);
     }
 }
