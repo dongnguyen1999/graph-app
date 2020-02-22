@@ -4,14 +4,41 @@ const INFINITY = 9999999999;
  * A graph view
  */
 export default class FloydWarshall extends Algorithms{
-    constructor(graph){
-        super(graph); // Calling super.constructor to record parent graph for this algorithm
+    init(){
+        super.init(); // Calling super.constructor to record parent graph for this algorithm
         // Initializing first state
         this.setState({
+            path: [], // An empty array which store the shortest path
             distance : this.initMatrix(INFINITY), // Initializing the distance to all vertices to infinity
             next : this.initMatrix(-1), // 2D-array of vertex indices initialized to -1
-            path: [] // An empty array which store the shortest path
+            focusOn: 0
         });
+        this.config = {
+            hidden: ["path", "focusOn"],
+            representValue: {
+                distance: (state, node, index) => { // config for matrix
+                    if(state.distance[index][node.id] == INFINITY) return "oo";
+                    return state.distance[index][node.id];
+                },
+            },
+            representName: {
+                distance: (state, node, index) => { // config for matrix
+                    return "Distance from " + index;
+                },
+            },
+            overrideRow: {
+                next: (state, node, index) => {
+                    if (state.next[index][node.id] == -1) return "No path from " + index;
+                    let pathMess = "Shortest path from " + index + ": ";
+                    let path = this.getShortestPath(index, node.id);
+                    path.forEach((element, index) => {
+                        pathMess += element;
+                        if (index < path.length-1) pathMess += "-";
+                    });
+                    return pathMess;
+                }
+            }
+        }
         this.isNegative = false; // This variable use to check a graph which exists negative cycle or not
     }
 
@@ -70,13 +97,18 @@ export default class FloydWarshall extends Algorithms{
         for(k = 1; k <= this.graph.nbVertex; k++){
             for(u = 1; u <= this.graph.nbVertex; u++){
                 for(v = 1; v <= this.graph.nbVertex; v++){
+                    this.state.focusOn = v;
+                    this.saveState();
                     if(this.state.distance[u][v] > this.state.distance[u][k] + this.state.distance[k][v]){
                         this.state.distance[u][v] = this.state.distance[u][k] + this.state.distance[k][v];
                         this.state.next[u][v] = this.state.next[u][k];
+                        this.state.focusOn = k;
+                        this.saveState();
                     }
                 }
             }
         }
+        this.state.focusOn = 0;
         this.saveState();
         // checking for negative cycles
         for(let u = 1; u <= this.state.nbVertex; u++)

@@ -43,8 +43,19 @@ export default class Algorithm {
              *      }
              *      InfoPane will show "Working at: ..." instead of "focusOn: ..."
              *      Or pass a function that return a represent name for this props
+             *      * If 'props' is a matrix, should pass a function(state,node,index)
+             *  @prop {Object} representValue an object contains 'props: representValue' pairs
+             *      representValue is what you want to display instead of the real value at the row 'props: value'
+             *      Ex: {
+             *          focusOn: "CONST",
+             *          mark: (state, node) => { function using data from state and node return a string }
+             *      }
+             *      InfoPane will show "focusOn: CONST" instead of "focusOn: <node.id>"
+             *      Or pass a function that return a represent value for this props
+             *      * If 'props' is a matrix, should pass a function(state,node,index)
              *  @prop {Oject} overrideRow is the same usage with representName
              *      But the string put here overrides the whole row in InfoPane, not just label like representName
+             *      * If 'props' is a matrix, should pass a function(state,node,index)
              *  See example in src/tool/graph_theory/algorithms/DepthFirstSearch.js
              */
         }

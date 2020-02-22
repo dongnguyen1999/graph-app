@@ -41,21 +41,70 @@ export default class InfoPane extends Component{
         const { node, algorithm } = this.props; // to get nodeId and state data
         let state = algorithm.getState();
         let config = algorithm.config;
+        function updateWidthHeight(kvPair){
+            if (kvPair){
+                content.set(kvPair.key, kvPair.value);//add to content
+                //update width and height
+                height++;
+                let line;
+                if (kvPair.value == "overrideRow") line = kvPair.key;
+                else line = kvPair.key + ": " + kvPair.value;
+                let textWidth = d2PixcelUtils.measureText(line, fontSize);//compute width of the line in pixcel
+                if (textWidth > width) width = textWidth;
+            }
+        }
+
         for (let prop in state) { // loop through props of state
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
                 let kvPair = undefined;//init an object to record key-value pair added into content array
+                // console.log(state[prop]);
                 if (typeof state[prop] != "object"){//if prop is a non-object variable 
                     kvPair = {key: prop, value: state[prop]};//record key-value pair
                     // if (prop == "focusOn"){
                     //     kvPair = {key: "customKey",value: state[prop]};//record key-value pair
                     // }
                 } else if (Array.isArray(state[prop]) //else if prop is an array of non-object variable
-                    && state[prop].length > 1
-                    && typeof state[prop][1] != "object"){
+                        && state[prop].length > 1
+                        && typeof state[prop][1] != "object"){
                     //get data match with node id and add to content
                     let key = prop + "[" + node.id + "]";
                     kvPair = {key: key,value: state[prop][node.id]};//record key-value pair
-                } 
+                } else if (Array.isArray(state[prop]) //else if prop is a matrix
+                        && state[prop].length > 1
+                        && Array.isArray(state[prop][1])){
+                    let lines = state[prop][node.id];// get lines at current node.id
+                    let labelChange = undefined; // keep if label of each line ?change
+                    let valueChange = undefined; // keep if label of each line ?change
+                    let rowChange = undefined; // keep if the whole row at each line ?change
+                    if (config.representName){
+                        let representName = config.representName[prop];
+                        if (representName) labelChange = representName;
+                    }
+                    if (config.representValue){
+                        let representValue = config.representValue[prop];
+                        if (representValue) valueChange = representValue;
+                    }
+                    if (config.overrideRow){
+                        let overrideRow = config.overrideRow[prop];
+                        if (overrideRow) rowChange = overrideRow;
+                    }
+
+                    if (config.hidden && config.hidden.includes(prop)) continue;
+
+                    for (let i = 1; i < lines.length; i++){
+                        kvPair = {}
+                        if (rowChange){
+                            kvPair.key = rowChange(state, node, i);
+                            // console.log(kvPair.key);
+                            kvPair.value = "overrideRow";
+                        } else {
+                            kvPair.key = labelChange? labelChange(state, node, i): prop + "[" + i + "]";
+                            kvPair.value = valueChange? valueChange(state, node, i): lines[i];
+                        }
+                        updateWidthHeight(kvPair);
+                    }
+                    continue;
+                }
 
                 if (config.representName){
                     let representName = config.representName[prop];
@@ -64,6 +113,16 @@ export default class InfoPane extends Component{
                         let key = representName;
                         if (typeof representName == "function") key = representName(state, node);
                         kvPair.key = key;
+                    }
+                }
+
+                if (config.representValue){
+                    let representValue = config.representValue[prop];
+                    // console.log(rere)
+                    if (representValue){
+                        let value = representValue;
+                        if (typeof representValue == "function") value = representValue(state, node);
+                        kvPair.value = value;
                     }
                 }
 
@@ -79,16 +138,7 @@ export default class InfoPane extends Component{
 
                 if (config.hidden && config.hidden.includes(prop)) kvPair = undefined;
                 
-                if (kvPair){
-                    content.set(kvPair.key, kvPair.value);//add to content
-                    //update width and height
-                    height++;
-                    let line;
-                    if (kvPair.value == "overrideRow") line = kvPair.key;
-                    else line = kvPair.key + ": " + kvPair.value;
-                    let textWidth = d2PixcelUtils.measureText(line, fontSize);//compute width of the line in pixcel
-                    if (textWidth > width) width = textWidth;
-                }
+                updateWidthHeight(kvPair);
             }
         }
         //scale width and height

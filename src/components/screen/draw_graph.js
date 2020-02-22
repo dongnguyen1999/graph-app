@@ -185,44 +185,44 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 2});
         // graph.addEdge({u: 5, v: 2});
 
-        // let graph = new AdjacencyMatrixGraph(7,12,false);
+        let graph = new AdjacencyMatrixGraph(7,12,false);
         // let graph = new EdgeListGraph(7,12,false);
-        // graph.addEdge({u: 1, v: 4, w: 5});
-        // graph.addEdge({u: 1, v: 5, w: 7});
-        // graph.addEdge({u: 1, v: 7, w: 7});
-        // graph.addEdge({u: 2, v: 3, w: 6});
-        // graph.addEdge({u: 2, v: 4, w: 8});
-        // graph.addEdge({u: 2, v: 6, w: 2});
-        // graph.addEdge({u: 3, v: 4, w: 8});
-        // graph.addEdge({u: 3, v: 7, w: 5});
-        // graph.addEdge({u: 4, v: 5, w: 4});
-        // graph.addEdge({u: 4, v: 6, w: 4});
-        // graph.addEdge({u: 4, v: 7, w: 3});
-        // graph.addEdge({u: 5, v: 6, w: 3});
+        graph.addEdge({u: 1, v: 4, w: 5});
+        graph.addEdge({u: 1, v: 5, w: 7});
+        graph.addEdge({u: 1, v: 7, w: 7});
+        graph.addEdge({u: 2, v: 3, w: 6});
+        graph.addEdge({u: 2, v: 4, w: 8});
+        graph.addEdge({u: 2, v: 6, w: 2});
+        graph.addEdge({u: 3, v: 4, w: 8});
+        graph.addEdge({u: 3, v: 7, w: 5});
+        graph.addEdge({u: 4, v: 5, w: 4});
+        graph.addEdge({u: 4, v: 6, w: 4});
+        graph.addEdge({u: 4, v: 7, w: 3});
+        graph.addEdge({u: 5, v: 6, w: 3});
 
-        let graph = new EdgeListGraph(8,15,true);
-        graph.addEdge({u: 1, v: 2, w: 9});
-        graph.addEdge({u: 1, v: 6, w: 6});
-        graph.addEdge({u: 1, v: 7, w: 17});
-        graph.addEdge({u: 2, v: 3, w: 10});
-        graph.addEdge({u: 6, v: 7, w: -8});
-        graph.addEdge({u: 6, v: 5, w: 30});
-        graph.addEdge({u: 6, v: 3, w: 18});
-        graph.addEdge({u: 7, v: 5, w: 20});
-        graph.addEdge({u: 7, v: 8, w: 44});
-        graph.addEdge({u: 5, v: 4, w: 11});
-        graph.addEdge({u: 5, v: 8, w: 16});
-        graph.addEdge({u: 4, v: 3, w: 6});
-        graph.addEdge({u: 4, v: 8, w: 6});
-        graph.addEdge({u: 3, v: 5, w: -16});
-        graph.addEdge({u: 3, v: 8, w: 19});
+        // let graph = new EdgeListGraph(8,15,true);
+        // graph.addEdge({u: 1, v: 2, w: 9});
+        // graph.addEdge({u: 1, v: 6, w: 6});
+        // graph.addEdge({u: 1, v: 7, w: 17});
+        // graph.addEdge({u: 2, v: 3, w: 10});
+        // graph.addEdge({u: 6, v: 7, w: -8});
+        // graph.addEdge({u: 6, v: 5, w: 30});
+        // graph.addEdge({u: 6, v: 3, w: 18});
+        // graph.addEdge({u: 7, v: 5, w: 20});
+        // graph.addEdge({u: 7, v: 8, w: 44});
+        // graph.addEdge({u: 5, v: 4, w: 11});
+        // graph.addEdge({u: 5, v: 8, w: 16});
+        // graph.addEdge({u: 4, v: 3, w: 6});
+        // graph.addEdge({u: 4, v: 8, w: 6});
+        // graph.addEdge({u: 3, v: 5, w: -16});
+        // graph.addEdge({u: 3, v: 8, w: 19});
 
 
         // let algorithm = new Kruskal(graph);
 
         // let algorithm = new DepthFirstSearchRecursive(graph);
 
-        let algorithm = new BellmanFord(graph);
+        let algorithm = new FloydWarshall(graph);
 
         // let choiceAlgorithm = this.algorithmsList[algorithmValue];
         // let algorithm = new choiceAlgorithm(graph);
@@ -240,7 +240,7 @@ export default class DrawGraph extends Component {
                 zoomable={false}
                 // keyAlgo = { algorithmValue }
                 // keyAlgo = { "DFSR" }
-                keyAlgo = { "BellmanFord" }
+                keyAlgo = { "Warshall" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (
