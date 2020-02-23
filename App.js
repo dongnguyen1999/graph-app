@@ -64,6 +64,80 @@ const tabNavigator = createMaterialBottomTabNavigator({
     shifting : false,
     labeled: false,
     barStyle: {
+    Input: { screen: InputGraph },
+    ExecuteAlgorithm: { // this element will show a MaterialBottomTabNavigator
+    screen: executeAlgorithmScreen,// the prepared sceen
+    navigationOptions: ( {navigation}) => {//function to set the header title automatically
+      let tabTitle = ['Graph Drawing', 'Tutorial']
+      return {
+          title: tabTitle[navigation.state.index],
+          headerStyle: {
+            backgroundColor: 'rgb(55,57,106)'
+          },
+          headerTintColor: '#fff'
+      }}}},{
+
+      headerLayoutPreset: 'center'
+    }
+    );
+const SettingStack = createStackNavigator({
+    Setting: { screen: SettingScreen },
+    //Input: { screen: InputGraph }
+});
+const TutorialStack = createStackNavigator({
+    Tutorial: { screen: VideoScreen },
+    //Input: { screen: InputGraph }
+});
+const ForumStack = createStackNavigator({
+    Forum: { screen: ForumScreen },
+    //Input: { screen: InputGraph }
+});
+const TabNavigator = createMaterialBottomTabNavigator({
+    Home: {
+      screen: MainNavigator,
+      navigationOptions: {
+        tabBarIcon: <MaterialIcons style={{
+          fontSize: 24,
+          color: "rgb(149,151,203)"
+        }} name={'home'}/>
+      }
+    },
+    Tutorial: { screen: TutorialStack ,
+      navigationOptions: {
+        tabBarIcon: <MaterialIcons
+            style={{
+          fontSize: 24,
+          color: "rgb(149,151,203)"
+        }} name={'receipt'}/>
+      }
+    },
+    Forum: { screen: ForumStack ,
+
+      navigationOptions: {
+        tabBarIcon: <MaterialIcons  style={{
+          fontSize: 24,
+          color: "rgb(149,151,203)"
+        }} name={'school'}/>
+      }},
+    Setting: {
+      screen: SettingStack,
+      navigationOptions: {
+        tabBarIcon: <MaterialIcons style={{
+
+          fontSize: 24,
+
+          color: "rgb(149,151,203)"
+        }} name={'settings'}/>
+      }
+    },
+
+},{
+      initialRouteName: 'Home',
+      activeColor: '#ECF4F9',
+      // inactiveColor: 'gray',
+      shifting : false,
+      labeled: false,
+      barStyle: {
         backgroundColor: 'rgb(55,56,105)',
         padding: 0
     }
@@ -87,42 +161,6 @@ const DrawerNavigator = createDrawerNavigator({
 );
 
 const MainNavigator = createStackNavigator({
-    // Home: { 
-    //     screen: tabNavigator,
-    //     navigationOptions: ( {navigation}) => { //function to set the header title automatically
-    //         let tabTitle = ['Home', 'Video', 'Forum', 'Settings']
-    //         return {
-    //             title: tabTitle[navigation.state.index],
-    //             headerStyle: {
-    //                 backgroundColor: 'rgb(55,57,106)'
-    //             },
-    //             headerTintColor: '#fff',
-    //             headerRight: 
-    //                 (<Button 
-    //                     title = 'edit'
-    //                     onPress = {() => {navigation.navigate('Input')}}
-    //                     style = {{ paddingRight: 5}}
-    //                     color = 'rgb(55,57,106)'
-    //                 />)}}
-    // },
-    // Input: { 
-    //     screen:  DrawerNavigator,
-    //     navigationOptions: ( {navigation}) => { //function to set the header title automatically
-    //         let tabTitle = ['Graph Input']
-    //         return {
-    //             title: tabTitle[navigation.state.index],
-    //             headerStyle: {
-    //                 backgroundColor: 'rgb(55,57,106)'
-    //             },
-    //             headerTintColor: '#fff',
-    //             //headerRight: 
-    //                 // (<TouchableOpacity onPress = {() => navigation.dispatch(DrawerActions.openDrawer())}>
-    //                 //     <Icon name = 'menu' size = {32} color = 'white'/>
-    //                 // </TouchableOpacity> 
-    //             //)
-    //         }}
-    // },
-    // this element will show a MaterialBottomTabNavigator
     ExecuteAlgorithm: { 
         screen: executeAlgorithmScreen, // the prepared sceen
         navigationOptions: ( {navigation}) => { //function to set the header title automatically
