@@ -9,6 +9,13 @@ function center(x1, y1, x2, y2) {
     };
 }
 
+function centerRect(x, y, width, height) {
+    return {
+        x: x + width/2,
+        y: y + height/2
+    };
+}
+
 function distance(x1, y1, x2, y2) {
     const dx = x1 - x2;
     const dy = y1 - y2;
@@ -31,4 +38,4 @@ function measureText(string, fontSize = 10) {
         .reduce((cur, acc) => acc + cur) * fontSize
 }
 
-export {distance, measureText, middle, center};
+export {distance, measureText, middle, center, centerRect};

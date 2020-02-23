@@ -96,6 +96,46 @@ export default class GraphView extends Component {
                 uiGraph.addEdge(u,v,{label: w});
             } else uiGraph.addEdge(u,v);//add edge without label
         }
+
+        /**
+         * Sort an UIGraph by rank (layout UI nodes with rank)
+         * @param {Map<Node>} nodes a map of UI nodes
+         * @param {Array<Number>} rank an array of nodes' id ordered by rank
+         * @param {Boolean} isAsc option for sorting asc(true) or desc(false)
+         * @return {Map<Node>} a map of UI nodes
+         */
+        function sortRank(nodes, rank, isAsc){
+            let found = true;
+            let r = 0;
+            let listOfRanks = [];
+            // make listOfRanks is a list of sets, each set contains nodeIds at that rank
+            while (found){
+                found = false;
+                let rankR = []
+                for (let i = 1; i <= graph.nbVertex; i++){
+                    if (rank[i] == r){
+                        rankR.push(i);
+                        found = true;
+                    }
+                }
+                if (found) listOfRanks.push(rankR);
+                r++;
+            }
+            //loop through listOfRanks and compute position for each UI node
+            let cellHeight = height/listOfRanks.length;
+            let cursor = {x: 0, y: 0};
+            listOfRanks.forEach((rankR, r) => {
+                cursor.y = r*cellHeight;
+                cursor.x = 0;
+                let cellWidth = width/rankR.length;
+                rankR.forEach((nodeId, i) => {
+                    cursor.x = i*cellWidth;
+                    let coord = d2PixcelUtils.centerRect(cursor.x, cursor.y, cellWidth, cellHeight);
+                    nodes.get(nodeId).point = [coord.x, coord.y];
+                })
+            })
+            return nodes;
+        }
         
         let layout = new Layout.Spring(uiGraph);
         //first layout nodes in graph
@@ -104,7 +144,15 @@ export default class GraphView extends Component {
         //first render graph
         renderer.draw();
         this.isDirected = graph.isDirected;
-        return {nodes: renderer.getNodesMap(), edges: renderer.getEdgesMap(), isDirected: graph.isDirected}
+        let nodes = renderer.getNodesMap();
+        // console.log(graph.UIConfig);
+        if (graph.UIConfig){
+            if (graph.UIConfig.sortRank != undefined) {
+                let sortRankData = graph.UIConfig.sortRank;
+                nodes = sortRank(nodes, sortRankData.rank, sortRankData.option);
+            }
+        }
+        return {nodes: nodes, edges: renderer.getEdgesMap(), isDirected: graph.isDirected}
     }
 
     /**
@@ -308,10 +356,12 @@ export default class GraphView extends Component {
             // console.log(graph);
             this.resultGraphData = this.convertToUIGraph(graph);//get UI data
             // load on svg
-            for (let node of this.processingGraphData.nodes.values()){
-                let resultNode = this.resultGraphData.nodes.get(node.id);
-                // console.log(resultNode);
-                resultNode.point = node.point;
+            if (graph.UIConfig == undefined || graph.UIConfig.sortRank == undefined){
+                for (let node of this.processingGraphData.nodes.values()){
+                    let resultNode = this.resultGraphData.nodes.get(node.id);
+                    // console.log(resultNode);
+                    resultNode.point = node.point;
+                }
             }
             this.loadNewGraphData("result", this.resultGraphData);
         } else this.fullyRefresh();
@@ -415,10 +465,8 @@ export default class GraphView extends Component {
         let state = this.algorithm.getState();
         if (state){
             if (state.focusOn && state.focusOn == nodeId){
-                if (state.mark){
-                    if (state.mark[nodeId]) return nodeStyles.focusOnMarked;
-                    if (!state.mark[nodeId]) return nodeStyles.focusOn;
-                }
+                if (state.mark && state.mark[nodeId]) return nodeStyles.focusOnMarked;
+                return nodeStyles.focusOn;
             }
             if (state.mark && state.mark[nodeId]) return nodeStyles.marked;
         }

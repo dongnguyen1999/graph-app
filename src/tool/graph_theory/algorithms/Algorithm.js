@@ -65,11 +65,21 @@ export default class Algorithm {
     /**
      * defined in subclass
      * use current state at statesCursor and this.graph to make a result graph
-     * @returns a basic Graph that is the structure result graph
+     * @returns a basic Graph that is the structure result graph, the returned graph should contain UIConfig
      */
     getResultGraph(){
         // let thisGraph = this.graph;
         // let state = this.getState();
+        /**
+         * resultGraph should contain UIConfig
+         * UIConfig is an object having some below props
+         * graph.UIConfig = {
+         *      @prop {Object} sortRank {
+         *          @prop {Boolean} option can be true(asc sorting) or false(desc sorting)
+         *          @prop {Array<Number} rank an array that stores rank of each vertex
+         *      }
+         * }
+         */
         // This function will implement in sub class
         return this.graph;
     }

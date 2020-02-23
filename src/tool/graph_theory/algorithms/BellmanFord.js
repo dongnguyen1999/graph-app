@@ -140,6 +140,7 @@ export default class BellmanFord extends Algorithms{
      * override
      */
     run(){
+        this.init();
         this.saveState(); // saving first state;
         this.bellmanFord(this.source); // starting bellmanFord() method from source vertex
         this.saveState();

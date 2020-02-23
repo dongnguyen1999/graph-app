@@ -185,7 +185,7 @@ export default class DrawGraph extends Component {
         // graph.addEdge({u: 4, v: 2});
         // graph.addEdge({u: 5, v: 2});
 
-        let graph = new AdjacencyMatrixGraph(7,12,false);
+        let graph = new AdjacencyMatrixGraph(7,12,true);
         // let graph = new EdgeListGraph(7,12,false);
         graph.addEdge({u: 1, v: 4, w: 5});
         graph.addEdge({u: 1, v: 5, w: 7});
@@ -222,7 +222,7 @@ export default class DrawGraph extends Component {
 
         // let algorithm = new DepthFirstSearchRecursive(graph);
 
-        let algorithm = new FloydWarshall(graph);
+        let algorithm = new TopologicalSort(graph);
 
         // let choiceAlgorithm = this.algorithmsList[algorithmValue];
         // let algorithm = new choiceAlgorithm(graph);
@@ -235,12 +235,12 @@ export default class DrawGraph extends Component {
                 //set width with widthPhone
                 width = {widthPhone}
                 //set height with heightPhone-heightTitlebar
-                height = {heightPhone-180}
+                height = {heightPhone-230}
                 nodeRadius = { 20 }
                 zoomable={false}
                 // keyAlgo = { algorithmValue }
                 // keyAlgo = { "DFSR" }
-                keyAlgo = { "Warshall" }
+                keyAlgo = { "TopoSort" }
                 />;
         else view = <Text> Something went wrong from Input! </Text>;
         return (

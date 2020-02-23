@@ -56,7 +56,7 @@ export default class InfoPane extends Component{
 
         for (let prop in state) { // loop through props of state
             if (Object.prototype.hasOwnProperty.call(state, prop)) {
-                let kvPair = undefined;//init an object to record key-value pair added into content array
+                let kvPair = {};//init an object to record key-value pair added into content array
                 // console.log(state[prop]);
                 if (typeof state[prop] != "object"){//if prop is a non-object variable 
                     kvPair = {key: prop, value: state[prop]};//record key-value pair

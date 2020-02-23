@@ -144,6 +144,7 @@ export default class FloydWarshall extends Algorithms{
      * override
      */
     run(){
+        this.init();
         this.saveState(); // saving first state;
         this.floydWarshall(); // starting floydWarshall() method
         // for(let u = 1; u <= this.graph.nbVertex; u++)
